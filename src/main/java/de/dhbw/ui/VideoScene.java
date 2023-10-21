@@ -30,15 +30,14 @@ public class VideoScene {
         checkQueueService = new CheckQueueService();
         checkQueueService.setPeriod( Duration.millis(33) );
         checkQueueService.setOnSucceeded( (event) -> handleQueue() );
+        checkQueueService.start();
     }
 
     private void handleQueue() {
         List<Message> messages = checkQueueService.getValue();
         for (Message message : messages) {
             switch (message.type) {
-                case FRAME -> {
-                    updateFrame( message.data );
-                }
+                case FRAME -> updateFrame( message.data );
             }
         }
     }

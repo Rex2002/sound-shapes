@@ -35,16 +35,11 @@ public class Main {
         }
         System.out.println("Successfully opened camera!");
 
+        Mat frame = new Mat();
         Runnable frameGrabber = () -> {
-            Mat frame = new Mat();
             capture.read( frame );
             Message msg = new Message( MsgType.FRAME, frame );
-            try {
-                EventQueues.toUI.offer( msg );
-            } catch (Exception e) {
-                System.out.println("Catch");
-                e.printStackTrace();
-            }
+            EventQueues.toUI.offer( msg );
         };
 
         ScheduledExecutorService timer = Executors.newSingleThreadScheduledExecutor();
