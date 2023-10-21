@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.image.ImageView?>
+<StackPane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="340.0" minWidth="600.0" prefHeight="450.0"
+           prefWidth="800.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="de.dhbw.ui.VideoScene">
+    <ImageView fx:id="currentFrame" fitHeight="450.0" fitWidth="800.0" pickOnBounds="true" preserveRatio="true"
+               StackPane.alignment="CENTER"/>
+</StackPane>

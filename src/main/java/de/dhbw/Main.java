@@ -1,19 +1,54 @@
 package de.dhbw;
 
-// Press Shift twice to open the Search Everywhere dialog and type `show whitespaces`,
-// then press Enter. You can now see whitespace characters in your code.
+import de.dhbw.communication.EventQueues;
+import de.dhbw.communication.Message;
+import de.dhbw.communication.MsgType;
+import de.dhbw.ui.App;
+import javafx.application.Application;
+import nu.pattern.OpenCV;
+import org.opencv.core.Mat;
+import org.opencv.videoio.VideoCapture;
+
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 public class Main {
     public static void main(String[] args) {
-        // Press Alt+Enter with your caret at the highlighted text to see how
-        // IntelliJ IDEA suggests fixing it.
-        System.out.printf("Hello and welcome!");
+        Thread uiThread = new Thread( () -> Application.launch( App.class, args) );
+        uiThread.start();
 
-        // Press Shift+F10 or click the green arrow button in the gutter to run the code.
-        for (int i = 1; i <= 5; i++) {
+        mockVideoInput();
 
-            // Press Shift+F9 to start debugging your code. We have set one breakpoint
-            // for you, but you can always add more by pressing Ctrl+F8.
-            System.out.println("i = " + i);
+        System.out.print("Hello World");
+    }
+
+    private static void mockVideoInput() {
+        OpenCV.loadLocally();
+
+        VideoCapture capture = new VideoCapture();
+        boolean open = capture.open(0);
+
+        if ( !open ) {
+            System.err.println("Encountered Error while attempting to open camera connection.");
+            System.exit(1);
         }
+        System.out.println("Successfully opened camera!");
+
+        Runnable frameGrabber = () -> {
+            Mat frame = new Mat();
+            capture.read( frame );
+            Message msg = new Message( MsgType.FRAME, frame );
+            try {
+                EventQueues.toUI.offer( msg );
+            } catch (Exception e) {
+                System.out.println("Catch");
+                e.printStackTrace();
+            }
+        };
+
+        ScheduledExecutorService timer = Executors.newSingleThreadScheduledExecutor();
+        timer.scheduleAtFixedRate(frameGrabber, 0, 33, TimeUnit.MILLISECONDS);
+
     }
 }
