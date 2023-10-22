@@ -1,8 +1,7 @@
 package de.dhbw;
 
 import de.dhbw.communication.EventQueues;
-import de.dhbw.communication.Message;
-import de.dhbw.communication.MsgType;
+import de.dhbw.communication.UIMessage;
 import de.dhbw.ui.App;
 import de.dhbw.video.VideoInput;
 import javafx.application.Application;
@@ -29,12 +28,11 @@ public class Main {
         Mat frame = new Mat();
         Runnable frameGrabber = () -> {
             videoInput.grabImage(frame);
-            Message msg = new Message( MsgType.FRAME, frame );
+            UIMessage msg = new UIMessage( frame );
             EventQueues.toUI.offer( msg );
         };
 
         ScheduledExecutorService timer = Executors.newSingleThreadScheduledExecutor();
-        timer.scheduleAtFixedRate(frameGrabber, 0, 33, TimeUnit.MILLISECONDS);
-
+        timer.scheduleAtFixedRate(frameGrabber, 0, 100, TimeUnit.MILLISECONDS);
     }
 }
