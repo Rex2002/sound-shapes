@@ -1,12 +1,16 @@
 package de.dhbw.video.shape;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.opencv.core.MatOfPoint;
 import org.opencv.imgproc.Moments;
 
 public class Shape {
     MatOfPoint contour;
+    @Getter
     ShapeForm form;
-    int[] pos;
+    public int[] pos;
+    @Getter @Setter
     ShapeType type;
     public Shape(MatOfPoint contour, ShapeForm form, int[] pos){
         this.contour = contour;
@@ -20,4 +24,5 @@ public class Shape {
                 (int)(m.m01 / m.m00)
         };
     }
+
 }
