@@ -19,7 +19,7 @@ public class Sequencer {
         for(Shape s : shapes){
             barOffset = s.pos[1] - playFieldInfo[1] > playFieldInfo[3]/2 ? NO_BARS/2 : 0;
             beatNo = (int) (((s.pos[0] - playFieldInfo[0])/ (double) playFieldInfo[2]) * NO_BEATS);
-            soundMatrix[barOffset + beatNo][s.getForm().toInt()] = true;
+            soundMatrix[barOffset * NO_BEATS/NO_BARS + beatNo][s.getForm().toInt()] = true;
         }
         return soundMatrix;
     }
