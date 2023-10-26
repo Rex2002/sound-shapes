@@ -2,7 +2,6 @@ package de.dhbw.video;
 
 import de.dhbw.video.shape.Shape;
 import de.dhbw.video.shape.ShapeForm;
-import de.dhbw.video.shape.ShapeType;
 import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;
 
@@ -14,17 +13,8 @@ public class MarkerRecognizer {
     Mat frame, gray, blurred, bin, hierarchy;
     List<MatOfPoint> contours;
     List<Shape> shapes;
-
-    // consists of x_pos, y_pos, width, height, is_rect(0/1)
-    int[] playfieldInfo;
     int height, width;
-    Mat[] playFieldBoundaries;
     public MarkerRecognizer(){
-        playFieldBoundaries = new Mat[4];
-        for(int i = 0; i < 4; i++) {
-            playFieldBoundaries[i] = new Mat(2,1, CvType.CV_32SC1);
-        }
-        playfieldInfo = new int[5];
     }
 
     public void setFrame(Mat frame){
@@ -40,6 +30,7 @@ public class MarkerRecognizer {
         if(contours == null || contours.isEmpty()){
             System.err.println("No contours detected");
             // TODO message to UI to display
+            return;
         }
 
         MatOfPoint2f contour2f; MatOfPoint2f contourTarget2f = new MatOfPoint2f();
@@ -76,65 +67,6 @@ public class MarkerRecognizer {
         }
     }
 
-    public void classify(){
-        playfieldInfo[4] = 1;
-        Shape[] squares = shapes.stream().filter(shape -> shape.getForm() == ShapeForm.SQUARE).toArray(Shape[]::new);
-        if(squares.length < 4){
-            playfieldInfo[4] = 0;
-            System.err.println("Not enough squares for playfield");
-        }
-        else {
-            Shape[] corners = new Shape[]{squares[0], squares[1], squares[2], squares[3]};
-            for (Shape square : squares) {
-                // top left
-                if(Math.sqrt(square.pos[1] * square.pos[1] + square.pos[0] * square.pos[0]) < Math.sqrt(corners[0].pos[0] * corners[0].pos[0] + corners[0].pos[1] * corners[0].pos[1])){
-                    corners[0] = square;
-                }
-                // bottom right
-                if(Math.sqrt(square.pos[1] * square.pos[1] + square.pos[0] * square.pos[0]) > Math.sqrt(corners[2].pos[0] * corners[2].pos[0] + corners[2].pos[1] * corners[2].pos[1])){
-                    corners[2] = square;
-                }
-                // top right
-                if(Math.sqrt( square.pos[0] * square.pos[0] + (height - square.pos[1]) * (height - square.pos[1])) > Math.sqrt(corners[1].pos[0] * corners[1].pos[0] + (height - corners[1].pos[1]) * (height - corners[1].pos[1]))){
-                    corners[1] = square;
-                }
-                // bottom left
-                if(Math.sqrt((width - square.pos[0]) * (width - square.pos[0]) + square.pos[1] * square.pos[1]) > Math.sqrt((width - corners[3].pos[0]) * (width - corners[3].pos[0]) + corners[3].pos[1] * corners[3].pos[1])){
-                    corners[3] = square;
-                }
-            }
-            for(Shape c : corners) c.setType(ShapeType.FIELD_MARKER);
-            for(int i = 0; i < 4; i++){
-                playFieldBoundaries[i].put(0,0, corners[i].pos[0] - corners[(i+1) % 4].pos[0]);
-                playFieldBoundaries[i].put(1,0, corners[i].pos[1] - corners[(i+1) % 4].pos[1]);
-            }
-            playfieldInfo[0] = (corners[0].pos[0] + corners[3].pos[0]) / 2;
-            playfieldInfo[1] = (corners[0].pos[1] + corners[1].pos[1]) / 2;
-            playfieldInfo[2] = (corners[1].pos[0] + corners[2].pos[0]) / 2;
-            playfieldInfo[3] = (corners[2].pos[1] + corners[3].pos[1]) / 2;
-            playfieldInfo[4] = checkRectangularity() ? 1 : 0;
-            for(Shape s : shapes){
-                if(s.pos[0] > playfieldInfo[0] && s.pos[0] < playfieldInfo[0] + playfieldInfo[2]
-                && s.pos[1] > playfieldInfo[1] && s.pos[1] < playfieldInfo[1] + playfieldInfo[3]){
-                    s.setType(ShapeType.SOUND_MARKER);
-                }
-            }
-        }
-    }
-
-    private boolean checkRectangularity(){
-        double angle;
-        for(int i = 0; i < 4; i++){
-            angle = Math.acos(
-                            playFieldBoundaries[i].dot(playFieldBoundaries[(i+1)%4])
-                            / (Core.norm(playFieldBoundaries[i]) * Core.norm(playFieldBoundaries[(i+1)%4])))
-                    / Math.PI * 180f;
-            if(angle <= 75 || angle >= 105){
-                return false;
-            }
-        }
-        return true;
-    }
 
     private void findContours(){
         Imgproc.cvtColor(frame, gray, Imgproc.COLOR_BGR2GRAY);
@@ -144,6 +76,4 @@ public class MarkerRecognizer {
         // TODO find out what RETR_TREE and CHAIN_APPROX_SIMPLE mean
         Imgproc.findContours(bin, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
     }
-
-
 }
