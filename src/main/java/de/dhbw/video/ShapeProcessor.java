@@ -1,4 +1,4 @@
-package de.dhbw.music;
+package de.dhbw.video;
 
 import de.dhbw.video.shape.Shape;
 import de.dhbw.video.shape.ShapeForm;
@@ -28,7 +28,7 @@ public class ShapeProcessor {
         playfieldInfo = new int[5];
     }
 
-    //TODO check if making the width and height of  the input-video globally available makes sense
+    //TODO check if making the width and height of the input-video globally available makes sense
     public void processShapes(List<Shape> shapes, int width, int height){
         this.shapes = shapes;
         frameWidth = width;
