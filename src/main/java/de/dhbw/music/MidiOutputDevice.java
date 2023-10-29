@@ -81,12 +81,16 @@ public class MidiOutputDevice extends Thread{
                 }
             }
         } catch (InterruptedException | InvalidMidiDataException e) {
-            // TODO maybe(?) inform UI about failure
-            throw new RuntimeException(e);
+            if(running){
+                // TODO maybe(?) inform UI about failure
+                throw new RuntimeException(e);
+            }
+            // if running is false, assume that failure happened because of sync issues (device was closed between condition check and recv.send(...))
         }
     }
 
     public void release(){
+        running = false;
         recv.close();
         md.close();
     }

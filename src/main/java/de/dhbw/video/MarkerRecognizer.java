@@ -2,6 +2,7 @@ package de.dhbw.video;
 
 import de.dhbw.video.shape.Shape;
 import de.dhbw.video.shape.ShapeForm;
+import lombok.Getter;
 import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;
 
@@ -12,6 +13,7 @@ public class MarkerRecognizer {
     private static final int EXPECTED_SHAPE_NO = 30;
     Mat frame, gray, blurred, bin, hierarchy;
     List<MatOfPoint> contours;
+    @Getter
     List<Shape> shapes;
     int height, width;
     public MarkerRecognizer(){
@@ -76,4 +78,5 @@ public class MarkerRecognizer {
         // TODO find out what RETR_TREE and CHAIN_APPROX_SIMPLE mean
         Imgproc.findContours(bin, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
     }
+
 }
