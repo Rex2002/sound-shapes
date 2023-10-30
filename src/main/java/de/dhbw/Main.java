@@ -24,8 +24,6 @@ public class Main {
         uiThread.start();
 
         mockVideoInput();
-
-        System.out.print("Hello World");
     }
 
     private static void mockVideoInput() {

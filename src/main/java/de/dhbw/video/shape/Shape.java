@@ -6,6 +6,7 @@ import org.opencv.core.MatOfPoint;
 import org.opencv.imgproc.Moments;
 
 public class Shape {
+    @Getter
     MatOfPoint contour;
     @Getter
     ShapeForm form;
