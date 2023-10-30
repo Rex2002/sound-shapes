@@ -7,6 +7,6 @@ import lombok.Data;
 @AllArgsConstructor
 public class MidiMessage {
     int note;
-    int speed;
+    int velocity;
     int offset;
 }

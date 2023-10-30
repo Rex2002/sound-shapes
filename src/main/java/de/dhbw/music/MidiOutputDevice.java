@@ -58,6 +58,7 @@ public class MidiOutputDevice extends Thread{
             return;
         }
         try {
+            // TODO adapt in a way that the settings are processed and applied to the midi out
             recv.send(new ShortMessage(0xc9, 0x04, 0x00), -1);
         } catch (InvalidMidiDataException e) {
             // TODO inform ui about failure
@@ -76,7 +77,7 @@ public class MidiOutputDevice extends Thread{
             while (running){
                 if(!EventQueues.toMidi.isEmpty()){
                     ms = EventQueues.toMidi.take();
-                    smg.setMessage(ShortMessage.NOTE_ON, 9, ms.getNote(), ms.getSpeed());
+                    smg.setMessage(ShortMessage.NOTE_ON, 9, ms.getNote(), ms.getVelocity());
                     recv.send(smg, ms.getOffset());
                 }
             }

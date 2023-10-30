@@ -10,16 +10,16 @@ public class MidiAdapter {
     public void tickMidi(int posInBeat, boolean[][] soundMatrix, Settings settings){
         if(posInBeat != lastInterval){
             lastInterval = posInBeat;
-            for(int instrNo = 0; instrNo < soundMatrix[posInBeat].length; instrNo++){
-                if (soundMatrix[posInBeat][instrNo]){
-                    // TODO think about handling speed / giving an option to input speed somehow via the playfield
-                    EventQueues.toMidi.offer(new MidiMessage(int2Instr(instrNo), 80, -1));
+            for(int note = 0; note < soundMatrix[posInBeat].length; note++){
+                if (soundMatrix[posInBeat][note]){
+                    // TODO think about handling velocity / giving an option to input velocity somehow via the playfield
+                    EventQueues.toMidi.offer(new MidiMessage(int2Note(note), 80, -1));
                 }
             }
         }
     }
 
-    public int int2Instr(int i){
+    public int int2Note(int i){
         return switch (i) {
             case 0 -> 42;
             case 1 -> 54;
