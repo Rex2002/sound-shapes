@@ -1,19 +1,77 @@
 package de.dhbw;
 
-// Press Shift twice to open the Search Everywhere dialog and type `show whitespaces`,
-// then press Enter. You can now see whitespace characters in your code.
+import de.dhbw.communication.EventQueues;
+import de.dhbw.communication.UIMessage;
+import de.dhbw.music.MidiAdapter;
+import de.dhbw.music.MidiOutputDevice;
+import de.dhbw.ui.App;
+import de.dhbw.video.MarkerRecognizer;
+import de.dhbw.video.ShapeProcessor;
+import de.dhbw.video.VideoInput;
+import javafx.application.Application;
+import nu.pattern.OpenCV;
+import org.opencv.core.Mat;
+
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 public class Main {
+    static boolean running = true;
     public static void main(String[] args) {
-        // Press Alt+Enter with your caret at the highlighted text to see how
-        // IntelliJ IDEA suggests fixing it.
-        System.out.printf("Hello and welcome!");
+        OpenCV.loadLocally();
+        Thread uiThread = new Thread( () -> Application.launch( App.class, args) );
+        uiThread.start();
 
-        // Press Shift+F10 or click the green arrow button in the gutter to run the code.
-        for (int i = 1; i <= 5; i++) {
+        mockVideoInput();
 
-            // Press Shift+F9 to start debugging your code. We have set one breakpoint
-            // for you, but you can always add more by pressing Ctrl+F8.
-            System.out.println("i = " + i);
+        System.out.print("Hello World");
+    }
+
+    private static void mockVideoInput() {
+        OpenCV.loadLocally();
+        VideoInput videoInput = new VideoInput(0);
+        Mat frame = new Mat();
+        Runnable frameGrabber = () -> {
+            videoInput.grabImage(frame);
+            UIMessage msg = new UIMessage( frame );
+            EventQueues.toUI.offer( msg );
+        };
+
+        ScheduledExecutorService timer = Executors.newSingleThreadScheduledExecutor();
+        timer.scheduleAtFixedRate(frameGrabber, 0, 100, TimeUnit.MILLISECONDS);
+    }
+
+    public static void runController(){
+        // time_zero is not set to zero to optionally allow sync wit ext. clocks later on by simply manipulating time_zero
+        long time_zero = System.currentTimeMillis();
+        Settings settings = new Settings(120);
+        VideoInput videoIn = new VideoInput(0);
+        MarkerRecognizer markerRecognizer = new MarkerRecognizer();
+        ShapeProcessor shapeProcessor = new ShapeProcessor();
+        MidiAdapter midiAdapter = new MidiAdapter();
+        MidiOutputDevice midiOutputDevice = new MidiOutputDevice();
+        midiOutputDevice.setMidiDevice(0);
+        midiOutputDevice.start();
+        Clock clock = new Clock(time_zero);
+        clock.setTempo(settings.tempo);
+        Mat frame = new Mat();
+        while (running){
+            if(!EventQueues.toController.isEmpty()){
+                // take event and process. Probably set settings accordingly or close application
+                //
+            }
+            clock.tick(System.currentTimeMillis());
+            videoIn.grabImage(frame);
+            EventQueues.toUI.offer(new UIMessage(frame));
+            markerRecognizer.setFrame(frame);
+            markerRecognizer.detectShapes();
+            shapeProcessor.processShapes(markerRecognizer.getShapes(), frame.width(), frame.height());
+            midiAdapter.tickMidi(clock.currentBeat, shapeProcessor.getSoundMatrix(), settings);
+            // TODO add sending shapes to UI for display
         }
+        videoIn.releaseCap();
+        midiOutputDevice.release();
+
     }
 }
