@@ -23,7 +23,8 @@ public class Main {
         Thread uiThread = new Thread( () -> Application.launch( App.class, args) );
         uiThread.start();
 
-        mockVideoInput();
+        runController();
+        //mockVideoInput();
 
         System.out.print("Hello World");
     }
@@ -45,6 +46,7 @@ public class Main {
     public static void runController(){
         // time_zero is not set to zero to optionally allow sync wit ext. clocks later on by simply manipulating time_zero
         long time_zero = System.currentTimeMillis();
+        long time = time_zero;
         Settings settings = new Settings(120);
         VideoInput videoIn = new VideoInput(0);
         MarkerRecognizer markerRecognizer = new MarkerRecognizer();
@@ -56,6 +58,8 @@ public class Main {
         Clock clock = new Clock(time_zero);
         clock.setTempo(settings.tempo);
         Mat frame = new Mat();
+        int counter = 0;
+
         while (running){
             if(!EventQueues.toController.isEmpty()){
                 // take event and process. Probably set settings accordingly or close application
@@ -69,6 +73,18 @@ public class Main {
             shapeProcessor.processShapes(markerRecognizer.getShapes(), frame.width(), frame.height());
             midiAdapter.tickMidi(clock.currentBeat, shapeProcessor.getSoundMatrix(), settings);
             // TODO add sending shapes to UI for display
+
+            if(counter % 10 == 0) {
+                if (counter % 100 == 0) {
+                    System.out.println("MB used=" + (Runtime.getRuntime().totalMemory() -
+                            Runtime.getRuntime().freeMemory()) / (1000 * 1000) + "M");
+                    counter = 0;
+                    System.out.println("fps: " + 100f / (System.currentTimeMillis() - time) * 1000);
+                    time = System.currentTimeMillis();
+                    System.gc();
+                }
+            }
+            counter++;
         }
         videoIn.releaseCap();
         midiOutputDevice.release();

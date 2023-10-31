@@ -3,6 +3,7 @@ package de.dhbw.video;
 import de.dhbw.video.shape.Shape;
 import de.dhbw.video.shape.ShapeForm;
 import de.dhbw.video.shape.ShapeType;
+import lombok.Getter;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -19,7 +20,8 @@ public class ShapeProcessor {
     private final Mat[] playFieldBoundaries;
     private int frameHeight;
     private int frameWidth;
-    private boolean[][] soundMatrix;
+    @Getter
+    private boolean[][] soundMatrix = new boolean[NO_BEATS][NO_NOTES];
     public ShapeProcessor(){
         playFieldBoundaries = new Mat[4];
         for(int i = 0; i < 4; i++) {
@@ -91,11 +93,11 @@ public class ShapeProcessor {
      * This method must not be called when the playfield is not valid!!!
      */
     private void generateSoundMatrix(){
-        soundMatrix = new boolean[NO_BEATS][NO_INSTR];
+        soundMatrix = new boolean[NO_BEATS][NO_NOTES];
         int barOffset, beatNo;
         for(Shape s : shapes.stream().filter(s -> s.getType() == ShapeType.SOUND_MARKER).toList()){
             barOffset = s.pos[1] - playfieldInfo[1] > playfieldInfo[3]/2 ? NO_BARS/2 : 0;
-            beatNo = (int) (((s.pos[0] - playfieldInfo[0])/ (double) playfieldInfo[2]) * NO_BEATS);
+            beatNo = (int) (((s.pos[0] - playfieldInfo[0])/ (double) playfieldInfo[2]) * NO_BEATS/2);
             soundMatrix[barOffset * NO_BEATS/NO_BARS + beatNo][s.getForm().toInt()] = true;
         }
     }
@@ -112,10 +114,6 @@ public class ShapeProcessor {
             }
         }
         return true;
-    }
-
-    public boolean[][] getSoundMatrix(){
-        return soundMatrix;
     }
 
 }

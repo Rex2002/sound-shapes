@@ -11,7 +11,7 @@ import java.util.List;
 
 public class MarkerRecognizer {
     private static final int EXPECTED_SHAPE_NO = 30;
-    Mat frame, gray, blurred, bin, hierarchy;
+    Mat frame, gray = new Mat(), blurred=new Mat(), bin = new Mat(), hierarchy = new Mat();
     List<MatOfPoint> contours;
     @Getter
     List<Shape> shapes;
@@ -45,7 +45,7 @@ public class MarkerRecognizer {
             if(area < 80){
                 continue;
             }
-            contour2f = new MatOfPoint2f(contour);
+            contour2f = new MatOfPoint2f(contour.toArray());
             perimeter = Imgproc.arcLength(contour2f, true);
             Imgproc.approxPolyDP(contour2f, contourTarget2f, 0.04 * perimeter, true);
             int edgeNo = contourTarget2f.toList().size();

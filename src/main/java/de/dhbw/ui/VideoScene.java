@@ -1,6 +1,6 @@
 package de.dhbw.ui;
 
-import de.dhbw.communication.Message;
+import de.dhbw.communication.UIMessage;
 import javafx.fxml.FXML;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -34,10 +34,10 @@ public class VideoScene {
     }
 
     private void handleQueue() {
-        List<Message> messages = checkQueueService.getValue();
-        for (Message message : messages) {
-            switch (message.type) {
-                case FRAME -> updateFrame( message.data );
+        List<UIMessage> messages = checkQueueService.getValue();
+        for (UIMessage message : messages) {
+            if(message.getFrame() != null) {
+                updateFrame( message.getFrame() );
             }
         }
     }
