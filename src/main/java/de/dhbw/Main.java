@@ -48,12 +48,13 @@ public class Main {
         long time_zero = System.currentTimeMillis();
         long time = time_zero;
         Settings settings = new Settings(120);
-        VideoInput videoIn = new VideoInput(0);
+        VideoInput videoIn = new VideoInput(2);
         MarkerRecognizer markerRecognizer = new MarkerRecognizer();
         ShapeProcessor shapeProcessor = new ShapeProcessor();
         MidiAdapter midiAdapter = new MidiAdapter();
         MidiOutputDevice midiOutputDevice = new MidiOutputDevice();
-        midiOutputDevice.setMidiDevice(0);
+        midiOutputDevice.setMidiDevice("MPK");
+        midiOutputDevice.updateSettings(null);
         midiOutputDevice.start();
         Clock clock = new Clock(time_zero);
         clock.setTempo(settings.tempo);

@@ -13,6 +13,7 @@ public class MidiOutputDevice extends Thread{
     boolean running = true;
 
     public void setMidiDevice(int deviceNo){
+        release();
         MidiDevice.Info[] mdInfo = MidiSystem.getMidiDeviceInfo();
         try {
             md = MidiSystem.getMidiDevice(mdInfo[deviceNo]);
@@ -27,11 +28,13 @@ public class MidiOutputDevice extends Thread{
     }
 
     public void setMidiDevice(String deviceName){
+        release();
+        deviceName = deviceName.toLowerCase();
         MidiDevice.Info[] mdInfo = MidiSystem.getMidiDeviceInfo();
         try {
             foundDevice:{
                 for (MidiDevice.Info info : mdInfo) {
-                    if (info.getName().contains(deviceName) || info.getDescription().contains(deviceName) || info.getVendor().contains(deviceName)) {
+                    if (info.getName().toLowerCase().contains(deviceName) || info.getDescription().toLowerCase().contains(deviceName) || info.getVendor().toLowerCase().contains(deviceName)) {
                         md = MidiSystem.getMidiDevice(info);
                         if (!md.isOpen()) {
                             md.open();
@@ -67,6 +70,7 @@ public class MidiOutputDevice extends Thread{
     }
 
     public void run(){
+        running = true;
         if(md == null || !md.isOpen() || recv == null){
             // TODO send message to UI that initialization needs to take place first
             return;
@@ -92,7 +96,11 @@ public class MidiOutputDevice extends Thread{
 
     public void release(){
         running = false;
-        recv.close();
-        md.close();
+        if(recv != null) {
+            recv.close();
+        }
+        if(md != null && md.isOpen()) {
+            md.close();
+        }
     }
 }
