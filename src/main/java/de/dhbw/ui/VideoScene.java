@@ -5,6 +5,7 @@ import de.dhbw.communication.Setting;
 import de.dhbw.communication.SettingType;
 import de.dhbw.communication.UIMessage;
 import de.dhbw.video.shape.Shape;
+import de.dhbw.video.shape.ShapeType;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
@@ -45,8 +46,6 @@ public class VideoScene {
         checkQueueService.setPeriod( Duration.millis(33) );
         checkQueueService.setOnSucceeded( (event) -> handleQueue() );
         checkQueueService.start();
-
-        //drawShape( new Shape( new MatOfPoint( new Point(50.0, 50.0), new Point(100.0, 100.0), new Point(100.0, 50.0) ), null, null));
     }
 
     private void handleQueue() {
@@ -73,9 +72,32 @@ public class VideoScene {
     }
 
     private void processShapes(List<Shape> shapes) {
+        //operates on the assumption that input always contains exactly 4 field markers
+        Shape[] fieldMarkers = new Shape[4];
+        int fieldMarkerCounter = 0;
         for (Shape shape : shapes) {
             drawShape( shape );
+            if (shape.getType() == ShapeType.FIELD_MARKER) {
+                fieldMarkers[fieldMarkerCounter] = shape;
+                fieldMarkerCounter++;
+            }
         }
+        if (fieldMarkerCounter != 4) {
+            throw new RuntimeException("Invalid number of FieldMarkers");
+        }
+        drawPlayField(fieldMarkers);
+    }
+
+    private void drawPlayField(Shape[] corners) {
+        Path border = new Path();
+        MoveTo moveTo = new MoveTo( corners[corners.length-1].getPos()[0], corners[corners.length-1].getPos()[1] );
+        border.getElements().add(moveTo);
+        for (Shape corner : corners) {
+            LineTo lineTo = new LineTo( corner.getPos()[0], corner.getPos()[1] );
+            border.getElements().add(lineTo);
+        }
+
+        shape_pane.getChildren().add( border );
     }
 
     private void drawShape(Shape shape) {

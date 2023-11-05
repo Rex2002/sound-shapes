@@ -5,13 +5,13 @@ import lombok.Setter;
 import org.opencv.core.MatOfPoint;
 import org.opencv.imgproc.Moments;
 
+@Getter
 public class Shape {
-    @Getter
     MatOfPoint contour;
-    @Getter
     ShapeForm form;
+    @Setter
     public int[] pos;
-    @Getter @Setter
+    @Setter
     ShapeType type;
     public Shape(MatOfPoint contour, ShapeForm form, int[] pos){
         this.contour = contour;
