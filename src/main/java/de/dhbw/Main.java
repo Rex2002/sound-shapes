@@ -8,10 +8,17 @@ import de.dhbw.ui.App;
 import de.dhbw.video.MarkerRecognizer;
 import de.dhbw.video.ShapeProcessor;
 import de.dhbw.video.VideoInput;
+import de.dhbw.video.shape.Shape;
+import de.dhbw.video.shape.ShapeForm;
+import de.dhbw.video.shape.ShapeType;
 import javafx.application.Application;
 import nu.pattern.OpenCV;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint;
+import org.opencv.core.Point;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -24,22 +31,7 @@ public class Main {
         uiThread.start();
 
         mockVideoInput();
-
-        System.out.print("Hello World");
-    }
-
-    private static void mockVideoInput() {
-        OpenCV.loadLocally();
-        VideoInput videoInput = new VideoInput(0);
-        Mat frame = new Mat();
-        Runnable frameGrabber = () -> {
-            videoInput.grabImage(frame);
-            UIMessage msg = new UIMessage( frame );
-            EventQueues.toUI.offer( msg );
-        };
-
-        ScheduledExecutorService timer = Executors.newSingleThreadScheduledExecutor();
-        timer.scheduleAtFixedRate(frameGrabber, 0, 100, TimeUnit.MILLISECONDS);
+        mockShapeInput();
     }
 
     public static void runController(){
@@ -73,5 +65,40 @@ public class Main {
         videoIn.releaseCap();
         midiOutputDevice.release();
 
+    }
+
+    private static void mockVideoInput() {
+        VideoInput videoInput = new VideoInput(0);
+        Mat frame = new Mat();
+        Runnable frameGrabber = () -> {
+            videoInput.grabImage(frame);
+            UIMessage msg = new UIMessage( frame );
+            EventQueues.toUI.offer( msg );
+        };
+
+        ScheduledExecutorService timer = Executors.newSingleThreadScheduledExecutor();
+        timer.scheduleAtFixedRate(frameGrabber, 0, 100, TimeUnit.MILLISECONDS);
+    }
+
+    private static void mockShapeInput() {
+        List<Shape> shapes = new ArrayList<>();
+        Shape first = new Shape( new MatOfPoint( new Point( 20, 20), new Point( 25, 20), new Point( 25, 25), new Point( 20, 25 )), ShapeForm.SQUARE, new int[]{20, 20});
+        first.setType(ShapeType.FIELD_MARKER);
+        shapes.add(first);
+
+        Shape second = new Shape( new MatOfPoint( new Point( 60, 20), new Point( 65, 20), new Point( 65, 25), new Point( 60, 25 )), ShapeForm.SQUARE, new int[]{60, 20});
+        second.setType(ShapeType.FIELD_MARKER);
+        shapes.add(second);
+
+        Shape third = new Shape( new MatOfPoint( new Point( 60, 60), new Point( 65, 60), new Point( 65, 65), new Point( 60, 65 )), ShapeForm.SQUARE, new int[]{60, 60});
+        third.setType(ShapeType.FIELD_MARKER);
+        shapes.add(third);
+
+        Shape fourth = new Shape( new MatOfPoint( new Point( 20, 60), new Point( 25, 60), new Point( 25, 65), new Point( 20, 65 )), ShapeForm.SQUARE, new int[]{20, 60});
+        fourth.setType(ShapeType.FIELD_MARKER);
+        shapes.add(fourth);
+
+        UIMessage msg = new UIMessage(shapes);
+        EventQueues.toUI.offer( msg );
     }
 }

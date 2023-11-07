@@ -11,9 +11,6 @@ import javafx.stage.Stage;
 public class App extends Application {
     private VideoScene controller;
 
-    private ChangeListener<? super Number> widthChangeListener;
-    private ChangeListener<? super Number> heightChangeListener;
-
     @Override
     public void start(Stage primaryStage) throws Exception {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/VideoScene.fxml"));
@@ -30,6 +27,9 @@ public class App extends Application {
         primaryStage.show();
         primaryStage.requestFocus();
     }
+
+    private ChangeListener<? super Number> widthChangeListener;
+    private ChangeListener<? super Number> heightChangeListener;
 
     private void fixAspectRatio(Stage stage, double ratio) {
         widthChangeListener = (observable, oldValue, newValue) -> {
@@ -55,5 +55,6 @@ public class App extends Application {
     @Override
     public void stop() throws Exception {
         super.stop();
+        System.exit(0);
     }
 }

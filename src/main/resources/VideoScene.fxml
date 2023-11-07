@@ -1,15 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<?import javafx.scene.image.ImageView?>
-<StackPane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="340.0" minWidth="600.0" prefHeight="450.0"
-           prefWidth="800.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="de.dhbw.ui.VideoScene">
-    <ImageView fx:id="currentFrame" fitHeight="450.0" fitWidth="800.0" pickOnBounds="true" preserveRatio="true"
-               StackPane.alignment="CENTER"/>
+<StackPane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="340.0" minWidth="600.0" prefHeight="450.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.dhbw.ui.VideoScene">
+    <ImageView fx:id="currentFrame" fitHeight="450.0" fitWidth="800.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="CENTER" />
+   <AnchorPane fx:id="shape_pane" prefHeight="200.0" prefWidth="200.0" />
+    <GridPane fx:id="menu_pane" stylesheets="@VideoScene.css">
+        <columnConstraints>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+        </columnConstraints>
+        <rowConstraints>
+            <RowConstraints minHeight="20.0" prefHeight="60.0" vgrow="NEVER" />
+            <RowConstraints minHeight="40.0" prefHeight="120.0" vgrow="ALWAYS" />
+            <RowConstraints minHeight="20.0" prefHeight="60.0" vgrow="NEVER" />
+        </rowConstraints>
+        <FlowPane id="playback_box" alignment="CENTER" nodeOrientation="LEFT_TO_RIGHT" styleClass="flow_pane" GridPane.columnIndex="1" GridPane.rowIndex="2">
+          <Button fx:id="placeholder_btn" mnemonicParsing="false" text="Empty" wrapText="true">
+              <cursor>
+                  <Cursor fx:constant="HAND" />
+              </cursor>
+            <FlowPane.margin>
+               <Insets left="10.0" right="10.0" />
+            </FlowPane.margin>
+          </Button>
+          <Button fx:id="play_btn" mnemonicParsing="false" onAction="#pressPlayPause" text="Play" wrapText="true">
+              <cursor>
+                  <Cursor fx:constant="HAND" />
+              </cursor>
+            <FlowPane.margin>
+               <Insets left="10.0" right="10.0" />
+            </FlowPane.margin>
+          </Button>
+          <Button fx:id="placeholder2_btn" mnemonicParsing="false" text="Empty" wrapText="true">
+              <cursor>
+                  <Cursor fx:constant="HAND" />
+              </cursor>
+            <FlowPane.margin>
+               <Insets left="10.0" right="10.0" />
+            </FlowPane.margin>
+          </Button>
+          <GridPane.margin>
+              <Insets bottom="20.0" />
+          </GridPane.margin>
+        </FlowPane>
+    </GridPane>
 </StackPane>
