@@ -72,6 +72,7 @@ public class VideoScene {
     }
 
     private void processShapes(List<Shape> shapes) {
+        shape_pane.getChildren().clear();
         //operates on the assumption that input always contains exactly 4 field markers
         Shape[] fieldMarkers = new Shape[4];
         int fieldMarkerCounter = 0;
@@ -83,9 +84,12 @@ public class VideoScene {
             }
         }
         if (fieldMarkerCounter != 4) {
-            throw new RuntimeException("Invalid number of FieldMarkers");
+            System.out.println("Invalid number of field markers passed");
+            //throw new RuntimeException("Invalid number of FieldMarkers");
         }
-        drawPlayField(fieldMarkers);
+        else {
+            drawPlayField(fieldMarkers);
+        }
     }
 
     private void drawPlayField(Shape[] corners) {
@@ -110,6 +114,7 @@ public class VideoScene {
             LineTo lineTo = new LineTo(point.x, point.y);
             path.getElements().add(lineTo);
         }
+
 
         shape_pane.getChildren().add( path );
     }

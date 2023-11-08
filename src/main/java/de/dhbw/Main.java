@@ -30,8 +30,9 @@ public class Main {
         Thread uiThread = new Thread( () -> Application.launch( App.class, args) );
         uiThread.start();
 
-        mockVideoInput();
-        mockShapeInput();
+        //mockVideoInput();
+        //mockShapeInput();
+        runController();
     }
 
     public static void runController(){
@@ -64,6 +65,7 @@ public class Main {
             markerRecognizer.detectShapes();
             shapeProcessor.processShapes(markerRecognizer.getShapes(), frame.width(), frame.height());
             midiAdapter.tickMidi(clock.currentBeat, shapeProcessor.getSoundMatrix(), settings);
+            EventQueues.toUI.offer(new UIMessage(markerRecognizer.getShapes()));
             // TODO add sending shapes to UI for display
 
             if(counter % 10 == 0) {

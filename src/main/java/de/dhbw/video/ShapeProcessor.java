@@ -83,7 +83,7 @@ public class ShapeProcessor {
         playfieldInfo[4] = checkRectangularity() ? 1 : 0;
         for(Shape s : shapes) {
             if (s.pos[0] > playfieldInfo[0] && s.pos[0] < playfieldInfo[0] + playfieldInfo[2]
-                    && s.pos[1] > playfieldInfo[1] && s.pos[1] < playfieldInfo[1] + playfieldInfo[3]) {
+                    && s.pos[1] > playfieldInfo[1] && s.pos[1] < playfieldInfo[1] + playfieldInfo[3] && s.getType() != ShapeType.FIELD_MARKER) {
                 s.setType(ShapeType.SOUND_MARKER);
             }
         }
