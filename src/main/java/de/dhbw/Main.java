@@ -66,6 +66,7 @@ public class Main {
             shapeProcessor.processShapes(markerRecognizer.getShapes(), frame.width(), frame.height());
             midiAdapter.tickMidi(clock.currentBeat, shapeProcessor.getSoundMatrix(), settings);
             EventQueues.toUI.offer(new UIMessage(shapeProcessor.playFieldToLines()));
+            EventQueues.toUI.offer(new UIMessage(markerRecognizer.getShapes()));
 
             // TODO add sending shapes to UI for display
 
