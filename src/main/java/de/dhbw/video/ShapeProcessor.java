@@ -16,6 +16,7 @@ public class ShapeProcessor {
 
     private List<Shape> shapes;
     // consists of x_pos, y_pos, width, height, is_rect(0/1)
+    @Getter
     private final int[] playfieldInfo;
     private final Mat[] playFieldBoundaries;
     private int frameHeight;
@@ -87,6 +88,19 @@ public class ShapeProcessor {
                 s.setType(ShapeType.SOUND_MARKER);
             }
         }
+    }
+
+    public int[][] playFieldToLines(){
+        if(playfieldInfo[4] != 1){
+            return null;
+        }
+        int[][] ret = new int[4][4];
+        ret[0] = new int[]{playfieldInfo[0], playfieldInfo[1], playfieldInfo[0] + playfieldInfo[2], playfieldInfo[1]};
+        ret[1] = new int[]{playfieldInfo[0] + playfieldInfo[2], playfieldInfo[1], playfieldInfo[0] + playfieldInfo[2], playfieldInfo[1] + playfieldInfo[3]};
+        ret[2] = new int[]{playfieldInfo[0] + playfieldInfo[2], playfieldInfo[1] + playfieldInfo[3], playfieldInfo[0], playfieldInfo[1] + playfieldInfo[3]};
+        ret[3] = new int[]{playfieldInfo[0], playfieldInfo[1] + playfieldInfo[3], playfieldInfo[0], playfieldInfo[1]};
+        return ret;
+
     }
 
     /**

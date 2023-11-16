@@ -5,7 +5,6 @@ import de.dhbw.communication.Setting;
 import de.dhbw.communication.SettingType;
 import de.dhbw.communication.UIMessage;
 import de.dhbw.video.shape.Shape;
-import de.dhbw.video.shape.ShapeType;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
@@ -60,6 +59,9 @@ public class VideoScene {
             if (message.getShapes() != null) {
                 processShapes( message.getShapes() );
             }
+            if (message.getLines() != null){
+                drawConnectedLines(message.getLines());
+            }
         }
     }
 
@@ -72,24 +74,24 @@ public class VideoScene {
     }
 
     private void processShapes(List<Shape> shapes) {
-        shape_pane.getChildren().clear();
+
         //operates on the assumption that input always contains exactly 4 field markers
         Shape[] fieldMarkers = new Shape[4];
         int fieldMarkerCounter = 0;
         for (Shape shape : shapes) {
             drawShape( shape );
-            if (shape.getType() == ShapeType.FIELD_MARKER) {
-                fieldMarkers[fieldMarkerCounter] = shape;
-                fieldMarkerCounter++;
-            }
+            //if (shape.getType() == ShapeType.FIELD_MARKER) {
+            //    fieldMarkers[fieldMarkerCounter] = shape;
+            //    fieldMarkerCounter++;
+            //}
         }
-        if (fieldMarkerCounter != 4) {
-            System.out.println("Invalid number of field markers passed");
-            //throw new RuntimeException("Invalid number of FieldMarkers");
-        }
-        else {
-            drawPlayField(fieldMarkers);
-        }
+        //if (fieldMarkerCounter != 4) {
+        //    System.out.println("Invalid number of field markers passed");
+        //    //throw new RuntimeException("Invalid number of FieldMarkers");
+        //}
+        //else {
+            //drawPlayField(fieldMarkers);
+        //}
     }
 
     private void drawPlayField(Shape[] corners) {
@@ -102,6 +104,19 @@ public class VideoScene {
         }
 
         shape_pane.getChildren().add( border );
+    }
+
+    private void drawConnectedLines(int[][] lines){
+        shape_pane.getChildren().clear();
+        Path linesPath = new Path();
+        MoveTo moveTo = new MoveTo(lines[0][0], lines[0][1]);
+        linesPath.getElements().add(moveTo);
+        for(int[] line : lines){
+            LineTo lineTo = new LineTo(line[2], line[3]);
+            linesPath.getElements().add(lineTo);
+        }
+        shape_pane.getChildren().add(linesPath);
+
     }
 
     private void drawShape(Shape shape) {

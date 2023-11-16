@@ -65,7 +65,8 @@ public class Main {
             markerRecognizer.detectShapes();
             shapeProcessor.processShapes(markerRecognizer.getShapes(), frame.width(), frame.height());
             midiAdapter.tickMidi(clock.currentBeat, shapeProcessor.getSoundMatrix(), settings);
-            EventQueues.toUI.offer(new UIMessage(markerRecognizer.getShapes()));
+            EventQueues.toUI.offer(new UIMessage(shapeProcessor.playFieldToLines()));
+
             // TODO add sending shapes to UI for display
 
             if(counter % 10 == 0) {

@@ -10,6 +10,7 @@ import java.util.List;
 public class UIMessage {
     private Mat frame;
     private List<Shape> shapes;
+    private int[][] lines;
     private Setting setting;
 
     public UIMessage(Mat frame) {
@@ -22,5 +23,9 @@ public class UIMessage {
 
     public UIMessage(Setting setting) {
         this.setting = setting;
+    }
+
+    public UIMessage(int[][] lines) {
+        this.lines = lines;
     }
 }
