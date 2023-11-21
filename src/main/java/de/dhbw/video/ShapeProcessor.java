@@ -79,8 +79,8 @@ public class ShapeProcessor {
         }
         playfieldInfo[0] = (corners[0].pos[0] + corners[3].pos[0]) / 2;
         playfieldInfo[1] = (corners[0].pos[1] + corners[1].pos[1]) / 2;
-        playfieldInfo[2] = (corners[1].pos[0] + corners[2].pos[0]) / 2;
-        playfieldInfo[3] = (corners[2].pos[1] + corners[3].pos[1]) / 2;
+        playfieldInfo[2] = (corners[1].pos[0] + corners[2].pos[0]) / 2 - playfieldInfo[0];
+        playfieldInfo[3] = (corners[2].pos[1] + corners[3].pos[1]) / 2 - playfieldInfo[1];
         playfieldInfo[4] = checkRectangularity() ? 1 : 0;
         for(Shape s : shapes) {
             if (s.pos[0] > playfieldInfo[0] && s.pos[0] < playfieldInfo[0] + playfieldInfo[2]
