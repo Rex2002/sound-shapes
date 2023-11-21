@@ -52,7 +52,6 @@ public class Main {
         clock.setTempo(settings.tempo);
         Mat frame = new Mat();
         int counter = 0;
-
         while (running){
             if(!EventQueues.toController.isEmpty()){
                 // take event and process. Probably set settings accordingly or close application
@@ -60,15 +59,19 @@ public class Main {
             }
             clock.tick(System.currentTimeMillis());
             videoIn.grabImage(frame);
-            EventQueues.toUI.offer(new UIMessage(frame));
+
             markerRecognizer.setFrame(frame);
             markerRecognizer.detectShapes();
             shapeProcessor.processShapes(markerRecognizer.getShapes(), frame.width(), frame.height());
             midiAdapter.tickMidi(clock.currentBeat, shapeProcessor.getSoundMatrix(), settings);
-            EventQueues.toUI.offer(new UIMessage(shapeProcessor.playFieldToLines()));
+
+            EventQueues.toUI.offer(new UIMessage(shapeProcessor.getPlayfieldInfo()));
             EventQueues.toUI.offer(new UIMessage(markerRecognizer.getShapes()));
 
-            // TODO add sending shapes to UI for display
+            // TODO does it make a difference if the frame-offering is at the end
+            EventQueues.toUI.offer(new UIMessage(frame));
+
+
 
             if(counter % 10 == 0) {
                 if (counter % 100 == 0) {

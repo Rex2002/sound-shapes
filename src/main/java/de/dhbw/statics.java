@@ -1,5 +1,7 @@
 package de.dhbw;
 
+import org.opencv.core.Scalar;
+
 public class statics {
 
     // describes how many beats should be fitted into the FULL number of bars
@@ -9,4 +11,7 @@ public class statics {
 
     // describes how many bars there are on a full screen
     public final static int NO_BARS = 2;
+
+    public final static Scalar SHAPE_HL_COLOR = new Scalar(100,255,35);
+    public final static Scalar PLAYFIELD_HL_COLOR = new Scalar(100, 100, 100);
 }

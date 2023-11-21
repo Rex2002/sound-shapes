@@ -4,6 +4,7 @@ import de.dhbw.communication.EventQueues;
 import de.dhbw.communication.Setting;
 import de.dhbw.communication.SettingType;
 import de.dhbw.communication.UIMessage;
+import de.dhbw.statics;
 import de.dhbw.video.shape.Shape;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -17,13 +18,17 @@ import javafx.scene.shape.Path;
 import javafx.util.Duration;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
+import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
 import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.imgproc.Imgproc;
 
 import java.io.ByteArrayInputStream;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class VideoScene {
+    @FXML
     public AnchorPane shape_pane;
     @FXML
     private StackPane root;
@@ -34,6 +39,8 @@ public class VideoScene {
 
     private CheckQueueService checkQueueService;
     private boolean playing;
+    private List<Shape> shapes2Draw;
+    private int[] playFieldInformation;
 
     @FXML
     private void initialize() {
@@ -42,7 +49,7 @@ public class VideoScene {
         currentFrame.fitHeightProperty().bind( root.heightProperty() );
 
         checkQueueService = new CheckQueueService();
-        checkQueueService.setPeriod( Duration.millis(33) );
+        checkQueueService.setPeriod( Duration.millis(300) );
         checkQueueService.setOnSucceeded( (event) -> handleQueue() );
         checkQueueService.start();
     }
@@ -57,41 +64,40 @@ public class VideoScene {
                 //do something
             }
             if (message.getShapes() != null) {
-                processShapes( message.getShapes() );
+                addShapes( message.getShapes() );
             }
-            if (message.getLines() != null){
-                drawConnectedLines(message.getLines());
+            if (message.getPlayFieldInformation() != null){
+                addPlayFieldInformation(message.getPlayFieldInformation());
             }
         }
     }
 
     private void updateFrame(Mat frame) {
+        if(shapes2Draw != null){
+            List<MatOfPoint> contours = shapes2Draw.stream().map(Shape::getContour).collect(Collectors.toList());
+            Imgproc.drawContours(frame, contours, -1,  statics.SHAPE_HL_COLOR);
+        }
+        else{
+            System.out.println("having no shapes");
+        }
+        if(playFieldInformation != null){
+            Imgproc.rectangle(frame, new Point(playFieldInformation[0], playFieldInformation[1]), new Point(playFieldInformation[0] + playFieldInformation[2], playFieldInformation[1] + playFieldInformation[3]), statics.PLAYFIELD_HL_COLOR);
+        }
+        else{
+            System.out.println("Having no playfield");
+        }
+
         MatOfByte buffer = new MatOfByte();
         Imgcodecs.imencode(".png", frame, buffer);
         Image image = new Image( new ByteArrayInputStream(buffer.toArray() ) );
 
+        //image.heightProperty()
+        currentFrame.setImage(null);
         currentFrame.setImage( image );
     }
 
-    private void processShapes(List<Shape> shapes) {
-
-        //operates on the assumption that input always contains exactly 4 field markers
-        Shape[] fieldMarkers = new Shape[4];
-        int fieldMarkerCounter = 0;
-        for (Shape shape : shapes) {
-            drawShape( shape );
-            //if (shape.getType() == ShapeType.FIELD_MARKER) {
-            //    fieldMarkers[fieldMarkerCounter] = shape;
-            //    fieldMarkerCounter++;
-            //}
-        }
-        //if (fieldMarkerCounter != 4) {
-        //    System.out.println("Invalid number of field markers passed");
-        //    //throw new RuntimeException("Invalid number of FieldMarkers");
-        //}
-        //else {
-            //drawPlayField(fieldMarkers);
-        //}
+    private void addShapes(List<Shape> shapes) {
+        shapes2Draw = shapes;
     }
 
     private void drawPlayField(Shape[] corners) {
@@ -106,17 +112,8 @@ public class VideoScene {
         shape_pane.getChildren().add( border );
     }
 
-    private void drawConnectedLines(int[][] lines){
-        shape_pane.getChildren().clear();
-        Path linesPath = new Path();
-        MoveTo moveTo = new MoveTo(lines[0][0], lines[0][1]);
-        linesPath.getElements().add(moveTo);
-        for(int[] line : lines){
-            LineTo lineTo = new LineTo(line[2], line[3]);
-            linesPath.getElements().add(lineTo);
-        }
-        shape_pane.getChildren().add(linesPath);
-
+    private void addPlayFieldInformation(int[] playFieldInformation){
+        this.playFieldInformation = playFieldInformation;
     }
 
     private void drawShape(Shape shape) {
