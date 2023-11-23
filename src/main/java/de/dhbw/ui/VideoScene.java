@@ -6,23 +6,26 @@ import de.dhbw.communication.SettingType;
 import de.dhbw.communication.UIMessage;
 import de.dhbw.statics;
 import de.dhbw.video.shape.Shape;
+import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.shape.LineTo;
+import javafx.scene.shape.MoveTo;
+import javafx.scene.shape.Path;
 import javafx.util.Duration;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
-import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 import java.io.ByteArrayInputStream;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class VideoScene {
     @FXML
@@ -30,13 +33,17 @@ public class VideoScene {
     @FXML
     private ImageView currentFrame;
     @FXML
-    private Button play_btn;
+    private AnchorPane fieldPane;
     @FXML
-    private Button metronome_btn;
+    private AnchorPane shapePane;
+    @FXML
+    private GridPane menu_pane;
     @FXML
     private Button mute_btn;
     @FXML
-    public GridPane menu_pane;
+    private Button play_btn;
+    @FXML
+    private Button metronome_btn;
 
     private CheckQueueService checkQueueService;
     private List<Shape> shapesToDraw;
@@ -44,12 +51,19 @@ public class VideoScene {
     private boolean playing = true;
     private boolean metronome = false;
     private boolean mute = false;
+    private double aspectRatio = 0;
+    private double frameWidth = 0;
+    private double scaleRatio;
+    ChangeListener<? super Number> sizeChangeListener;
 
     @FXML
     private void initialize() {
         //bind ImageView dimensions to parent
         currentFrame.fitWidthProperty().bind( root.widthProperty() );
         currentFrame.fitHeightProperty().bind( root.heightProperty() );
+
+        sizeChangeListener = (observable, oldValue, newValue) -> setUIDimensions();
+        root.widthProperty().addListener(sizeChangeListener);
 
         checkQueueService = new CheckQueueService();
         checkQueueService.setPeriod( Duration.millis(33) );
@@ -76,12 +90,17 @@ public class VideoScene {
     }
 
     private void updateFrame(Mat frame) {
+        if (frameWidth == 0) {
+            frameWidth = frame.width();
+            aspectRatio = frameWidth / frame.height();
+            setUIDimensions();
+        }
+
         if (shapesToDraw != null) {
-            List<MatOfPoint> contours = shapesToDraw.stream().map(Shape::getContour).collect(Collectors.toList());
-            Imgproc.drawContours(frame, contours, -1,  statics.SHAPE_HL_COLOR);
+            processShapes( shapesToDraw );
         }
         else {
-            //System.out.println("VideoScene: Can't draw shapes because none are present.");
+            System.out.println("VideoScene: Can't draw shapes because none are present.");
         }
         if (playFieldInformation != null) {
             Imgproc.rectangle(
@@ -92,7 +111,7 @@ public class VideoScene {
             );
         }
         else {
-            //System.out.println("VideoScene: Can't draw PlayField because none is present.");
+            System.out.println("VideoScene: Can't draw PlayField because none is present.");
         }
 
         MatOfByte buffer = new MatOfByte();
@@ -100,6 +119,42 @@ public class VideoScene {
         Image image = new Image( new ByteArrayInputStream( buffer.toArray() ) );
 
         currentFrame.setImage( image );
+    }
+
+    private void processShapes(List<Shape> shapes) {
+        shapePane.getChildren().clear();
+        for (Shape shape : shapes) {
+            drawShape( shape );
+        }
+    }
+
+    private void drawShape(Shape shape) {
+        Point[] points = shape.getContour().toArray();
+        scaleCoordinates(points);
+
+        Path path = new Path();
+        MoveTo moveTo = new MoveTo( points[ points.length - 1 ].x, points[ points.length - 1 ].y );
+        path.getElements().add(moveTo);
+        for (Point point : points) {
+            LineTo lineTo = new LineTo(point.x, point.y);
+            path.getElements().add(lineTo);
+        }
+
+        shapePane.getChildren().add( path );
+    }
+
+    private void setUIDimensions() {
+        root.setPrefHeight( root.getWidth() / aspectRatio);
+        scaleRatio = frameWidth / root.getWidth();
+        fieldPane.setPrefSize( root.getWidth(), root.getHeight() );
+        shapePane.setPrefSize( root.getWidth(), root.getHeight() );
+    }
+
+    private void scaleCoordinates(Point[] points) {
+        for (Point point : points) {
+            point.x /= scaleRatio;
+            point.y /= scaleRatio;
+        }
     }
 
     @FXML

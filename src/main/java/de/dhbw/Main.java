@@ -79,12 +79,10 @@ public class Main {
 
 
             EventQueues.toUI.offer(new UIMessage(shapeProcessor.getPlayfieldInfo()));
-            //EventQueues.toUI.offer(new UIMessage(markerRecognizer.getShapes()));
+            EventQueues.toUI.offer(new UIMessage(markerRecognizer.getShapes()));
 
             // TODO does it make a difference if the frame-offering is at the end
             EventQueues.toUI.offer(new UIMessage(markerRecognizer.getFrame()));
-
-
 
             if (counter % 100 == 0) {
                 printStats(time);

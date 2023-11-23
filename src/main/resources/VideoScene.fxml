@@ -8,6 +8,8 @@
 
 <StackPane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="340.0" minWidth="600.0" prefHeight="450.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.dhbw.ui.VideoScene">
     <ImageView fx:id="currentFrame" fitHeight="450.0" fitWidth="800.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="CENTER" />
+    <AnchorPane fx:id="fieldPane" StackPane.alignment="CENTER"/>
+    <AnchorPane fx:id="shapePane" StackPane.alignment="CENTER"/>
     <GridPane fx:id="menu_pane" stylesheets="@VideoScene.css">
         <columnConstraints>
             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
