@@ -29,9 +29,6 @@ public class Main {
         OpenCV.loadLocally();
         Thread uiThread = new Thread( () -> Application.launch( App.class, args) );
         uiThread.start();
-
-        //mockVideoInput();
-        //mockShapeInput();
         runController();
     }
 
@@ -73,15 +70,10 @@ public class Main {
 
 
 
-            if(counter % 10 == 0) {
-                if (counter % 100 == 0) {
-                    System.out.println("MB used=" + (Runtime.getRuntime().totalMemory() -
-                            Runtime.getRuntime().freeMemory()) / (1000 * 1000) + "M");
-                    counter = 0;
-                    System.out.println("fps: " + 100f / (System.currentTimeMillis() - time) * 1000);
-                    time = System.currentTimeMillis();
-                    System.gc();
-                }
+            if (counter % 100 == 0) {
+                printStats(time);
+                counter = 0;
+                time = System.currentTimeMillis();
             }
             counter++;
         }
@@ -90,38 +82,10 @@ public class Main {
 
     }
 
-    private static void mockVideoInput() {
-        VideoInput videoInput = new VideoInput(0);
-        Mat frame = new Mat();
-        Runnable frameGrabber = () -> {
-            videoInput.grabImage(frame);
-            UIMessage msg = new UIMessage( frame );
-            EventQueues.toUI.offer( msg );
-        };
-
-        ScheduledExecutorService timer = Executors.newSingleThreadScheduledExecutor();
-        timer.scheduleAtFixedRate(frameGrabber, 0, 100, TimeUnit.MILLISECONDS);
-    }
-
-    private static void mockShapeInput() {
-        List<Shape> shapes = new ArrayList<>();
-        Shape first = new Shape( new MatOfPoint( new Point( 20, 20), new Point( 25, 20), new Point( 25, 25), new Point( 20, 25 )), ShapeForm.SQUARE, new int[]{20, 20});
-        first.setType(ShapeType.FIELD_MARKER);
-        shapes.add(first);
-
-        Shape second = new Shape( new MatOfPoint( new Point( 60, 20), new Point( 65, 20), new Point( 65, 25), new Point( 60, 25 )), ShapeForm.SQUARE, new int[]{60, 20});
-        second.setType(ShapeType.FIELD_MARKER);
-        shapes.add(second);
-
-        Shape third = new Shape( new MatOfPoint( new Point( 60, 60), new Point( 65, 60), new Point( 65, 65), new Point( 60, 65 )), ShapeForm.SQUARE, new int[]{60, 60});
-        third.setType(ShapeType.FIELD_MARKER);
-        shapes.add(third);
-
-        Shape fourth = new Shape( new MatOfPoint( new Point( 20, 60), new Point( 25, 60), new Point( 25, 65), new Point( 20, 65 )), ShapeForm.SQUARE, new int[]{20, 60});
-        fourth.setType(ShapeType.FIELD_MARKER);
-        shapes.add(fourth);
-
-        UIMessage msg = new UIMessage(shapes);
-        EventQueues.toUI.offer( msg );
+    private static void printStats(long time) {
+        System.out.println("MB used=" + (Runtime.getRuntime().totalMemory() -
+                Runtime.getRuntime().freeMemory()) / (1000 * 1000) + "M");
+        System.out.println("fps: " + 100f / (System.currentTimeMillis() - time) * 1000);
+        System.gc();
     }
 }
