@@ -77,7 +77,7 @@ public class MarkerRecognizer {
         Imgproc.cvtColor(frame, gray, Imgproc.COLOR_BGR2GRAY);
         // TODO find out what these values actually mean and potentially adapt
         Imgproc.GaussianBlur(gray, blurred, new Size(11,11), 4/6f);
-        Imgproc.threshold(blurred, bin, 100, 255, Imgproc.THRESH_BINARY_INV);
+        Imgproc.threshold(blurred, bin, 65, 255, Imgproc.THRESH_BINARY_INV);
         // TODO find out what RETR_TREE and CHAIN_APPROX_SIMPLE mean
         Imgproc.findContours(bin, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
     }
