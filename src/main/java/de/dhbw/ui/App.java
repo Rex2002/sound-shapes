@@ -9,14 +9,10 @@ import javafx.stage.Stage;
 
 
 public class App extends Application {
-    private VideoScene controller;
-
     @Override
     public void start(Stage primaryStage) throws Exception {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/VideoScene.fxml"));
         StackPane root = loader.load();
-        controller = loader.getController();
-
         Scene videoScene = new Scene(root);
 
         primaryStage.setTitle("SoundShapes");

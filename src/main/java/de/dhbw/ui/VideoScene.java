@@ -10,11 +10,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.shape.LineTo;
-import javafx.scene.shape.MoveTo;
-import javafx.scene.shape.Path;
 import javafx.util.Duration;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
@@ -29,18 +26,24 @@ import java.util.stream.Collectors;
 
 public class VideoScene {
     @FXML
-    public AnchorPane shape_pane;
-    @FXML
     private StackPane root;
     @FXML
     private ImageView currentFrame;
     @FXML
     private Button play_btn;
+    @FXML
+    private Button metronome_btn;
+    @FXML
+    private Button velocity_btn;
+    @FXML
+    public GridPane menu_pane;
 
     private CheckQueueService checkQueueService;
-    private boolean playing;
-    private List<Shape> shapes2Draw;
+    private List<Shape> shapesToDraw;
     private int[] playFieldInformation;
+    private boolean playing = true;
+    private boolean metronome = false;
+    private boolean mute = false;
 
     @FXML
     private void initialize() {
@@ -49,7 +52,7 @@ public class VideoScene {
         currentFrame.fitHeightProperty().bind( root.heightProperty() );
 
         checkQueueService = new CheckQueueService();
-        checkQueueService.setPeriod( Duration.millis(300) );
+        checkQueueService.setPeriod( Duration.millis(33) );
         checkQueueService.setOnSucceeded( (event) -> handleQueue() );
         checkQueueService.start();
     }
@@ -64,79 +67,67 @@ public class VideoScene {
                 //do something
             }
             if (message.getShapes() != null) {
-                addShapes( message.getShapes() );
+                shapesToDraw = message.getShapes();
             }
             if (message.getPlayFieldInformation() != null){
-                addPlayFieldInformation(message.getPlayFieldInformation());
+                this.playFieldInformation = message.getPlayFieldInformation();
             }
         }
     }
 
     private void updateFrame(Mat frame) {
-        if(shapes2Draw != null){
-            List<MatOfPoint> contours = shapes2Draw.stream().map(Shape::getContour).collect(Collectors.toList());
+        if (shapesToDraw != null) {
+            List<MatOfPoint> contours = shapesToDraw.stream().map(Shape::getContour).collect(Collectors.toList());
             Imgproc.drawContours(frame, contours, -1,  statics.SHAPE_HL_COLOR);
         }
-        else{
-            System.out.println("having no shapes");
+        else {
+            System.out.println("VideoScene: Can't draw shapes because none are present.");
         }
-        if(playFieldInformation != null){
-            Imgproc.rectangle(frame, new Point(playFieldInformation[0], playFieldInformation[1]), new Point(playFieldInformation[0] + playFieldInformation[2], playFieldInformation[1] + playFieldInformation[3]), statics.PLAYFIELD_HL_COLOR);
+        if (playFieldInformation != null) {
+            Imgproc.rectangle(
+                    frame,
+                    new Point(playFieldInformation[0], playFieldInformation[1]),
+                    new Point(playFieldInformation[0] + playFieldInformation[2], playFieldInformation[1] + playFieldInformation[3]),
+                    statics.PLAYFIELD_HL_COLOR
+            );
         }
-        else{
-            System.out.println("Having no playfield");
+        else {
+            System.out.println("VideoScene: Can't draw PlayField because none is present.");
         }
 
         MatOfByte buffer = new MatOfByte();
         Imgcodecs.imencode(".png", frame, buffer);
-        Image image = new Image( new ByteArrayInputStream(buffer.toArray() ) );
+        Image image = new Image( new ByteArrayInputStream( buffer.toArray() ) );
 
-        //image.heightProperty()
         currentFrame.setImage(null);
         currentFrame.setImage( image );
     }
 
-    private void addShapes(List<Shape> shapes) {
-        shapes2Draw = shapes;
-    }
-
-    private void drawPlayField(Shape[] corners) {
-        Path border = new Path();
-        MoveTo moveTo = new MoveTo( corners[corners.length-1].getPos()[0], corners[corners.length-1].getPos()[1] );
-        border.getElements().add(moveTo);
-        for (Shape corner : corners) {
-            LineTo lineTo = new LineTo( corner.getPos()[0], corner.getPos()[1] );
-            border.getElements().add(lineTo);
-        }
-
-        shape_pane.getChildren().add( border );
-    }
-
-    private void addPlayFieldInformation(int[] playFieldInformation){
-        this.playFieldInformation = playFieldInformation;
-    }
-
-    private void drawShape(Shape shape) {
-        Point[] points = shape.getContour().toArray();
-
-        Path path = new Path();
-        MoveTo moveTo = new MoveTo( points[ points.length - 1 ].x, points[ points.length - 1 ].y );
-        path.getElements().add(moveTo);
-        for (Point point : points) {
-            LineTo lineTo = new LineTo(point.x, point.y);
-            path.getElements().add(lineTo);
-        }
-
-
-        shape_pane.getChildren().add( path );
+    @FXML
+    private void togglePlayPause() {
+        playing = !playing;
+        double playValue = playing ? 1.0 : 0.0;
+        Setting setting = new Setting(SettingType.PLAY, playValue);
+        EventQueues.toController.add(setting);
+        play_btn.setText(playing ? "Pause" : "Play");
     }
 
     @FXML
-    private void pressPlayPause() {
-        playing = !playing;
-        Setting setting = new Setting(SettingType.PLAY, 1.0);
+    private void toggleMetronome() {
+        metronome = !metronome;
+        double metronomeValue = metronome ? 1.0 : 0.0;
+        Setting setting = new Setting(SettingType.METRONOME, metronomeValue);
         EventQueues.toController.add(setting);
-        play_btn.setText(playing ? "Pause" : "Play");
+        metronome_btn.setText(metronome ? "Click off" : "Click on");
+    }
+
+    @FXML
+    private void toggleVelocity() {
+        mute = !mute;
+        double velocityValue = mute ? 0.0 : 1.0;
+        Setting setting = new Setting(SettingType.VELOCITY, velocityValue);
+        EventQueues.toController.add(setting);
+        velocity_btn.setText(mute ? "Unmute" : "Mute");
     }
 
 }

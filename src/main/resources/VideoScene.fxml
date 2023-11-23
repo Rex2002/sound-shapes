@@ -7,8 +7,7 @@
 <?import javafx.scene.layout.*?>
 
 <StackPane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="340.0" minWidth="600.0" prefHeight="450.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.dhbw.ui.VideoScene">
-    <ImageView fx:id="currentFrame" fitHeight="450.0" fitWidth="800.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="CENTER" />
-   <AnchorPane fx:id="shape_pane" prefHeight="200.0" prefWidth="200.0" />
+    <ImageView fx:id="currentFrame" fitHeight="450.0" fitWidth="800.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="CENTER"/>
     <GridPane fx:id="menu_pane" stylesheets="@VideoScene.css">
         <columnConstraints>
             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -21,7 +20,7 @@
             <RowConstraints minHeight="20.0" prefHeight="60.0" vgrow="NEVER" />
         </rowConstraints>
         <FlowPane id="playback_box" alignment="CENTER" nodeOrientation="LEFT_TO_RIGHT" styleClass="flow_pane" GridPane.columnIndex="1" GridPane.rowIndex="2">
-          <Button fx:id="placeholder_btn" mnemonicParsing="false" text="Empty" wrapText="true">
+          <Button fx:id="velocity_btn" mnemonicParsing="false" text="Mute" wrapText="true" onAction="#toggleVelocity">
               <cursor>
                   <Cursor fx:constant="HAND" />
               </cursor>
@@ -29,7 +28,7 @@
                <Insets left="10.0" right="10.0" />
             </FlowPane.margin>
           </Button>
-          <Button fx:id="play_btn" mnemonicParsing="false" onAction="#pressPlayPause" text="Play" wrapText="true">
+          <Button fx:id="play_btn" mnemonicParsing="false" onAction="#togglePlayPause" text="Play" wrapText="true">
               <cursor>
                   <Cursor fx:constant="HAND" />
               </cursor>
@@ -37,7 +36,7 @@
                <Insets left="10.0" right="10.0" />
             </FlowPane.margin>
           </Button>
-          <Button fx:id="placeholder2_btn" mnemonicParsing="false" text="Empty" wrapText="true">
+          <Button fx:id="metronome_btn" mnemonicParsing="false" text="Click on" wrapText="true" onAction="#toggleMetronome">
               <cursor>
                   <Cursor fx:constant="HAND" />
               </cursor>
