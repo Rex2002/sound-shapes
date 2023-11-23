@@ -1,6 +1,7 @@
 package de.dhbw;
 
 import de.dhbw.communication.EventQueues;
+import de.dhbw.communication.Setting;
 import de.dhbw.communication.UIMessage;
 import de.dhbw.music.MidiAdapter;
 import de.dhbw.music.MidiOutputDevice;
@@ -8,20 +9,11 @@ import de.dhbw.ui.App;
 import de.dhbw.video.MarkerRecognizer;
 import de.dhbw.video.ShapeProcessor;
 import de.dhbw.video.VideoInput;
-import de.dhbw.video.shape.Shape;
-import de.dhbw.video.shape.ShapeForm;
-import de.dhbw.video.shape.ShapeType;
 import javafx.application.Application;
 import nu.pattern.OpenCV;
 import org.opencv.core.Mat;
-import org.opencv.core.MatOfPoint;
-import org.opencv.core.Point;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import static de.dhbw.statics.*;
 
 public class Main {
     static boolean running = true;
@@ -37,6 +29,8 @@ public class Main {
         long time_zero = System.currentTimeMillis();
         long time = time_zero;
         Settings settings = new Settings(120);
+        Setting setting;
+
         VideoInput videoIn = new VideoInput(2);
         MarkerRecognizer markerRecognizer = new MarkerRecognizer();
         ShapeProcessor shapeProcessor = new ShapeProcessor();
@@ -50,23 +44,45 @@ public class Main {
         Mat frame = new Mat();
         int counter = 0;
         while (running){
-            if(!EventQueues.toController.isEmpty()){
-                // take event and process. Probably set settings accordingly or close application
-                //
-            }
+            // message independent code:
             clock.tick(System.currentTimeMillis());
             videoIn.grabImage(frame);
 
             markerRecognizer.setFrame(frame);
             markerRecognizer.detectShapes();
             shapeProcessor.processShapes(markerRecognizer.getShapes(), frame.width(), frame.height());
-            midiAdapter.tickMidi(clock.currentBeat, shapeProcessor.getSoundMatrix(), settings);
+            // message dependent / message sending code:
+            if(!EventQueues.toController.isEmpty()){
+                setting = EventQueues.toController.poll();
+                if(setting != null) {
+                    switch (setting.getType()) {
+                        case VELOCITY:
+                            midiAdapter.setVelocity((int) (setting.getValue() * MAX_VELOCITY));
+                            break;
+                        case MUTE:
+                            midiAdapter.setMute(!(setting.getValue() > 0.5));
+                            break;
+                        case METRONOME:
+                            // TODO find out where the information that should be displayed should be stored
+                            clock.setTempo((int) (setting.getValue() * MAX_TEMPO_SPAN + MIN_TEMPO));
+                            break;
+                        case PLAY:
+                            clock.setPlaying(setting.getValue() > 0.5);
+                            //midiAdapter.setMute(!(setting.getValue() > 0.5));
+                            break;
+                        case null, default:
+                            break;
+                    }
+                }
+            }
+            midiAdapter.tickMidi(clock.currentBeat, shapeProcessor.getSoundMatrix());
+
 
             EventQueues.toUI.offer(new UIMessage(shapeProcessor.getPlayfieldInfo()));
-            EventQueues.toUI.offer(new UIMessage(markerRecognizer.getShapes()));
+            //EventQueues.toUI.offer(new UIMessage(markerRecognizer.getShapes()));
 
             // TODO does it make a difference if the frame-offering is at the end
-            EventQueues.toUI.offer(new UIMessage(frame));
+            EventQueues.toUI.offer(new UIMessage(markerRecognizer.getFrame()));
 
 
 

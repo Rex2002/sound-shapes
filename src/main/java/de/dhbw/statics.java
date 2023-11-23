@@ -14,4 +14,9 @@ public class statics {
 
     public final static Scalar SHAPE_HL_COLOR = new Scalar(100,255,35);
     public final static Scalar PLAYFIELD_HL_COLOR = new Scalar(100, 100, 100);
+    public final static int MAX_TEMPO_SPAN = 120;
+    public final static int DEFAULT_TEMPO = 120;
+    public final static int MIN_TEMPO = 60;
+    public final static int DEFAULT_VELOCITY = 80;
+    public final static int MAX_VELOCITY = 127;
 }

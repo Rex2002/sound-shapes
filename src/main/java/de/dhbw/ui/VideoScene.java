@@ -34,7 +34,7 @@ public class VideoScene {
     @FXML
     private Button metronome_btn;
     @FXML
-    private Button velocity_btn;
+    private Button mute_btn;
     @FXML
     public GridPane menu_pane;
 
@@ -81,7 +81,7 @@ public class VideoScene {
             Imgproc.drawContours(frame, contours, -1,  statics.SHAPE_HL_COLOR);
         }
         else {
-            System.out.println("VideoScene: Can't draw shapes because none are present.");
+            //System.out.println("VideoScene: Can't draw shapes because none are present.");
         }
         if (playFieldInformation != null) {
             Imgproc.rectangle(
@@ -92,14 +92,13 @@ public class VideoScene {
             );
         }
         else {
-            System.out.println("VideoScene: Can't draw PlayField because none is present.");
+            //System.out.println("VideoScene: Can't draw PlayField because none is present.");
         }
 
         MatOfByte buffer = new MatOfByte();
         Imgcodecs.imencode(".png", frame, buffer);
         Image image = new Image( new ByteArrayInputStream( buffer.toArray() ) );
 
-        currentFrame.setImage(null);
         currentFrame.setImage( image );
     }
 
@@ -122,12 +121,12 @@ public class VideoScene {
     }
 
     @FXML
-    private void toggleVelocity() {
+    private void toggleMute() {
         mute = !mute;
-        double velocityValue = mute ? 0.0 : 1.0;
-        Setting setting = new Setting(SettingType.VELOCITY, velocityValue);
+        double muteValue = mute ? 0.0 : 1.0;
+        Setting setting = new Setting(SettingType.MUTE, muteValue);
         EventQueues.toController.add(setting);
-        velocity_btn.setText(mute ? "Unmute" : "Mute");
+        mute_btn.setText(mute ? "Unmute" : "Mute");
     }
 
 }

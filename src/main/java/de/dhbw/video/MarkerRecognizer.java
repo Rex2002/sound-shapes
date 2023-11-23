@@ -1,5 +1,6 @@
 package de.dhbw.video;
 
+import de.dhbw.statics;
 import de.dhbw.video.shape.Shape;
 import de.dhbw.video.shape.ShapeForm;
 import lombok.Getter;
@@ -11,6 +12,7 @@ import java.util.List;
 
 public class MarkerRecognizer {
     private static final int EXPECTED_SHAPE_NO = 30;
+    @Getter
     Mat frame, gray = new Mat(), blurred=new Mat(), bin = new Mat(), hierarchy = new Mat();
     List<MatOfPoint> contours;
     @Getter
@@ -67,6 +69,7 @@ public class MarkerRecognizer {
 
             shapes.add(new Shape(contour, form, Shape.calcPositionFromMoments(Imgproc.moments(contour))));
         }
+        Imgproc.drawContours(frame, contours, -1,  statics.SHAPE_HL_COLOR);
     }
 
 
@@ -78,5 +81,4 @@ public class MarkerRecognizer {
         // TODO find out what RETR_TREE and CHAIN_APPROX_SIMPLE mean
         Imgproc.findContours(bin, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
     }
-
 }

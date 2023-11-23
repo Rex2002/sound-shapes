@@ -1,19 +1,29 @@
 package de.dhbw.music;
 
-import de.dhbw.Settings;
 import de.dhbw.communication.EventQueues;
 import de.dhbw.communication.MidiMessage;
 
+import static de.dhbw.statics.DEFAULT_VELOCITY;
+
 public class MidiAdapter {
     int lastInterval = -1;
+    int velocity = DEFAULT_VELOCITY;
+    boolean playing = true;
 
-    public void tickMidi(int posInBeat, boolean[][] soundMatrix, Settings settings){
-        if(posInBeat != lastInterval){
+    public void setVelocity(int velocity){
+        this.velocity = velocity;
+    }
+
+    public void setMute(boolean muted){
+        this.playing = !muted;
+    }
+    public void tickMidi(int posInBeat, boolean[][] soundMatrix){
+        if(posInBeat != lastInterval && playing){
             lastInterval = posInBeat;
             for(int note = 0; note < soundMatrix[posInBeat].length; note++){
                 if (soundMatrix[posInBeat][note]){
                     // TODO think about handling velocity / giving an option to input velocity somehow via the playfield
-                    EventQueues.toMidi.offer(new MidiMessage(int2Note(note), 80, -1));
+                    EventQueues.toMidi.offer(new MidiMessage(int2Note(note), velocity, -1));
                 }
             }
         }
