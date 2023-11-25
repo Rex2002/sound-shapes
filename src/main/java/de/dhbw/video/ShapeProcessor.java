@@ -1,5 +1,6 @@
 package de.dhbw.video;
 
+ import de.dhbw.statics;
 import de.dhbw.video.shape.Shape;
 import de.dhbw.video.shape.ShapeForm;
 import de.dhbw.video.shape.ShapeType;
@@ -7,6 +8,8 @@ import lombok.Getter;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.Point;
+import org.opencv.imgproc.Imgproc;
 
 import java.util.List;
 
@@ -22,6 +25,8 @@ public class ShapeProcessor {
     private int frameHeight;
     private int frameWidth;
     @Getter
+    private Mat frame;
+    @Getter
     private boolean[][] soundMatrix = new boolean[NO_BEATS][NO_NOTES];
     public ShapeProcessor(){
         playFieldBoundaries = new Mat[4];
@@ -32,15 +37,28 @@ public class ShapeProcessor {
     }
 
     //TODO check if making the width and height of the input-video globally available makes sense
-    public void processShapes(List<Shape> shapes, int width, int height){
+    public void processShapes(List<Shape> shapes, int width, int height, Mat frame){
         this.shapes = shapes;
+        this.frame = frame;
         frameWidth = width;
         frameHeight = height;
         detectPlayfield();
         if(playfieldInfo[4] == 1){
             generateSoundMatrix();
+            drawPlayfield(frame);
         }
         // TODO > treat control markers
+    }
+
+    public void drawPlayfield(Mat frame){
+        if (playfieldInfo[4] == 1) {
+            Imgproc.rectangle(
+                    frame,
+                    new Point(playfieldInfo[0], playfieldInfo[1]),
+                    new Point(playfieldInfo[0] + playfieldInfo[2], playfieldInfo[1] + playfieldInfo[3]),
+                    statics.PLAYFIELD_HL_COLOR, 3
+            );
+        }
     }
 
     private void detectPlayfield(){
