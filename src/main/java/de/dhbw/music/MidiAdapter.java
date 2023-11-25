@@ -1,7 +1,8 @@
 package de.dhbw.music;
 
 import de.dhbw.communication.EventQueues;
-import de.dhbw.communication.MidiMessage;
+import de.dhbw.communication.MidiBatchMessage;
+import de.dhbw.statics;
 
 import static de.dhbw.statics.DEFAULT_VELOCITY;
 
@@ -9,9 +10,14 @@ public class MidiAdapter {
     int lastInterval = -1;
     int velocity = DEFAULT_VELOCITY;
     boolean playing = true;
+    boolean metronomeActive = false;
+    MidiBatchMessage midiBatchMessage = new MidiBatchMessage();
 
     public void setVelocity(int velocity){
         this.velocity = velocity;
+    }
+    public void setMetronomeActive(boolean metronomeActive){
+        this.metronomeActive = metronomeActive;
     }
 
     public void setMute(boolean muted){
@@ -19,13 +25,19 @@ public class MidiAdapter {
     }
     public void tickMidi(int posInBeat, boolean[][] soundMatrix){
         if(posInBeat != lastInterval && playing){
+            midiBatchMessage.clearMessages();
             lastInterval = posInBeat;
+            if(metronomeActive && posInBeat % 2 == 0){
+                midiBatchMessage.addMidiMessage(statics.METRONOME_SOUND, velocity, -1);
+                //EventQueues.toMidi.offer(new MidiBatchMessage(statics.METRONOME_SOUND, velocity, -1));
+            }
             for(int note = 0; note < soundMatrix[posInBeat].length; note++){
                 if (soundMatrix[posInBeat][note]){
-                    // TODO think about handling velocity / giving an option to input velocity somehow via the playfield
-                    EventQueues.toMidi.offer(new MidiMessage(int2Note(note), velocity, -1));
+                    midiBatchMessage.addMidiMessage(int2Note(note), velocity, -1);
+                    //EventQueues.toMidi.offer(new MidiBatchMessage(int2Note(note), velocity, -1));
                 }
             }
+            EventQueues.toMidi.offer(midiBatchMessage);
         }
     }
 

@@ -2,7 +2,7 @@ package de.dhbw.music;
 
 import de.dhbw.Settings;
 import de.dhbw.communication.EventQueues;
-import de.dhbw.communication.MidiMessage;
+import de.dhbw.communication.MidiBatchMessage;
 
 import javax.sound.midi.*;
 
@@ -75,14 +75,19 @@ public class MidiOutputDevice extends Thread{
             // TODO send message to UI that initialization needs to take place first
             return;
         }
-        MidiMessage ms;
+        MidiBatchMessage ms;
         ShortMessage smg = new ShortMessage();
         try {
             while (running){
                 if(!EventQueues.toMidi.isEmpty()){
                     ms = EventQueues.toMidi.take();
-                    smg.setMessage(ShortMessage.NOTE_ON, 9, ms.getNote(), ms.getVelocity());
-                    recv.send(smg, ms.getOffset());
+                    int[] message;
+                    for(int messageNo = 0; messageNo < ms.getSize(); messageNo++){
+                        message = ms.getMidiMessage(messageNo);
+                        smg.setMessage(ShortMessage.NOTE_ON, 9, message[0], message[1]);
+                        recv.send(smg, message[2]);
+                    }
+
                 }
             }
         } catch (InterruptedException | InvalidMidiDataException e) {

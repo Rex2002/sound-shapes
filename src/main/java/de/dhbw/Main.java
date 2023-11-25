@@ -65,7 +65,8 @@ public class Main {
                             break;
                         case METRONOME:
                             // TODO find out where the information that should be displayed should be stored
-                            clock.setTempo((int) (setting.getValue() * MAX_TEMPO_SPAN + MIN_TEMPO));
+                            midiAdapter.setMetronomeActive(setting.getValue() > 0.5);
+                            //clock.setTempo((int) (setting.getValue() * MAX_TEMPO_SPAN + MIN_TEMPO));
                             break;
                         case PLAY:
                             clock.setPlaying(setting.getValue() > 0.5);
