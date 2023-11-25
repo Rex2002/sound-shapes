@@ -153,13 +153,13 @@ public class VideoScene {
         if (aspectRatioRoot < aspectRatioFrame) {
             stack.setMaxHeight( root.getWidth() / aspectRatioFrame );
             scaleRatio = frameWidth / root.getWidth();
-            double actualHeightImgView = currentFrame.computeAreaInScreen() / root.getWidth();
+            double actualHeightImgView = scaleCoordinate(frameWidth / aspectRatioFrame);
             fieldPane.setMaxSize( stack.getWidth(), actualHeightImgView );
             shapePane.setMaxSize( stack.getWidth(), actualHeightImgView );
         } else {
             stack.setMaxWidth( root.getHeight() * aspectRatioFrame );
             scaleRatio = (frameWidth / aspectRatioFrame) / root.getHeight();
-            double actualWidthImgView = currentFrame.computeAreaInScreen() / root.getHeight();
+            double actualWidthImgView = scaleCoordinate(frameWidth);
             fieldPane.setMaxSize( actualWidthImgView, stack.getHeight() );
             shapePane.setMaxSize( actualWidthImgView, stack.getHeight() );
         }
