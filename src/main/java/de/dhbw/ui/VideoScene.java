@@ -4,7 +4,6 @@ import de.dhbw.communication.EventQueues;
 import de.dhbw.communication.Setting;
 import de.dhbw.communication.SettingType;
 import de.dhbw.communication.UIMessage;
-import de.dhbw.statics;
 import de.dhbw.video.shape.Shape;
 import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
@@ -22,14 +21,15 @@ import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.core.Point;
 import org.opencv.imgcodecs.Imgcodecs;
-import org.opencv.imgproc.Imgproc;
 
 import java.io.ByteArrayInputStream;
 import java.util.List;
 
 public class VideoScene {
     @FXML
-    private StackPane root;
+    private AnchorPane root;
+    @FXML
+    private StackPane stack;
     @FXML
     private ImageView currentFrame;
     @FXML
@@ -46,24 +46,22 @@ public class VideoScene {
     private Button metronome_btn;
 
     private CheckQueueService checkQueueService;
-    private List<Shape> shapesToDraw;
-    private int[] playFieldInformation;
     private boolean playing = true;
     private boolean metronome = false;
     private boolean mute = false;
-    private double aspectRatio = 0;
-    private double frameWidth = 0;
+    private double aspectRatioFrame;
+    private double frameWidth = -1;
     private double scaleRatio;
     ChangeListener<? super Number> sizeChangeListener;
 
     @FXML
     private void initialize() {
         //bind ImageView dimensions to parent
-        currentFrame.fitWidthProperty().bind( root.widthProperty() );
-        currentFrame.fitHeightProperty().bind( root.heightProperty() );
+        currentFrame.fitWidthProperty().bind( stack.widthProperty() );
+        currentFrame.fitHeightProperty().bind( stack.heightProperty() );
 
         sizeChangeListener = (observable, oldValue, newValue) -> setUIDimensions();
-        root.widthProperty().addListener(sizeChangeListener);
+        stack.widthProperty().addListener(sizeChangeListener);
 
         checkQueueService = new CheckQueueService();
         checkQueueService.setPeriod( Duration.millis(33) );
@@ -81,37 +79,19 @@ public class VideoScene {
                 //do something
             }
             if (message.getShapes() != null) {
-                shapesToDraw = message.getShapes();
+                processShapes( message.getShapes() );
             }
             if (message.getPlayFieldInformation() != null){
-                this.playFieldInformation = message.getPlayFieldInformation();
+                drawPlayField( message.getPlayFieldInformation() );
             }
         }
     }
 
     private void updateFrame(Mat frame) {
-        if (frameWidth == 0) {
+        if (frameWidth == -1) {
             frameWidth = frame.width();
-            aspectRatio = frameWidth / frame.height();
+            aspectRatioFrame = frameWidth / frame.height();
             setUIDimensions();
-        }
-
-        if (shapesToDraw != null) {
-            processShapes( shapesToDraw );
-        }
-        else {
-            System.out.println("VideoScene: Can't draw shapes because none are present.");
-        }
-        if (playFieldInformation != null) {
-            Imgproc.rectangle(
-                    frame,
-                    new Point(playFieldInformation[0], playFieldInformation[1]),
-                    new Point(playFieldInformation[0] + playFieldInformation[2], playFieldInformation[1] + playFieldInformation[3]),
-                    statics.PLAYFIELD_HL_COLOR
-            );
-        }
-        else {
-            System.out.println("VideoScene: Can't draw PlayField because none is present.");
         }
 
         MatOfByte buffer = new MatOfByte();
@@ -130,7 +110,10 @@ public class VideoScene {
 
     private void drawShape(Shape shape) {
         Point[] points = shape.getContour().toArray();
-        scaleCoordinates(points);
+        for (Point point : points) {
+            point.x = scaleCoordinate(point.x);
+            point.y = scaleCoordinate(point.y);
+        }
 
         Path path = new Path();
         MoveTo moveTo = new MoveTo( points[ points.length - 1 ].x, points[ points.length - 1 ].y );
@@ -143,18 +126,47 @@ public class VideoScene {
         shapePane.getChildren().add( path );
     }
 
-    private void setUIDimensions() {
-        root.setPrefHeight( root.getWidth() / aspectRatio);
-        scaleRatio = frameWidth / root.getWidth();
-        fieldPane.setPrefSize( root.getWidth(), root.getHeight() );
-        shapePane.setPrefSize( root.getWidth(), root.getHeight() );
+    private void drawPlayField(int[] input) {
+        fieldPane.getChildren().clear();
+
+        double[] playFieldInfo = new double[4];
+        for (int i = 0; i < playFieldInfo.length; i++) {
+            playFieldInfo[i] = scaleCoordinate( input[i] );
+        }
+        Path path = new Path();
+        MoveTo moveTo = new MoveTo( playFieldInfo[0], playFieldInfo[1] );
+        path.getElements().add(moveTo);
+        LineTo line = new LineTo( playFieldInfo[0] + playFieldInfo[2], playFieldInfo[1] );
+        path.getElements().add(line);
+        line = new LineTo( playFieldInfo[0] + playFieldInfo[2], playFieldInfo[1] + playFieldInfo[3] );
+        path.getElements().add(line);
+        line = new LineTo( playFieldInfo[0], playFieldInfo[1] + playFieldInfo[3] );
+        path.getElements().add(line);
+        line = new LineTo(playFieldInfo[0], playFieldInfo[1] );
+        path.getElements().add(line);
+
+        fieldPane.getChildren().add( path );
     }
 
-    private void scaleCoordinates(Point[] points) {
-        for (Point point : points) {
-            point.x /= scaleRatio;
-            point.y /= scaleRatio;
+    private void setUIDimensions() {
+        double aspectRatioRoot = root.getWidth() / root.getHeight();
+        if (aspectRatioRoot < aspectRatioFrame) {
+            stack.setMaxHeight( root.getWidth() / aspectRatioFrame );
+            scaleRatio = frameWidth / root.getWidth();
+            double actualHeightImgView = currentFrame.computeAreaInScreen() / root.getWidth();
+            fieldPane.setMaxSize( stack.getWidth(), actualHeightImgView );
+            shapePane.setMaxSize( stack.getWidth(), actualHeightImgView );
+        } else {
+            stack.setMaxWidth( root.getHeight() * aspectRatioFrame );
+            scaleRatio = (frameWidth / aspectRatioFrame) / root.getHeight();
+            double actualWidthImgView = currentFrame.computeAreaInScreen() / root.getHeight();
+            fieldPane.setMaxSize( actualWidthImgView, stack.getHeight() );
+            shapePane.setMaxSize( actualWidthImgView, stack.getHeight() );
         }
+    }
+
+    private double scaleCoordinate(double coordinate) {
+        return coordinate / scaleRatio;
     }
 
     @FXML
