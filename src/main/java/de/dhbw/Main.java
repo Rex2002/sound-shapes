@@ -79,14 +79,11 @@ public class Main {
             }
             midiAdapter.tickMidi(clock.currentBeat, shapeProcessor.getSoundMatrix());
 
-
-            //EventQueues.toUI.offer(new UIMessage(shapeProcessor.getPlayfieldInfo()));
-            //EventQueues.toUI.offer(new UIMessage(markerRecognizer.getShapes()));
+            EventQueues.toUI.offer(new UIMessage(shapeProcessor.getPlayfieldInfo()));
+            EventQueues.toUI.offer(new UIMessage(markerRecognizer.getShapes()));
 
             // TODO does it make a difference if the frame-offering is at the end
             EventQueues.toUI.offer(new UIMessage(shapeProcessor.getFrame()));
-
-
 
             if (counter % 100 == 0) {
                 printStats(time);

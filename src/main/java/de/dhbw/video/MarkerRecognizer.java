@@ -1,6 +1,5 @@
 package de.dhbw.video;
 
-import de.dhbw.statics;
 import de.dhbw.video.shape.Shape;
 import de.dhbw.video.shape.ShapeForm;
 import lombok.Getter;
@@ -69,7 +68,6 @@ public class MarkerRecognizer {
 
             shapes.add(new Shape(contour, form, Shape.calcPositionFromMoments(Imgproc.moments(contour))));
         }
-        Imgproc.drawContours(frame, contours, -1,  statics.SHAPE_HL_COLOR);
     }
 
 
