@@ -1,6 +1,7 @@
 package de.dhbw;
 
 import de.dhbw.communication.EventQueues;
+import de.dhbw.communication.Setting;
 import de.dhbw.communication.UIMessage;
 import de.dhbw.music.MidiAdapter;
 import de.dhbw.music.MidiOutputDevice;
@@ -8,20 +9,11 @@ import de.dhbw.ui.App;
 import de.dhbw.video.MarkerRecognizer;
 import de.dhbw.video.ShapeProcessor;
 import de.dhbw.video.VideoInput;
-import de.dhbw.video.shape.Shape;
-import de.dhbw.video.shape.ShapeForm;
-import de.dhbw.video.shape.ShapeType;
 import javafx.application.Application;
 import nu.pattern.OpenCV;
 import org.opencv.core.Mat;
-import org.opencv.core.MatOfPoint;
-import org.opencv.core.Point;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import static de.dhbw.statics.*;
 
 public class Main {
     static boolean running = true;
@@ -29,76 +21,86 @@ public class Main {
         OpenCV.loadLocally();
         Thread uiThread = new Thread( () -> Application.launch( App.class, args) );
         uiThread.start();
-
-        mockVideoInput();
-        mockShapeInput();
+        runController();
     }
 
     public static void runController(){
         // time_zero is not set to zero to optionally allow sync wit ext. clocks later on by simply manipulating time_zero
         long time_zero = System.currentTimeMillis();
+        long time = time_zero;
         Settings settings = new Settings(120);
-        VideoInput videoIn = new VideoInput(0);
+        Setting setting;
+
+        VideoInput videoIn = new VideoInput(2);
         MarkerRecognizer markerRecognizer = new MarkerRecognizer();
         ShapeProcessor shapeProcessor = new ShapeProcessor();
         MidiAdapter midiAdapter = new MidiAdapter();
         MidiOutputDevice midiOutputDevice = new MidiOutputDevice();
-        midiOutputDevice.setMidiDevice(0);
+        midiOutputDevice.setMidiDevice("MPK");
+        midiOutputDevice.updateSettings(null);
         midiOutputDevice.start();
         Clock clock = new Clock(time_zero);
         clock.setTempo(settings.tempo);
         Mat frame = new Mat();
+        int counter = 0;
         while (running){
-            if(!EventQueues.toController.isEmpty()){
-                // take event and process. Probably set settings accordingly or close application
-                //
-            }
+            // message independent code:
             clock.tick(System.currentTimeMillis());
             videoIn.grabImage(frame);
-            EventQueues.toUI.offer(new UIMessage(frame));
+
             markerRecognizer.setFrame(frame);
             markerRecognizer.detectShapes();
-            shapeProcessor.processShapes(markerRecognizer.getShapes(), frame.width(), frame.height());
-            midiAdapter.tickMidi(clock.currentBeat, shapeProcessor.getSoundMatrix(), settings);
-            // TODO add sending shapes to UI for display
+            shapeProcessor.processShapes(markerRecognizer.getShapes(), frame.width(), frame.height(), frame);
+
+            // message dependent / message sending code:
+            if(!EventQueues.toController.isEmpty()){
+                setting = EventQueues.toController.poll();
+                if(setting != null) {
+                    switch (setting.getType()) {
+                        case VELOCITY:
+                            midiAdapter.setVelocity((int) (setting.getValue() * MAX_VELOCITY));
+                            break;
+                        case MUTE:
+                            midiAdapter.setMute(!(setting.getValue() > 0.5));
+                            break;
+                        case METRONOME:
+                            // TODO find out where the information that should be displayed should be stored
+                            midiAdapter.setMetronomeActive(setting.getValue() > 0.5);
+                            //clock.setTempo((int) (setting.getValue() * MAX_TEMPO_SPAN + MIN_TEMPO));
+                            break;
+                        case PLAY:
+                            clock.setPlaying(setting.getValue() > 0.5);
+                            //midiAdapter.setMute(!(setting.getValue() > 0.5));
+                            break;
+                        case null, default:
+                            break;
+                    }
+                }
+            }
+            midiAdapter.tickMidi(clock.currentBeat, shapeProcessor.getSoundMatrix());
+
+            EventQueues.toUI.offer(new UIMessage(shapeProcessor.getPlayfieldInfo()));
+            EventQueues.toUI.offer(new UIMessage(markerRecognizer.getShapes()));
+
+            // TODO does it make a difference if the frame-offering is at the end
+            EventQueues.toUI.offer(new UIMessage(shapeProcessor.getFrame()));
+
+            if (counter % 100 == 0) {
+                printStats(time);
+                counter = 0;
+                time = System.currentTimeMillis();
+            }
+            counter++;
         }
         videoIn.releaseCap();
         midiOutputDevice.release();
 
     }
 
-    private static void mockVideoInput() {
-        VideoInput videoInput = new VideoInput(0);
-        Mat frame = new Mat();
-        Runnable frameGrabber = () -> {
-            videoInput.grabImage(frame);
-            UIMessage msg = new UIMessage( frame );
-            EventQueues.toUI.offer( msg );
-        };
-
-        ScheduledExecutorService timer = Executors.newSingleThreadScheduledExecutor();
-        timer.scheduleAtFixedRate(frameGrabber, 0, 100, TimeUnit.MILLISECONDS);
-    }
-
-    private static void mockShapeInput() {
-        List<Shape> shapes = new ArrayList<>();
-        Shape first = new Shape( new MatOfPoint( new Point( 20, 20), new Point( 25, 20), new Point( 25, 25), new Point( 20, 25 )), ShapeForm.SQUARE, new int[]{20, 20});
-        first.setType(ShapeType.FIELD_MARKER);
-        shapes.add(first);
-
-        Shape second = new Shape( new MatOfPoint( new Point( 60, 20), new Point( 65, 20), new Point( 65, 25), new Point( 60, 25 )), ShapeForm.SQUARE, new int[]{60, 20});
-        second.setType(ShapeType.FIELD_MARKER);
-        shapes.add(second);
-
-        Shape third = new Shape( new MatOfPoint( new Point( 60, 60), new Point( 65, 60), new Point( 65, 65), new Point( 60, 65 )), ShapeForm.SQUARE, new int[]{60, 60});
-        third.setType(ShapeType.FIELD_MARKER);
-        shapes.add(third);
-
-        Shape fourth = new Shape( new MatOfPoint( new Point( 20, 60), new Point( 25, 60), new Point( 25, 65), new Point( 20, 65 )), ShapeForm.SQUARE, new int[]{20, 60});
-        fourth.setType(ShapeType.FIELD_MARKER);
-        shapes.add(fourth);
-
-        UIMessage msg = new UIMessage(shapes);
-        EventQueues.toUI.offer( msg );
+    private static void printStats(long time) {
+        System.out.println("MB used=" + (Runtime.getRuntime().totalMemory() -
+                Runtime.getRuntime().freeMemory()) / (1000 * 1000) + "M");
+        System.out.println("fps: " + 100f / (System.currentTimeMillis() - time) * 1000);
+        System.gc();
     }
 }

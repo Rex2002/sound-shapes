@@ -11,7 +11,8 @@ import java.util.List;
 
 public class MarkerRecognizer {
     private static final int EXPECTED_SHAPE_NO = 30;
-    Mat frame, gray, blurred, bin, hierarchy;
+    @Getter
+    Mat frame, gray = new Mat(), blurred=new Mat(), bin = new Mat(), hierarchy = new Mat();
     List<MatOfPoint> contours;
     @Getter
     List<Shape> shapes;
@@ -45,7 +46,7 @@ public class MarkerRecognizer {
             if(area < 80){
                 continue;
             }
-            contour2f = new MatOfPoint2f(contour);
+            contour2f = new MatOfPoint2f(contour.toArray());
             perimeter = Imgproc.arcLength(contour2f, true);
             Imgproc.approxPolyDP(contour2f, contourTarget2f, 0.04 * perimeter, true);
             int edgeNo = contourTarget2f.toList().size();
@@ -74,9 +75,8 @@ public class MarkerRecognizer {
         Imgproc.cvtColor(frame, gray, Imgproc.COLOR_BGR2GRAY);
         // TODO find out what these values actually mean and potentially adapt
         Imgproc.GaussianBlur(gray, blurred, new Size(11,11), 4/6f);
-        Imgproc.threshold(blurred, bin, 100, 255, Imgproc.THRESH_BINARY_INV);
+        Imgproc.threshold(blurred, bin, 65, 255, Imgproc.THRESH_BINARY_INV);
         // TODO find out what RETR_TREE and CHAIN_APPROX_SIMPLE mean
         Imgproc.findContours(bin, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
     }
-
 }

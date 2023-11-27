@@ -8,4 +8,5 @@ import lombok.Data;
 @AllArgsConstructor
 public class Settings {
     int tempo;
+
 }

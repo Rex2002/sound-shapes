@@ -1,5 +1,8 @@
 package de.dhbw.communication;
 
 public enum SettingType {
-    PLAY
+    PLAY,
+    METRONOME,
+    VELOCITY,
+    MUTE
 }

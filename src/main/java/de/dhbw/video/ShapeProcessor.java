@@ -1,11 +1,15 @@
 package de.dhbw.video;
 
+ import de.dhbw.statics;
 import de.dhbw.video.shape.Shape;
 import de.dhbw.video.shape.ShapeForm;
 import de.dhbw.video.shape.ShapeType;
+import lombok.Getter;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.Point;
+import org.opencv.imgproc.Imgproc;
 
 import java.util.List;
 
@@ -15,11 +19,15 @@ public class ShapeProcessor {
 
     private List<Shape> shapes;
     // consists of x_pos, y_pos, width, height, is_rect(0/1)
+    @Getter
     private final int[] playfieldInfo;
     private final Mat[] playFieldBoundaries;
     private int frameHeight;
     private int frameWidth;
-    private boolean[][] soundMatrix;
+    @Getter
+    private Mat frame;
+    @Getter
+    private boolean[][] soundMatrix = new boolean[NO_BEATS][NO_NOTES];
     public ShapeProcessor(){
         playFieldBoundaries = new Mat[4];
         for(int i = 0; i < 4; i++) {
@@ -29,15 +37,28 @@ public class ShapeProcessor {
     }
 
     //TODO check if making the width and height of the input-video globally available makes sense
-    public void processShapes(List<Shape> shapes, int width, int height){
+    public void processShapes(List<Shape> shapes, int width, int height, Mat frame){
         this.shapes = shapes;
+        this.frame = frame;
         frameWidth = width;
         frameHeight = height;
         detectPlayfield();
         if(playfieldInfo[4] == 1){
             generateSoundMatrix();
+            drawPlayfield(frame);
         }
         // TODO > treat control markers
+    }
+
+    public void drawPlayfield(Mat frame){
+        if (playfieldInfo[4] == 1) {
+            Imgproc.rectangle(
+                    frame,
+                    new Point(playfieldInfo[0], playfieldInfo[1]),
+                    new Point(playfieldInfo[0] + playfieldInfo[2], playfieldInfo[1] + playfieldInfo[3]),
+                    statics.PLAYFIELD_HL_COLOR, 3
+            );
+        }
     }
 
     private void detectPlayfield(){
@@ -76,26 +97,39 @@ public class ShapeProcessor {
         }
         playfieldInfo[0] = (corners[0].pos[0] + corners[3].pos[0]) / 2;
         playfieldInfo[1] = (corners[0].pos[1] + corners[1].pos[1]) / 2;
-        playfieldInfo[2] = (corners[1].pos[0] + corners[2].pos[0]) / 2;
-        playfieldInfo[3] = (corners[2].pos[1] + corners[3].pos[1]) / 2;
+        playfieldInfo[2] = (corners[1].pos[0] + corners[2].pos[0]) / 2 - playfieldInfo[0];
+        playfieldInfo[3] = (corners[2].pos[1] + corners[3].pos[1]) / 2 - playfieldInfo[1];
         playfieldInfo[4] = checkRectangularity() ? 1 : 0;
         for(Shape s : shapes) {
             if (s.pos[0] > playfieldInfo[0] && s.pos[0] < playfieldInfo[0] + playfieldInfo[2]
-                    && s.pos[1] > playfieldInfo[1] && s.pos[1] < playfieldInfo[1] + playfieldInfo[3]) {
+                    && s.pos[1] > playfieldInfo[1] && s.pos[1] < playfieldInfo[1] + playfieldInfo[3] && s.getType() != ShapeType.FIELD_MARKER) {
                 s.setType(ShapeType.SOUND_MARKER);
             }
         }
+    }
+
+    public int[][] playFieldToLines(){
+        if(playfieldInfo[4] != 1){
+            return null;
+        }
+        int[][] ret = new int[4][4];
+        ret[0] = new int[]{playfieldInfo[0], playfieldInfo[1], playfieldInfo[0] + playfieldInfo[2], playfieldInfo[1]};
+        ret[1] = new int[]{playfieldInfo[0] + playfieldInfo[2], playfieldInfo[1], playfieldInfo[0] + playfieldInfo[2], playfieldInfo[1] + playfieldInfo[3]};
+        ret[2] = new int[]{playfieldInfo[0] + playfieldInfo[2], playfieldInfo[1] + playfieldInfo[3], playfieldInfo[0], playfieldInfo[1] + playfieldInfo[3]};
+        ret[3] = new int[]{playfieldInfo[0], playfieldInfo[1] + playfieldInfo[3], playfieldInfo[0], playfieldInfo[1]};
+        return ret;
+
     }
 
     /**
      * This method must not be called when the playfield is not valid!!!
      */
     private void generateSoundMatrix(){
-        soundMatrix = new boolean[NO_BEATS][NO_INSTR];
+        soundMatrix = new boolean[NO_BEATS][NO_NOTES];
         int barOffset, beatNo;
         for(Shape s : shapes.stream().filter(s -> s.getType() == ShapeType.SOUND_MARKER).toList()){
             barOffset = s.pos[1] - playfieldInfo[1] > playfieldInfo[3]/2 ? NO_BARS/2 : 0;
-            beatNo = (int) (((s.pos[0] - playfieldInfo[0])/ (double) playfieldInfo[2]) * NO_BEATS);
+            beatNo = (int) (((s.pos[0] - playfieldInfo[0])/ (double) playfieldInfo[2]) * NO_BEATS/2);
             soundMatrix[barOffset * NO_BEATS/NO_BARS + beatNo][s.getForm().toInt()] = true;
         }
     }
@@ -112,10 +146,6 @@ public class ShapeProcessor {
             }
         }
         return true;
-    }
-
-    public boolean[][] getSoundMatrix(){
-        return soundMatrix;
     }
 
 }
