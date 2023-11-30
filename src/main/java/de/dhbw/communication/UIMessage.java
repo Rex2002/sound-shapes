@@ -10,7 +10,7 @@ import java.util.List;
 public class UIMessage {
     private Mat frame;
     private List<Shape> shapes;
-    private int[] playFieldInformation;
+    private int[][][] lineInformation;
     private Setting setting;
 
     public UIMessage(Mat frame) {
@@ -25,7 +25,7 @@ public class UIMessage {
         this.setting = setting;
     }
 
-    public UIMessage(int[] playFieldInformation) {
-        this.playFieldInformation = playFieldInformation;
+    public UIMessage(int[][][] lineInformation) {
+        this.lineInformation = lineInformation;
     }
 }

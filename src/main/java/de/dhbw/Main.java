@@ -34,6 +34,7 @@ public class Main {
         VideoInput videoIn = new VideoInput(2);
         MarkerRecognizer markerRecognizer = new MarkerRecognizer();
         ShapeProcessor shapeProcessor = new ShapeProcessor();
+        PositionMarker positionMarker = new PositionMarker();
         MidiAdapter midiAdapter = new MidiAdapter();
         MidiOutputDevice midiOutputDevice = new MidiOutputDevice();
         midiOutputDevice.setMidiDevice("MPK");
@@ -51,7 +52,7 @@ public class Main {
             markerRecognizer.setFrame(frame);
             markerRecognizer.detectShapes();
             shapeProcessor.processShapes(markerRecognizer.getShapes(), frame.width(), frame.height(), frame);
-
+            positionMarker.updatePositionMarker(shapeProcessor.getPlayfieldInfo(), clock.currentBeat);
             // message dependent / message sending code:
             if(!EventQueues.toController.isEmpty()){
                 setting = EventQueues.toController.poll();
@@ -78,12 +79,12 @@ public class Main {
                 }
             }
             midiAdapter.tickMidi(clock.currentBeat, shapeProcessor.getSoundMatrix());
+            EventQueues.toUI.offer(new UIMessage(shapeProcessor.getFrame()));
 
-            EventQueues.toUI.offer(new UIMessage(shapeProcessor.getPlayfieldInfo()));
+            EventQueues.toUI.offer(new UIMessage(new int[][][] {shapeProcessor.playFieldToLines(), positionMarker.getPosAsLine()}));
             EventQueues.toUI.offer(new UIMessage(markerRecognizer.getShapes()));
 
             // TODO does it make a difference if the frame-offering is at the end
-            EventQueues.toUI.offer(new UIMessage(shapeProcessor.getFrame()));
 
             if (counter % 100 == 0) {
                 printStats(time);

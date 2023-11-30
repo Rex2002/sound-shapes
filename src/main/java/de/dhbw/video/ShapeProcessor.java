@@ -45,7 +45,7 @@ public class ShapeProcessor {
         detectPlayfield();
         if(playfieldInfo[4] == 1){
             generateSoundMatrix();
-            drawPlayfield(frame);
+            //drawPlayfield(frame);
         }
         // TODO > treat control markers
     }
@@ -107,6 +107,8 @@ public class ShapeProcessor {
             }
         }
     }
+
+
 
     public int[][] playFieldToLines(){
         if(playfieldInfo[4] != 1){

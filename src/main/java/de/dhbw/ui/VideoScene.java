@@ -81,8 +81,8 @@ public class VideoScene {
             if (message.getShapes() != null) {
                 processShapes( message.getShapes() );
             }
-            if (message.getPlayFieldInformation() != null){
-                drawPlayField( message.getPlayFieldInformation() );
+            if (message.getLineInformation() != null){
+                drawLines( message.getLineInformation() );
             }
         }
     }
@@ -146,6 +146,23 @@ public class VideoScene {
         path.getElements().add(line);
 
         fieldPane.getChildren().add( path );
+    }
+
+    private void drawLines(int[][][]lines){
+        Path path = new Path();
+        MoveTo mt; LineTo lt;
+        for(int[][] pointset : lines){
+            if(pointset == null || pointset.length == 0) continue;
+            mt = new MoveTo(scaleCoordinate(pointset[0][0]), scaleCoordinate(pointset[0][1]));
+            path.getElements().add(mt);
+            for(int pointNo = 1; pointNo < pointset.length; pointNo++) {
+                lt = new LineTo(scaleCoordinate(pointset[pointNo][0]), scaleCoordinate(pointset[pointNo][1]));
+                path.getElements().add(lt);
+            }
+            lt = new LineTo(scaleCoordinate(pointset[0][0]), scaleCoordinate(pointset[0][1]));
+            path.getElements().add(lt);
+        }
+        fieldPane.getChildren().add(path);
     }
 
     private void setUIDimensions() {
