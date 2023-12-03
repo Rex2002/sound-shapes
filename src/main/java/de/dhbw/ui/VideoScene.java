@@ -149,6 +149,7 @@ public class VideoScene {
     }
 
     private void drawLines(int[][][]lines){
+        fieldPane.getChildren().clear();
         Path path = new Path();
         MoveTo mt; LineTo lt;
         for(int[][] pointset : lines){

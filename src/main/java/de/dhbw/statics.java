@@ -21,4 +21,8 @@ public class statics {
     public final static int MAX_VELOCITY = 127;
     //find clicking sound
     public final static int METRONOME_SOUND = 45;
+    // 1 = every eighth
+    // 2 = every quarter
+    // 4 = every half
+    public final static int POSITION_MARKER_RES = 4;
 }
