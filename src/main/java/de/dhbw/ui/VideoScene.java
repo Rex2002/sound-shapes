@@ -126,28 +126,6 @@ public class VideoScene {
         shapePane.getChildren().add( path );
     }
 
-    private void drawPlayField(int[] input) {
-        fieldPane.getChildren().clear();
-
-        double[] playFieldInfo = new double[4];
-        for (int i = 0; i < playFieldInfo.length; i++) {
-            playFieldInfo[i] = scaleCoordinate( input[i] );
-        }
-        Path path = new Path();
-        MoveTo moveTo = new MoveTo( playFieldInfo[0], playFieldInfo[1] );
-        path.getElements().add(moveTo);
-        LineTo line = new LineTo( playFieldInfo[0] + playFieldInfo[2], playFieldInfo[1] );
-        path.getElements().add(line);
-        line = new LineTo( playFieldInfo[0] + playFieldInfo[2], playFieldInfo[1] + playFieldInfo[3] );
-        path.getElements().add(line);
-        line = new LineTo( playFieldInfo[0], playFieldInfo[1] + playFieldInfo[3] );
-        path.getElements().add(line);
-        line = new LineTo(playFieldInfo[0], playFieldInfo[1] );
-        path.getElements().add(line);
-
-        fieldPane.getChildren().add( path );
-    }
-
     private void drawLines(int[][][]lines){
         fieldPane.getChildren().clear();
         Path path = new Path();
@@ -213,5 +191,4 @@ public class VideoScene {
         EventQueues.toController.add(setting);
         mute_btn.setText(mute ? "Unmute" : "Mute");
     }
-
 }

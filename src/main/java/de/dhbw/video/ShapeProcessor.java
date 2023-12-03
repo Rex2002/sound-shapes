@@ -1,6 +1,5 @@
 package de.dhbw.video;
 
- import de.dhbw.statics;
 import de.dhbw.video.shape.Shape;
 import de.dhbw.video.shape.ShapeForm;
 import de.dhbw.video.shape.ShapeType;
@@ -8,8 +7,6 @@ import lombok.Getter;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
-import org.opencv.core.Point;
-import org.opencv.imgproc.Imgproc;
 
 import java.util.List;
 
@@ -45,21 +42,10 @@ public class ShapeProcessor {
         detectPlayfield();
         if(playfieldInfo[4] == 1){
             generateSoundMatrix();
-            //drawPlayfield(frame);
         }
         // TODO > treat control markers
     }
 
-    public void drawPlayfield(Mat frame){
-        if (playfieldInfo[4] == 1) {
-            Imgproc.rectangle(
-                    frame,
-                    new Point(playfieldInfo[0], playfieldInfo[1]),
-                    new Point(playfieldInfo[0] + playfieldInfo[2], playfieldInfo[1] + playfieldInfo[3]),
-                    statics.PLAYFIELD_HL_COLOR, 3
-            );
-        }
-    }
 
     private void detectPlayfield(){
         playfieldInfo[4] = 1;
