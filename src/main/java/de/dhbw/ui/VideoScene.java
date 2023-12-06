@@ -56,23 +56,20 @@ public class VideoScene {
     private double scaleRatio;
     ChangeListener<? super Number> sizeChangeListener;
     private boolean fieldPaneCleared = false;
-    int prevVal = 0, it = 0;
-
     @FXML
     private void initialize() {
         //bind ImageView dimensions to parent
-        currentFrame.fitWidthProperty().bind( stack.widthProperty() );
-        currentFrame.fitHeightProperty().bind( stack.heightProperty() );
+        currentFrame.fitWidthProperty().bind(stack.widthProperty());
+        currentFrame.fitHeightProperty().bind(stack.heightProperty());
 
         sizeChangeListener = (observable, oldValue, newValue) -> setUIDimensions();
         stack.widthProperty().addListener(sizeChangeListener);
 
         checkQueueService = new CheckQueueService();
-        checkQueueService.setPeriod( Duration.millis(33) );
-        checkQueueService.setOnSucceeded( (event) -> handleQueue() );
+        checkQueueService.setPeriod(Duration.millis(33));
+        checkQueueService.setOnSucceeded((event) -> handleQueue());
         checkQueueService.start();
     }
-
     private void handleQueue() {
         fieldPaneCleared = false;
         List<UIMessage> messages = checkQueueService.getValue();
@@ -145,31 +142,11 @@ public class VideoScene {
         Rectangle playfield = new Rectangle(playFieldInfo[0], playFieldInfo[1], playFieldInfo[2], playFieldInfo[3]);
         playfield.setStroke(Color.YELLOW);
         playfield.setFill(Color.TRANSPARENT);
-        //playfield.setFill(Color.GREEN);
-        //playfield.opacityProperty().set(0.4);
-//        Path path = new Path();
-//        MoveTo moveTo = new MoveTo(playFieldInfo[0], playFieldInfo[1]);
-//        path.getElements().add(moveTo);
-//        LineTo line = new LineTo(playFieldInfo[0] + playFieldInfo[2], playFieldInfo[1]);
-//        path.getElements().add(line);
-//        line = new LineTo(playFieldInfo[0] + playFieldInfo[2], playFieldInfo[1] + playFieldInfo[3]);
-//        path.getElements().add(line);
-//        line = new LineTo(playFieldInfo[0], playFieldInfo[1] + playFieldInfo[3]);
-//        path.getElements().add(line);
-//        line = new LineTo(playFieldInfo[0], playFieldInfo[1]);
-//        path.getElements().add(line);
 
         fieldPane.getChildren().add(playfield);
     }
 
     private void drawPositionMarker(int[] input){
-//        System.out.println(Arrays.toString(input));
-        it++;
-        if(Math.abs(input[0] - prevVal) > 20){
-            System.out.println("Having a change after iterations: " + it);
-            it = 0;
-        }
-        prevVal = input[0];
         double[] positionMarkerInfo = new double[4];
         for (int i = 0; i < positionMarkerInfo.length; i++) {
             positionMarkerInfo[i] = scaleCoordinate(input[i]);
