@@ -24,5 +24,5 @@ public class statics {
     // 1 = every eighth
     // 2 = every quarter
     // 4 = every half
-    public final static int POSITION_MARKER_RES = 4;
+    public final static int POSITION_MARKER_RES = 2;
 }
