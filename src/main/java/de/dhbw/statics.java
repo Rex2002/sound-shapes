@@ -19,6 +19,6 @@ public class statics {
     public final static int MIN_TEMPO = 60;
     public final static int DEFAULT_VELOCITY = 80;
     public final static int MAX_VELOCITY = 127;
-    //find clicking sound
+    // TODO find clicking sound
     public final static int METRONOME_SOUND = 45;
 }
