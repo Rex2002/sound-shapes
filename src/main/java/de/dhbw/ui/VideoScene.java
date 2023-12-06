@@ -69,6 +69,7 @@ public class VideoScene {
         checkQueueService.setPeriod(Duration.millis(33));
         checkQueueService.setOnSucceeded((event) -> handleQueue());
         checkQueueService.start();
+        EventQueues.toUI.clear();
     }
     private void handleQueue() {
         fieldPaneCleared = false;
