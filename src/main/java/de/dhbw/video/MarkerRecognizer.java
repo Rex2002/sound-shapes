@@ -56,7 +56,7 @@ public class MarkerRecognizer {
             else if(edgeNo == 4){
                 rrec = Imgproc.minAreaRect(contourTarget2f);
                 areaRatio = rrec.size.width / rrec.size.height;
-                if(areaRatio >= 0.5 && areaRatio <= 1.5) form = ShapeForm.SQUARE;
+                if(areaRatio >= 0.8 && areaRatio <= 1.2) form = ShapeForm.SQUARE;
                 else form = ShapeForm.RECT;
             }
             else if(edgeNo == 5){
@@ -65,7 +65,6 @@ public class MarkerRecognizer {
             else{
                 form = ShapeForm.CIRCLE;
             }
-
             shapes.add(new Shape(contour, form, Shape.calcPositionFromMoments(Imgproc.moments(contour))));
         }
     }

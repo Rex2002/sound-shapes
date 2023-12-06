@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CheckQueueService extends ScheduledService<List<UIMessage>> {
-    private  final List<UIMessage> messages = new ArrayList<>(10);
+    private  final List<UIMessage> messages = new ArrayList<>(20);
 
     @Override
     protected Task<List<UIMessage>> createTask() {
@@ -17,7 +17,7 @@ public class CheckQueueService extends ScheduledService<List<UIMessage>> {
             @Override
             protected List<UIMessage> call() {
                 messages.clear();
-                EventQueues.toUI.drainTo(messages, 10);
+                EventQueues.toUI.drainTo(messages, 20);
                 return messages;
             }
         };

@@ -13,9 +13,11 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
+import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
@@ -53,23 +55,24 @@ public class VideoScene {
     private double frameWidth = -1;
     private double scaleRatio;
     ChangeListener<? super Number> sizeChangeListener;
-
+    private boolean fieldPaneCleared = false;
     @FXML
     private void initialize() {
         //bind ImageView dimensions to parent
-        currentFrame.fitWidthProperty().bind( stack.widthProperty() );
-        currentFrame.fitHeightProperty().bind( stack.heightProperty() );
+        currentFrame.fitWidthProperty().bind(stack.widthProperty());
+        currentFrame.fitHeightProperty().bind(stack.heightProperty());
 
         sizeChangeListener = (observable, oldValue, newValue) -> setUIDimensions();
         stack.widthProperty().addListener(sizeChangeListener);
 
         checkQueueService = new CheckQueueService();
-        checkQueueService.setPeriod( Duration.millis(33) );
-        checkQueueService.setOnSucceeded( (event) -> handleQueue() );
+        checkQueueService.setPeriod(Duration.millis(33));
+        checkQueueService.setOnSucceeded((event) -> handleQueue());
         checkQueueService.start();
+        EventQueues.toUI.clear();
     }
-
     private void handleQueue() {
+        fieldPaneCleared = false;
         List<UIMessage> messages = checkQueueService.getValue();
         for (UIMessage message : messages) {
             if (message.getFrame() != null) {
@@ -81,8 +84,14 @@ public class VideoScene {
             if (message.getShapes() != null) {
                 processShapes( message.getShapes() );
             }
-            if (message.getLineInformation() != null){
-                drawLines( message.getLineInformation() );
+            if (message.getPlayFieldInformation() != null && message.getPlayFieldInformation()[4] == 1){
+                fieldPane.getChildren().clear();
+                fieldPaneCleared = true;
+                drawPlayField( message.getPlayFieldInformation() );
+            }
+            if (message.getPositionMarker() != null){
+                if(!fieldPaneCleared) fieldPane.getChildren().clear();
+                drawPositionMarker(message.getPositionMarker());
             }
         }
     }
@@ -124,6 +133,32 @@ public class VideoScene {
         }
 
         shapePane.getChildren().add( path );
+    }
+
+    private void drawPlayField(int[] input) {
+        double[] playFieldInfo = new double[4];
+        for (int i = 0; i < playFieldInfo.length; i++) {
+            playFieldInfo[i] = scaleCoordinate(input[i]);
+        }
+        Rectangle playfield = new Rectangle(playFieldInfo[0], playFieldInfo[1], playFieldInfo[2], playFieldInfo[3]);
+        playfield.setStroke(Color.YELLOW);
+        playfield.setFill(Color.TRANSPARENT);
+
+        fieldPane.getChildren().add(playfield);
+    }
+
+    private void drawPositionMarker(int[] input){
+        double[] positionMarkerInfo = new double[4];
+        for (int i = 0; i < positionMarkerInfo.length; i++) {
+            positionMarkerInfo[i] = scaleCoordinate(input[i]);
+        }
+
+        Rectangle positionMarker = new Rectangle(positionMarkerInfo[0], positionMarkerInfo[1], positionMarkerInfo[2], positionMarkerInfo[3]);
+        positionMarker.setFill(Color.GREEN);
+        positionMarker.opacityProperty().setValue(0.4);
+
+        fieldPane.getChildren().add(positionMarker);
+
     }
 
     private void drawLines(int[][][]lines){

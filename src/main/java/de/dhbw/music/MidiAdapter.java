@@ -29,12 +29,10 @@ public class MidiAdapter {
             lastInterval = posInBeat;
             if(metronomeActive && posInBeat % 2 == 0){
                 midiBatchMessage.addMidiMessage(statics.METRONOME_SOUND, velocity, -1);
-                //EventQueues.toMidi.offer(new MidiBatchMessage(statics.METRONOME_SOUND, velocity, -1));
             }
             for(int note = 0; note < soundMatrix[posInBeat].length; note++){
                 if (soundMatrix[posInBeat][note]){
                     midiBatchMessage.addMidiMessage(int2Note(note), velocity, -1);
-                    //EventQueues.toMidi.offer(new MidiBatchMessage(int2Note(note), velocity, -1));
                 }
             }
             EventQueues.toMidi.offer(midiBatchMessage);
@@ -44,11 +42,11 @@ public class MidiAdapter {
     public int int2Note(int i){
         return switch (i) {
             case 0 -> 42;
-            case 1 -> 54;
-            case 2 -> 37;
-            case 3 -> 39;
-            case 4 -> 64;
-            default -> 32;
+            case 1 -> 36;
+            case 2 -> 38;
+            case 3 -> 49;
+            case 4 -> 51;
+            default -> 56;
         };
     }
 }

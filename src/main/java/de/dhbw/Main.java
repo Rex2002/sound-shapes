@@ -30,6 +30,7 @@ public class Main {
         long time = time_zero;
         Settings settings = new Settings(120);
         Setting setting;
+        //UIMessage uiMessage = new UIMessage();
 
         VideoInput videoIn = new VideoInput(2);
         MarkerRecognizer markerRecognizer = new MarkerRecognizer();
@@ -79,11 +80,14 @@ public class Main {
                 }
             }
             midiAdapter.tickMidi(clock.currentBeat, shapeProcessor.getSoundMatrix());
-            EventQueues.toUI.offer(new UIMessage(shapeProcessor.getFrame()));
-
-            EventQueues.toUI.offer(new UIMessage(new int[][][] {shapeProcessor.playFieldToLines(), positionMarker.getPosAsLine()}));
-            EventQueues.toUI.offer(new UIMessage(markerRecognizer.getShapes()));
-
+            UIMessage uiMessage = new UIMessage();
+            uiMessage.setFrame(shapeProcessor.getFrame());
+            uiMessage.setPlayFieldInformation(shapeProcessor.getPlayfieldInfo());
+            uiMessage.setPositionMarker(positionMarker.getPosAsRect());
+            uiMessage.setShapes(markerRecognizer.getShapes());
+            if(EventQueues.toUI.size() < 19) {
+                EventQueues.toUI.add(uiMessage);
+            }
             // TODO does it make a difference if the frame-offering is at the end
 
             if (counter % 100 == 0) {
