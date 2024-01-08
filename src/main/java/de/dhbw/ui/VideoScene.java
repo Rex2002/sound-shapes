@@ -7,7 +7,6 @@ import de.dhbw.communication.UIMessage;
 import de.dhbw.video.shape.Shape;
 import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
@@ -25,6 +24,7 @@ import org.opencv.core.Point;
 import org.opencv.imgcodecs.Imgcodecs;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.util.List;
 
 public class VideoScene {
@@ -41,11 +41,11 @@ public class VideoScene {
     @FXML
     private GridPane menu_pane;
     @FXML
-    private Button mute_btn;
+    private ImageView mute_btn;
     @FXML
-    private Button play_btn;
+    private ImageView play_btn;
     @FXML
-    private Button metronome_btn;
+    private ImageView metronome_btn;
 
     private CheckQueueService checkQueueService;
     private boolean playing = true;
@@ -161,24 +161,6 @@ public class VideoScene {
 
     }
 
-    private void drawLines(int[][][]lines){
-        fieldPane.getChildren().clear();
-        Path path = new Path();
-        MoveTo mt; LineTo lt;
-        for(int[][] pointset : lines){
-            if(pointset == null || pointset.length == 0) continue;
-            mt = new MoveTo(scaleCoordinate(pointset[0][0]), scaleCoordinate(pointset[0][1]));
-            path.getElements().add(mt);
-            for(int pointNo = 1; pointNo < pointset.length; pointNo++) {
-                lt = new LineTo(scaleCoordinate(pointset[pointNo][0]), scaleCoordinate(pointset[pointNo][1]));
-                path.getElements().add(lt);
-            }
-            lt = new LineTo(scaleCoordinate(pointset[0][0]), scaleCoordinate(pointset[0][1]));
-            path.getElements().add(lt);
-        }
-        fieldPane.getChildren().add(path);
-    }
-
     private void setUIDimensions() {
         double aspectRatioRoot = root.getWidth() / root.getHeight();
         if (aspectRatioRoot < aspectRatioFrame) {
@@ -206,7 +188,9 @@ public class VideoScene {
         double playValue = playing ? 1.0 : 0.0;
         Setting setting = new Setting(SettingType.PLAY, playValue);
         EventQueues.toController.add(setting);
-        play_btn.setText(playing ? "Pause" : "Play");
+        File icon = new File(playing ? "src/main/resources/icons/stop_blue.png" : "src/main/resources/icons/play_blue.png");
+        play_btn.setImage( new Image( icon.toURI().toString() ) );
+        //TODO: maybe load icons in initialize() to make swapping them snappier
     }
 
     @FXML
@@ -215,7 +199,9 @@ public class VideoScene {
         double metronomeValue = metronome ? 1.0 : 0.0;
         Setting setting = new Setting(SettingType.METRONOME, metronomeValue);
         EventQueues.toController.add(setting);
-        metronome_btn.setText(metronome ? "Click off" : "Click on");
+        File icon = new File(metronome ? "src/main/resources/icons/metronome_on_blue.png" : "src/main/resources/icons/metronome_off_blue.png");
+        metronome_btn.setImage( new Image( icon.toURI().toString() ) );
+        //TODO: maybe load icons in initialize() to make swapping them snappier
     }
 
     @FXML
@@ -224,6 +210,8 @@ public class VideoScene {
         double muteValue = mute ? 0.0 : 1.0;
         Setting setting = new Setting(SettingType.MUTE, muteValue);
         EventQueues.toController.add(setting);
-        mute_btn.setText(mute ? "Unmute" : "Mute");
+        File icon = new File(mute ? "src/main/resources/icons/volume_mute_blue.png" : "src/main/resources/icons/volume_max_blue.png");
+        mute_btn.setImage( new Image( icon.toURI().toString() ) );
+        //TODO: maybe load icons in initialize() to make swapping them snappier
     }
 }
