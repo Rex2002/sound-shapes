@@ -4,5 +4,6 @@ public enum SettingType {
     PLAY,
     METRONOME,
     VELOCITY,
-    MUTE
+    MUTE,
+    MIDI_DEVICE
 }

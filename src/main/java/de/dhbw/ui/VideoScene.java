@@ -8,9 +8,11 @@ import de.dhbw.video.shape.Shape;
 import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -24,7 +26,10 @@ import org.opencv.core.MatOfByte;
 import org.opencv.core.Point;
 import org.opencv.imgcodecs.Imgcodecs;
 
+import javax.sound.midi.MidiDevice;
+import javax.sound.midi.MidiSystem;
 import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 public class VideoScene {
@@ -39,18 +44,27 @@ public class VideoScene {
     @FXML
     private AnchorPane shapePane;
     @FXML
-    private GridPane menu_pane;
+    private GridPane menu_grid;
     @FXML
     private Button mute_btn;
     @FXML
     private Button play_btn;
     @FXML
     private Button metronome_btn;
+    @FXML
+    private FlowPane settings_tab;
+    @FXML
+    private ImageView settings_btn;
+    @FXML
+    private FlowPane settings_pane;
+    @FXML
+    private ChoiceBox<String> midi_choicebox;
 
     private CheckQueueService checkQueueService;
     private boolean playing = true;
     private boolean metronomeRunning = false;
     private boolean mute = false;
+    private boolean settingsVisible = false;
     private double aspectRatioFrame;
     private double frameWidth = -1;
     private double scaleRatio;
@@ -205,4 +219,33 @@ public class VideoScene {
         EventQueues.toController.add(setting);
         mute_btn.setText(mute ? "Unmute" : "Mute");
     }
+
+    @FXML
+    private void toggleSettingsPane() {
+        settings_pane.setVisible(!settingsVisible);
+        settingsVisible = !settingsVisible;
+        if (settingsVisible) {
+            refreshSettingsPane();
+        }
+    }
+
+    private void refreshSettingsPane() {
+        MidiDevice.Info[] deviceInfos = MidiSystem.getMidiDeviceInfo();
+        List<String> devices = new ArrayList<>();
+        for (MidiDevice.Info deviceInfo : deviceInfos) {
+            if (deviceInfo.getName().contains("Sequencer")) {
+                continue;
+            }
+            devices.add(deviceInfo.getName());
+        }
+        midi_choicebox.getItems().clear();
+        midi_choicebox.getItems().addAll(devices);
+    }
+
+    @FXML
+    private void sendMidiSetting() {
+        Setting<String> setting = new Setting<>(SettingType.MIDI_DEVICE, midi_choicebox.getValue());
+        EventQueues.toController.add(setting);
+    }
+
 }

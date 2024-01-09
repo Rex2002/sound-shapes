@@ -38,7 +38,7 @@ public class Main {
         PositionMarker positionMarker = new PositionMarker();
         MidiAdapter midiAdapter = new MidiAdapter();
         MidiOutputDevice midiOutputDevice = new MidiOutputDevice();
-        midiOutputDevice.setMidiDevice("MPK");
+        midiOutputDevice.setMidiDevice("Gervill");
         midiOutputDevice.updateSettings(null);
         midiOutputDevice.start();
         Clock clock = new Clock(time_zero);
@@ -73,6 +73,9 @@ public class Main {
                         case PLAY:
                             clock.setPlaying((Boolean) setting.getValue());
                             //midiAdapter.setMute(!(setting.getValue() > 0.5));
+                            break;
+                        case MIDI_DEVICE:
+                            midiOutputDevice.setMidiDevice((String) setting.getValue());
                             break;
                         case null, default:
                             break;
