@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class Setting {
+public class Setting<T> {
     private SettingType type;
-    private double value; //between 0 and 1,inclusively. Boolean is represented as 0 -> false, 1-> true
+    private T value;
 }

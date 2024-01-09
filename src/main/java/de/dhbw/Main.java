@@ -45,7 +45,7 @@ public class Main {
         clock.setTempo(settings.tempo);
         Mat frame = new Mat();
         int counter = 0;
-        while (running){
+        while (running) {
             // message independent code:
             clock.tick(System.currentTimeMillis());
             videoIn.grabImage(frame);
@@ -60,18 +60,18 @@ public class Main {
                 if(setting != null) {
                     switch (setting.getType()) {
                         case VELOCITY:
-                            midiAdapter.setVelocity((int) (setting.getValue() * MAX_VELOCITY));
+                            midiAdapter.setVelocity((int) ((double) setting.getValue() * MAX_VELOCITY));
                             break;
                         case MUTE:
-                            midiAdapter.setMute(!(setting.getValue() > 0.5));
+                            midiAdapter.setMute((Boolean) setting.getValue());
                             break;
                         case METRONOME:
                             // TODO find out where the information that should be displayed should be stored
-                            midiAdapter.setMetronomeActive(setting.getValue() > 0.5);
+                            midiAdapter.setMetronomeActive((Boolean) setting.getValue());
                             //clock.setTempo((int) (setting.getValue() * MAX_TEMPO_SPAN + MIN_TEMPO));
                             break;
                         case PLAY:
-                            clock.setPlaying(setting.getValue() > 0.5);
+                            clock.setPlaying((Boolean) setting.getValue());
                             //midiAdapter.setMute(!(setting.getValue() > 0.5));
                             break;
                         case null, default:

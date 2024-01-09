@@ -14,7 +14,7 @@ public class UIMessage {
     private int[] positionMarker;
     private Setting setting;
 
-    public UIMessage() {};
+    public UIMessage() {}
 
     public UIMessage(Mat frame) {
         this.frame = frame;
@@ -27,10 +27,6 @@ public class UIMessage {
     public UIMessage(Setting setting) {
         this.setting = setting;
     }
-
-//    public UIMessage(int[][] playFieldInformation) {
-//        this.playFieldInformation = playFieldInformation;
-//    }
 
     public void reset(){
         this.frame = null;

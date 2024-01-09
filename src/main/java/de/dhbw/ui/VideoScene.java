@@ -49,7 +49,7 @@ public class VideoScene {
 
     private CheckQueueService checkQueueService;
     private boolean playing = true;
-    private boolean metronome = false;
+    private boolean metronomeRunning = false;
     private boolean mute = false;
     private double aspectRatioFrame;
     private double frameWidth = -1;
@@ -161,24 +161,6 @@ public class VideoScene {
 
     }
 
-    private void drawLines(int[][][]lines){
-        fieldPane.getChildren().clear();
-        Path path = new Path();
-        MoveTo mt; LineTo lt;
-        for(int[][] pointset : lines){
-            if(pointset == null || pointset.length == 0) continue;
-            mt = new MoveTo(scaleCoordinate(pointset[0][0]), scaleCoordinate(pointset[0][1]));
-            path.getElements().add(mt);
-            for(int pointNo = 1; pointNo < pointset.length; pointNo++) {
-                lt = new LineTo(scaleCoordinate(pointset[pointNo][0]), scaleCoordinate(pointset[pointNo][1]));
-                path.getElements().add(lt);
-            }
-            lt = new LineTo(scaleCoordinate(pointset[0][0]), scaleCoordinate(pointset[0][1]));
-            path.getElements().add(lt);
-        }
-        fieldPane.getChildren().add(path);
-    }
-
     private void setUIDimensions() {
         double aspectRatioRoot = root.getWidth() / root.getHeight();
         if (aspectRatioRoot < aspectRatioFrame) {
@@ -203,26 +185,23 @@ public class VideoScene {
     @FXML
     private void togglePlayPause() {
         playing = !playing;
-        double playValue = playing ? 1.0 : 0.0;
-        Setting setting = new Setting(SettingType.PLAY, playValue);
+        Setting<Boolean> setting = new Setting<>(SettingType.PLAY, playing);
         EventQueues.toController.add(setting);
         play_btn.setText(playing ? "Pause" : "Play");
     }
 
     @FXML
     private void toggleMetronome() {
-        metronome = !metronome;
-        double metronomeValue = metronome ? 1.0 : 0.0;
-        Setting setting = new Setting(SettingType.METRONOME, metronomeValue);
+        metronomeRunning = !metronomeRunning;
+        Setting<Boolean> setting = new Setting<>(SettingType.METRONOME, metronomeRunning);
         EventQueues.toController.add(setting);
-        metronome_btn.setText(metronome ? "Click off" : "Click on");
+        metronome_btn.setText(metronomeRunning ? "Click off" : "Click on");
     }
 
     @FXML
     private void toggleMute() {
         mute = !mute;
-        double muteValue = mute ? 0.0 : 1.0;
-        Setting setting = new Setting(SettingType.MUTE, muteValue);
+        Setting<Boolean> setting = new Setting<>(SettingType.MUTE, mute);
         EventQueues.toController.add(setting);
         mute_btn.setText(mute ? "Unmute" : "Mute");
     }
