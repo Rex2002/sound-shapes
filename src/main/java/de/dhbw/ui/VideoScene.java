@@ -24,7 +24,6 @@ import org.opencv.core.Point;
 import org.opencv.imgcodecs.Imgcodecs;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.util.List;
 
 public class VideoScene {
@@ -48,6 +47,7 @@ public class VideoScene {
     private ImageView metronome_btn;
 
     private CheckQueueService checkQueueService;
+    private ResourceProvider resourceProvider;
     private boolean playing = true;
     private boolean metronome = false;
     private boolean mute = false;
@@ -65,6 +65,7 @@ public class VideoScene {
         sizeChangeListener = (observable, oldValue, newValue) -> setUIDimensions();
         stack.widthProperty().addListener(sizeChangeListener);
 
+        resourceProvider = new ResourceProvider();
         checkQueueService = new CheckQueueService();
         checkQueueService.setPeriod(Duration.millis(33));
         checkQueueService.setOnSucceeded((event) -> handleQueue());
@@ -188,8 +189,13 @@ public class VideoScene {
         double playValue = playing ? 1.0 : 0.0;
         Setting setting = new Setting(SettingType.PLAY, playValue);
         EventQueues.toController.add(setting);
-        File icon = new File(playing ? "src/main/resources/icons/stop_blue.png" : "src/main/resources/icons/play_blue.png");
-        play_btn.setImage( new Image( icon.toURI().toString() ) );
+        if(playing){
+            play_btn.setImage( new Image( resourceProvider.getResource("src/main/resources/icons/stop_blue.png").toURI().toString() ) );
+        }
+        else{
+            play_btn.setImage( new Image( resourceProvider.getResource("src/main/resources/icons/play_blue.png").toURI().toString() ) );
+        }
+
         //TODO: maybe load icons in initialize() to make swapping them snappier
     }
 
@@ -199,8 +205,13 @@ public class VideoScene {
         double metronomeValue = metronome ? 1.0 : 0.0;
         Setting setting = new Setting(SettingType.METRONOME, metronomeValue);
         EventQueues.toController.add(setting);
-        File icon = new File(metronome ? "src/main/resources/icons/metronome_on_blue.png" : "src/main/resources/icons/metronome_off_blue.png");
-        metronome_btn.setImage( new Image( icon.toURI().toString() ) );
+        if(metronome){
+            metronome_btn.setImage( new Image( resourceProvider.getResource("src/main/resources/icons/metronome_on_blue.png").toURI().toString() ) );
+        }
+        else{
+            metronome_btn.setImage( new Image( resourceProvider.getResource("src/main/resources/icons/metronome_off_blue.png").toURI().toString() ) );
+        }
+
         //TODO: maybe load icons in initialize() to make swapping them snappier
     }
 
@@ -210,8 +221,13 @@ public class VideoScene {
         double muteValue = mute ? 0.0 : 1.0;
         Setting setting = new Setting(SettingType.MUTE, muteValue);
         EventQueues.toController.add(setting);
-        File icon = new File(mute ? "src/main/resources/icons/volume_mute_blue.png" : "src/main/resources/icons/volume_max_blue.png");
-        mute_btn.setImage( new Image( icon.toURI().toString() ) );
+        if(mute){
+            mute_btn.setImage( new Image( resourceProvider.getResource("src/main/resources/icons/volume_mute_blue.png").toURI().toString() ) );
+        }
+        else{
+            mute_btn.setImage( new Image( resourceProvider.getResource("src/main/resources/icons/volume_max_blue.png").toURI().toString() ) );
+        }
+
         //TODO: maybe load icons in initialize() to make swapping them snappier
     }
 }
