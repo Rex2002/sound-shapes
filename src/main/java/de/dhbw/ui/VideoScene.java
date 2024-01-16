@@ -8,9 +8,11 @@ import de.dhbw.video.shape.Shape;
 import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -24,7 +26,10 @@ import org.opencv.core.MatOfByte;
 import org.opencv.core.Point;
 import org.opencv.imgcodecs.Imgcodecs;
 
+import javax.sound.midi.MidiDevice;
+import javax.sound.midi.MidiSystem;
 import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 public class VideoScene {
@@ -39,18 +44,27 @@ public class VideoScene {
     @FXML
     private AnchorPane shapePane;
     @FXML
-    private GridPane menu_pane;
+    private GridPane menu_grid;
     @FXML
     private Button mute_btn;
     @FXML
     private Button play_btn;
     @FXML
     private Button metronome_btn;
+    @FXML
+    private FlowPane settings_tab;
+    @FXML
+    private ImageView settings_btn;
+    @FXML
+    private FlowPane settings_pane;
+    @FXML
+    private ChoiceBox<String> midi_choicebox;
 
     private CheckQueueService checkQueueService;
     private boolean playing = true;
-    private boolean metronome = false;
+    private boolean metronomeRunning = false;
     private boolean mute = false;
+    private boolean settingsVisible = false;
     private double aspectRatioFrame;
     private double frameWidth = -1;
     private double scaleRatio;
@@ -161,24 +175,6 @@ public class VideoScene {
 
     }
 
-    private void drawLines(int[][][]lines){
-        fieldPane.getChildren().clear();
-        Path path = new Path();
-        MoveTo mt; LineTo lt;
-        for(int[][] pointset : lines){
-            if(pointset == null || pointset.length == 0) continue;
-            mt = new MoveTo(scaleCoordinate(pointset[0][0]), scaleCoordinate(pointset[0][1]));
-            path.getElements().add(mt);
-            for(int pointNo = 1; pointNo < pointset.length; pointNo++) {
-                lt = new LineTo(scaleCoordinate(pointset[pointNo][0]), scaleCoordinate(pointset[pointNo][1]));
-                path.getElements().add(lt);
-            }
-            lt = new LineTo(scaleCoordinate(pointset[0][0]), scaleCoordinate(pointset[0][1]));
-            path.getElements().add(lt);
-        }
-        fieldPane.getChildren().add(path);
-    }
-
     private void setUIDimensions() {
         double aspectRatioRoot = root.getWidth() / root.getHeight();
         if (aspectRatioRoot < aspectRatioFrame) {
@@ -203,27 +199,53 @@ public class VideoScene {
     @FXML
     private void togglePlayPause() {
         playing = !playing;
-        double playValue = playing ? 1.0 : 0.0;
-        Setting setting = new Setting(SettingType.PLAY, playValue);
+        Setting<Boolean> setting = new Setting<>(SettingType.PLAY, playing);
         EventQueues.toController.add(setting);
         play_btn.setText(playing ? "Pause" : "Play");
     }
 
     @FXML
     private void toggleMetronome() {
-        metronome = !metronome;
-        double metronomeValue = metronome ? 1.0 : 0.0;
-        Setting setting = new Setting(SettingType.METRONOME, metronomeValue);
+        metronomeRunning = !metronomeRunning;
+        Setting<Boolean> setting = new Setting<>(SettingType.METRONOME, metronomeRunning);
         EventQueues.toController.add(setting);
-        metronome_btn.setText(metronome ? "Click off" : "Click on");
+        metronome_btn.setText(metronomeRunning ? "Click off" : "Click on");
     }
 
     @FXML
     private void toggleMute() {
         mute = !mute;
-        double muteValue = mute ? 0.0 : 1.0;
-        Setting setting = new Setting(SettingType.MUTE, muteValue);
+        Setting<Boolean> setting = new Setting<>(SettingType.MUTE, mute);
         EventQueues.toController.add(setting);
         mute_btn.setText(mute ? "Unmute" : "Mute");
     }
+
+    @FXML
+    private void toggleSettingsPane() {
+        settings_pane.setVisible(!settingsVisible);
+        settingsVisible = !settingsVisible;
+        if (settingsVisible) {
+            refreshSettingsPane();
+        }
+    }
+
+    private void refreshSettingsPane() {
+        MidiDevice.Info[] deviceInfos = MidiSystem.getMidiDeviceInfo();
+        List<String> devices = new ArrayList<>();
+        for (MidiDevice.Info deviceInfo : deviceInfos) {
+            if (deviceInfo.getName().contains("Sequencer")) {
+                continue;
+            }
+            devices.add(deviceInfo.getName());
+        }
+        midi_choicebox.getItems().clear();
+        midi_choicebox.getItems().addAll(devices);
+    }
+
+    @FXML
+    private void sendMidiSetting() {
+        Setting<String> setting = new Setting<>(SettingType.MIDI_DEVICE, midi_choicebox.getValue());
+        EventQueues.toController.add(setting);
+    }
+
 }
