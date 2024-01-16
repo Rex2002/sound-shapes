@@ -2,17 +2,50 @@
     Document   : VideoScene
 */
 
-.root{
-    -fx-font-size: 16pt;
+* {
     -fx-font-family: "Helvetica Neue";
-/*    -fx-base: rgb(244, 171, 41); */
+    -fx-font-weight: 700;
+    -fx-text-fill: rgb(110, 160, 191);
+}
+.root{
     -fx-background: rgb(247, 248, 250);
 }
 
 .flow_pane{
     -fx-background-color: rgb(244, 171, 41);
     -fx-min-height: 40;
+    -fx-background-radius: 20;
+}
+
+#playback_box{
     -fx-min-width: 100;
     -fx-max-width: 250;
+}
+
+#settings_tab{
+    -fx-min-width: 40;
+    -fx-max-width: 60;
+    -fx-max-height: 40;
+    -fx-background-radius: 20 0 0 20;
+}
+
+#settings_pane{
+    -fx-padding: 10;
+    -fx-background-radius: 20 0 0 20;
+}
+
+.heading {
+    -fx-font-size: 200%;
+    -fx-end-margin: 20;
+}
+
+.setting_label {
+    -fx-font-size: 120%;
+}
+
+.choice-box {
     -fx-background-radius: 20;
+    -fx-border-radius: 20;
+    -fx-background-color: white;
+    margin: 10;
 }

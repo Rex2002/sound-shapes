@@ -10,7 +10,7 @@ public class MidiOutputDevice extends Thread{
 
     MidiDevice md;
     Receiver recv;
-    boolean running = true;
+    boolean running = true, suspended = false;
 
     public void setMidiDevice(int deviceNo){
         release();
@@ -40,6 +40,7 @@ public class MidiOutputDevice extends Thread{
                             md.open();
                         }
                         recv = md.getReceiver();
+                        suspended = false;
                         break foundDevice;
                     }
                 }
@@ -79,6 +80,10 @@ public class MidiOutputDevice extends Thread{
         ShortMessage smg = new ShortMessage();
         try {
             while (running){
+                if(suspended){
+                    Thread.sleep(50);
+                    continue;
+                }
                 if(!EventQueues.toMidi.isEmpty()){
                     ms = EventQueues.toMidi.take();
                     int[] message;
@@ -87,7 +92,6 @@ public class MidiOutputDevice extends Thread{
                         smg.setMessage(ShortMessage.NOTE_ON, 9, message[0], message[1]);
                         recv.send(smg, message[2]);
                     }
-
                 }
             }
         } catch (InterruptedException | InvalidMidiDataException e) {
@@ -99,8 +103,13 @@ public class MidiOutputDevice extends Thread{
         }
     }
 
-    public void release(){
+    public void stopDevice(){
         running = false;
+        release();
+    }
+
+    public void release(){
+        suspended = true;
         if(recv != null) {
             recv.close();
         }

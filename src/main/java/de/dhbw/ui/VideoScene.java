@@ -7,9 +7,11 @@ import de.dhbw.communication.UIMessage;
 import de.dhbw.video.shape.Shape;
 import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -23,7 +25,10 @@ import org.opencv.core.MatOfByte;
 import org.opencv.core.Point;
 import org.opencv.imgcodecs.Imgcodecs;
 
+import javax.sound.midi.MidiDevice;
+import javax.sound.midi.MidiSystem;
 import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 public class VideoScene {
@@ -38,19 +43,28 @@ public class VideoScene {
     @FXML
     private AnchorPane shapePane;
     @FXML
-    private GridPane menu_pane;
+    private GridPane menu_grid;
     @FXML
     private ImageView mute_btn;
     @FXML
     private ImageView play_btn;
     @FXML
     private ImageView metronome_btn;
+    @FXML
+    private FlowPane settings_tab;
+    @FXML
+    private ImageView settings_btn;
+    @FXML
+    private FlowPane settings_pane;
+    @FXML
+    private ChoiceBox<String> midi_choicebox;
 
     private CheckQueueService checkQueueService;
     private ResourceProvider resourceProvider;
     private boolean playing = true;
-    private boolean metronome = false;
+    private boolean metronomeRunning = false;
     private boolean mute = false;
+    private boolean settingsVisible = false;
     private double aspectRatioFrame;
     private double frameWidth = -1;
     private double scaleRatio;
@@ -186,8 +200,7 @@ public class VideoScene {
     @FXML
     private void togglePlayPause() {
         playing = !playing;
-        double playValue = playing ? 1.0 : 0.0;
-        Setting setting = new Setting(SettingType.PLAY, playValue);
+        Setting<Boolean> setting = new Setting<>(SettingType.PLAY, playing);
         EventQueues.toController.add(setting);
         String iconPath = "src/main/resources/icons/" + (playing ? "stop_blue.png" : "play_blue.png");
         play_btn.setImage( new Image( resourceProvider.getResource(iconPath).toURI().toString() ) );
@@ -195,9 +208,8 @@ public class VideoScene {
 
     @FXML
     private void toggleMetronome() {
-        metronome = !metronome;
-        double metronomeValue = metronome ? 1.0 : 0.0;
-        Setting setting = new Setting(SettingType.METRONOME, metronomeValue);
+        metronomeRunning = !metronomeRunning;
+        Setting<Boolean> setting = new Setting<>(SettingType.METRONOME, metronomeRunning);
         EventQueues.toController.add(setting);
         String iconPath = "src/main/resources/icons/" + (metronome ? "metronome_on_blue.png" : "metronome_off_blue.png");
         metronome_btn.setImage( new Image( resourceProvider.getResource(iconPath).toURI().toString() ) );
@@ -206,10 +218,38 @@ public class VideoScene {
     @FXML
     private void toggleMute() {
         mute = !mute;
-        double muteValue = mute ? 0.0 : 1.0;
-        Setting setting = new Setting(SettingType.MUTE, muteValue);
+        Setting<Boolean> setting = new Setting<>(SettingType.MUTE, mute);
         EventQueues.toController.add(setting);
         String iconPath = "src/main/resources/icons/" + (mute ? "volume_mute_blue.png" : "volume_max_blue.png");
         mute_btn.setImage( new Image( resourceProvider.getResource(iconPath).toURI().toString() ) );
     }
+
+    @FXML
+    private void toggleSettingsPane() {
+        settings_pane.setVisible(!settingsVisible);
+        settingsVisible = !settingsVisible;
+        if (settingsVisible) {
+            refreshSettingsPane();
+        }
+    }
+
+    private void refreshSettingsPane() {
+        MidiDevice.Info[] deviceInfos = MidiSystem.getMidiDeviceInfo();
+        List<String> devices = new ArrayList<>();
+        for (MidiDevice.Info deviceInfo : deviceInfos) {
+            if (deviceInfo.getName().contains("Sequencer")) {
+                continue;
+            }
+            devices.add(deviceInfo.getName());
+        }
+        midi_choicebox.getItems().clear();
+        midi_choicebox.getItems().addAll(devices);
+    }
+
+    @FXML
+    private void sendMidiSetting() {
+        Setting<String> setting = new Setting<>(SettingType.MIDI_DEVICE, midi_choicebox.getValue());
+        EventQueues.toController.add(setting);
+    }
+
 }
