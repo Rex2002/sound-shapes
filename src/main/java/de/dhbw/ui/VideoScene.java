@@ -189,14 +189,8 @@ public class VideoScene {
         double playValue = playing ? 1.0 : 0.0;
         Setting setting = new Setting(SettingType.PLAY, playValue);
         EventQueues.toController.add(setting);
-        if(playing){
-            play_btn.setImage( new Image( resourceProvider.getResource("src/main/resources/icons/stop_blue.png").toURI().toString() ) );
-        }
-        else{
-            play_btn.setImage( new Image( resourceProvider.getResource("src/main/resources/icons/play_blue.png").toURI().toString() ) );
-        }
-
-        //TODO: maybe load icons in initialize() to make swapping them snappier
+        String iconPath = "src/main/resources/icons/" + (playing ? "stop_blue.png" : "play_blue.png");
+        play_btn.setImage( new Image( resourceProvider.getResource(iconPath).toURI().toString() ) );
     }
 
     @FXML
@@ -205,14 +199,8 @@ public class VideoScene {
         double metronomeValue = metronome ? 1.0 : 0.0;
         Setting setting = new Setting(SettingType.METRONOME, metronomeValue);
         EventQueues.toController.add(setting);
-        if(metronome){
-            metronome_btn.setImage( new Image( resourceProvider.getResource("src/main/resources/icons/metronome_on_blue.png").toURI().toString() ) );
-        }
-        else{
-            metronome_btn.setImage( new Image( resourceProvider.getResource("src/main/resources/icons/metronome_off_blue.png").toURI().toString() ) );
-        }
-
-        //TODO: maybe load icons in initialize() to make swapping them snappier
+        String iconPath = "src/main/resources/icons/" + (metronome ? "metronome_on_blue.png" : "metronome_off_blue.png");
+        metronome_btn.setImage( new Image( resourceProvider.getResource(iconPath).toURI().toString() ) );
     }
 
     @FXML
@@ -221,13 +209,7 @@ public class VideoScene {
         double muteValue = mute ? 0.0 : 1.0;
         Setting setting = new Setting(SettingType.MUTE, muteValue);
         EventQueues.toController.add(setting);
-        if(mute){
-            mute_btn.setImage( new Image( resourceProvider.getResource("src/main/resources/icons/volume_mute_blue.png").toURI().toString() ) );
-        }
-        else{
-            mute_btn.setImage( new Image( resourceProvider.getResource("src/main/resources/icons/volume_max_blue.png").toURI().toString() ) );
-        }
-
-        //TODO: maybe load icons in initialize() to make swapping them snappier
+        String iconPath = "src/main/resources/icons/" + (mute ? "volume_mute_blue.png" : "volume_max_blue.png");
+        mute_btn.setImage( new Image( resourceProvider.getResource(iconPath).toURI().toString() ) );
     }
 }

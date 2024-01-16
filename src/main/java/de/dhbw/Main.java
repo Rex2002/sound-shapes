@@ -32,13 +32,13 @@ public class Main {
         Setting setting;
         //UIMessage uiMessage = new UIMessage();
 
-        VideoInput videoIn = new VideoInput(2);
+        VideoInput videoIn = new VideoInput(0);
         MarkerRecognizer markerRecognizer = new MarkerRecognizer();
         ShapeProcessor shapeProcessor = new ShapeProcessor();
         PositionMarker positionMarker = new PositionMarker();
         MidiAdapter midiAdapter = new MidiAdapter();
         MidiOutputDevice midiOutputDevice = new MidiOutputDevice();
-        midiOutputDevice.setMidiDevice("MPK");
+        midiOutputDevice.setMidiDevice("Gervill");
         midiOutputDevice.updateSettings(null);
         midiOutputDevice.start();
         Clock clock = new Clock(time_zero);
