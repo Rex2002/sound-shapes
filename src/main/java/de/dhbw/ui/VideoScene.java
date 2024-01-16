@@ -211,7 +211,7 @@ public class VideoScene {
         metronomeRunning = !metronomeRunning;
         Setting<Boolean> setting = new Setting<>(SettingType.METRONOME, metronomeRunning);
         EventQueues.toController.add(setting);
-        String iconPath = "src/main/resources/icons/" + (metronome ? "metronome_on_blue.png" : "metronome_off_blue.png");
+        String iconPath = "src/main/resources/icons/" + (metronomeRunning ? "metronome_on_blue.png" : "metronome_off_blue.png");
         metronome_btn.setImage( new Image( resourceProvider.getResource(iconPath).toURI().toString() ) );
     }
 
