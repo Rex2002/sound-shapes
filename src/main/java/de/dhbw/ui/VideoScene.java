@@ -7,7 +7,6 @@ import de.dhbw.communication.UIMessage;
 import de.dhbw.video.shape.Shape;
 import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -46,11 +45,11 @@ public class VideoScene {
     @FXML
     private GridPane menu_grid;
     @FXML
-    private Button mute_btn;
+    private ImageView mute_btn;
     @FXML
-    private Button play_btn;
+    private ImageView play_btn;
     @FXML
-    private Button metronome_btn;
+    private ImageView metronome_btn;
     @FXML
     private FlowPane settings_tab;
     @FXML
@@ -61,6 +60,7 @@ public class VideoScene {
     private ChoiceBox<String> midi_choicebox;
 
     private CheckQueueService checkQueueService;
+    private ResourceProvider resourceProvider;
     private boolean playing = true;
     private boolean metronomeRunning = false;
     private boolean mute = false;
@@ -79,6 +79,7 @@ public class VideoScene {
         sizeChangeListener = (observable, oldValue, newValue) -> setUIDimensions();
         stack.widthProperty().addListener(sizeChangeListener);
 
+        resourceProvider = new ResourceProvider();
         checkQueueService = new CheckQueueService();
         checkQueueService.setPeriod(Duration.millis(33));
         checkQueueService.setOnSucceeded((event) -> handleQueue());
@@ -201,7 +202,8 @@ public class VideoScene {
         playing = !playing;
         Setting<Boolean> setting = new Setting<>(SettingType.PLAY, playing);
         EventQueues.toController.add(setting);
-        play_btn.setText(playing ? "Pause" : "Play");
+        String iconPath = "src/main/resources/icons/" + (playing ? "stop_blue.png" : "play_blue.png");
+        play_btn.setImage( new Image( resourceProvider.getResource(iconPath).toURI().toString() ) );
     }
 
     @FXML
@@ -209,7 +211,8 @@ public class VideoScene {
         metronomeRunning = !metronomeRunning;
         Setting<Boolean> setting = new Setting<>(SettingType.METRONOME, metronomeRunning);
         EventQueues.toController.add(setting);
-        metronome_btn.setText(metronomeRunning ? "Click off" : "Click on");
+        String iconPath = "src/main/resources/icons/" + (metronomeRunning ? "metronome_on_blue.png" : "metronome_off_blue.png");
+        metronome_btn.setImage( new Image( resourceProvider.getResource(iconPath).toURI().toString() ) );
     }
 
     @FXML
@@ -217,7 +220,8 @@ public class VideoScene {
         mute = !mute;
         Setting<Boolean> setting = new Setting<>(SettingType.MUTE, mute);
         EventQueues.toController.add(setting);
-        mute_btn.setText(mute ? "Unmute" : "Mute");
+        String iconPath = "src/main/resources/icons/" + (mute ? "volume_mute_blue.png" : "volume_max_blue.png");
+        mute_btn.setImage( new Image( resourceProvider.getResource(iconPath).toURI().toString() ) );
     }
 
     @FXML
