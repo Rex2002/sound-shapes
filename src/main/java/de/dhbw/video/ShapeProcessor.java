@@ -52,7 +52,6 @@ public class ShapeProcessor {
         Shape[] squares = shapes.stream().filter(shape -> shape.getForm() == ShapeForm.SQUARE).toArray(Shape[]::new);
         if(squares.length < 4){
             playfieldInfo[4] = 0;
-            System.err.println("Not enough squares for playfield");
             return;
         }
         Shape[] corners = new Shape[]{squares[0], squares[1], squares[2], squares[3]};

@@ -1,6 +1,8 @@
 package de.dhbw.video;
 
 import org.opencv.core.Mat;
+import org.opencv.core.Size;
+import org.opencv.imgproc.Imgproc;
 import org.opencv.videoio.VideoCapture;
 
 public class VideoInput {
@@ -31,5 +33,6 @@ public class VideoInput {
         if(cap != null && cap.isOpened()) {
             cap.read(frame);
         }
+        Imgproc.resize(frame, frame, new Size(640,640 * (double) frame.height() / frame.width() ));
     }
 }

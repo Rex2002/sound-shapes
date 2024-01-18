@@ -49,6 +49,7 @@ public class Main {
             // message independent code:
             clock.tick(System.currentTimeMillis());
             videoIn.grabImage(frame);
+            System.out.println(frame.width() + ", " + frame.height());
 
             markerRecognizer.setFrame(frame);
             markerRecognizer.detectShapes();
