@@ -32,7 +32,7 @@ public class Main {
         Setting setting;
         //UIMessage uiMessage = new UIMessage();
 
-        VideoInput videoIn = new VideoInput(2);
+        VideoInput videoIn = new VideoInput(0);
         MarkerRecognizer markerRecognizer = new MarkerRecognizer();
         ShapeProcessor shapeProcessor = new ShapeProcessor();
         PositionMarker positionMarker = new PositionMarker();

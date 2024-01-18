@@ -33,6 +33,6 @@ public class VideoInput {
         if(cap != null && cap.isOpened()) {
             cap.read(frame);
         }
-        Imgproc.resize(frame, frame, new Size(640,480));
+        Imgproc.resize(frame, frame, new Size(640,640 * (double) frame.height() / frame.width() ));
     }
 }
