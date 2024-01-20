@@ -11,10 +11,6 @@ public class VideoInput {
         cap = new VideoCapture(deviceNo);
         checkOpen();
     }
-    public VideoInput(){
-        cap = new VideoCapture();
-        checkOpen();
-    }
 
     private void checkOpen(){
         if(!cap.isOpened()){
@@ -29,10 +25,14 @@ public class VideoInput {
     }
 
     public void grabImage(Mat frame){
-        // TODO check if this impacts performance
         if(cap != null && cap.isOpened()) {
             cap.read(frame);
         }
         Imgproc.resize(frame, frame, new Size(640,640 * (double) frame.height() / frame.width() ));
+    }
+
+    public void setInputDevice(int deviceNo) {
+        cap = new VideoCapture(deviceNo);
+        checkOpen();
     }
 }

@@ -21,12 +21,12 @@ import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.core.Point;
 import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.videoio.VideoCapture;
 
 import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiSystem;
 import java.io.ByteArrayInputStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class VideoScene {
     @FXML
@@ -55,6 +55,8 @@ public class VideoScene {
     private FlowPane settings_pane;
     @FXML
     private ChoiceBox<String> midi_choicebox;
+    @FXML
+    private ChoiceBox<Integer> camera_choicebox;
 
     private CheckQueueService checkQueueService;
     private ResourceProvider resourceProvider;
@@ -75,6 +77,8 @@ public class VideoScene {
         sizeChangeListener = (observable, oldValue, newValue) -> setUIDimensions();
         stack.widthProperty().addListener(sizeChangeListener);
 
+        camera_choicebox.getItems().add(0);
+
         resourceProvider = new ResourceProvider();
         checkQueueService = new CheckQueueService();
         checkQueueService.setPeriod(Duration.millis(33));
@@ -89,7 +93,12 @@ public class VideoScene {
                 updateFrame( message.getFrame() );
             }
             if (message.getSetting() != null) {
-                //do something
+                switch ( message.getSetting().getType() ) {
+                    case VELOCITY:
+                        //update velocity icon
+                    case null, default:
+                        break;
+                }
             }
             if (message.getShapes() != null) {
                 processShapes( message.getShapes() );
@@ -253,9 +262,45 @@ public class VideoScene {
         midi_choicebox.getItems().addAll(devices);
     }
 
+    /**
+     * Gets list of working cameras' indices by trying to connect to indices 0 through 9.
+     */
+    @FXML
+    private void getCameraIndices() {
+        Setting<Boolean> stop = new Setting<>(SettingType.STOP_LOOP, true);
+        EventQueues.toController.add(stop);
+
+        //TODO: make sure main loop has been stopped before continuing
+
+        List<Integer> cameras = new ArrayList<>(10);
+        VideoCapture cap;
+        for (int i = 0; i < 10; i++) {
+            try {
+                cap = new VideoCapture(i);
+            } catch (Exception e) {
+                continue;
+            }
+            if (cap.isOpened()) {
+                cameras.add(i);
+            }
+            cap.release();
+        }
+
+        camera_choicebox.getItems().clear();
+        camera_choicebox.getItems().addAll(cameras);
+        Setting<Boolean> restart = new Setting<>(SettingType.STOP_LOOP, false);
+        EventQueues.toController.add(restart);
+    }
+
     @FXML
     private void sendMidiSetting() {
         Setting<String> setting = new Setting<>(SettingType.MIDI_DEVICE, midi_choicebox.getValue());
+        EventQueues.toController.add(setting);
+    }
+
+    @FXML
+    private void sendCameraSetting() {
+        Setting<Integer> setting = new Setting<>(SettingType.CAMERA, camera_choicebox.getValue());
         EventQueues.toController.add(setting);
     }
 

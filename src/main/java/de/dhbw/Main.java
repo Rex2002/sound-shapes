@@ -17,6 +17,7 @@ import static de.dhbw.statics.*;
 
 public class Main {
     static boolean running = true;
+    static boolean stopped = false;
     public static void main(String[] args) {
         OpenCV.loadLocally();
         Thread uiThread = new Thread( () -> Application.launch( App.class, args) );
@@ -30,9 +31,8 @@ public class Main {
         long time = time_zero;
         Settings settings = new Settings(120);
         Setting setting;
-        //UIMessage uiMessage = new UIMessage();
 
-        VideoInput videoIn = new VideoInput(2);
+        VideoInput videoIn = new VideoInput(0);
         MarkerRecognizer markerRecognizer = new MarkerRecognizer();
         ShapeProcessor shapeProcessor = new ShapeProcessor();
         PositionMarker positionMarker = new PositionMarker();
@@ -46,13 +46,15 @@ public class Main {
         Mat frame = new Mat();
         int counter = 0;
         while (running) {
-            // message independent code:
-            clock.tick(System.currentTimeMillis());
-            videoIn.grabImage(frame);
-            markerRecognizer.setFrame(frame);
-            markerRecognizer.detectShapes();
-            shapeProcessor.processShapes(markerRecognizer.getShapes(), frame.width(), frame.height(), frame);
-            positionMarker.updatePositionMarker(shapeProcessor.getPlayfieldInfo(), clock.currentBeat);
+            if (!stopped) {
+                // message independent code:
+                clock.tick(System.currentTimeMillis());
+                videoIn.grabImage(frame);
+                markerRecognizer.setFrame(frame);
+                markerRecognizer.detectShapes();
+                shapeProcessor.processShapes(markerRecognizer.getShapes(), frame.width(), frame.height(), frame);
+                positionMarker.updatePositionMarker(shapeProcessor.getPlayfieldInfo(), clock.currentBeat);
+            }
             // message dependent / message sending code:
             if(!EventQueues.toController.isEmpty()){
                 setting = EventQueues.toController.poll();
@@ -76,6 +78,11 @@ public class Main {
                         case MIDI_DEVICE:
                             midiOutputDevice.setMidiDevice((String) setting.getValue());
                             break;
+                        case CAMERA:
+                            videoIn.setInputDevice((int) setting.getValue());
+                            break;
+                        case STOP_LOOP:
+                            stopped = (boolean) setting.getValue();
                         case null, default:
                             break;
                     }

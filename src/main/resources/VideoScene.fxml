@@ -7,6 +7,7 @@
 
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Button?>
 <AnchorPane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="340.0" minWidth="600.0" prefHeight="450.0"
             prefWidth="800.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.dhbw.ui.VideoScene"
 >
@@ -77,7 +78,12 @@
             >
                 <Label styleClass="heading" text="Settings:"/>
                 <Label styleClass="setting_label" text="MIDI Output:" />
-                <ChoiceBox fx:id="midi_choicebox" styleClass="choice-box" prefWidth="80.0" onAction="#sendMidiSetting" value="Gervill"/>
+                <ChoiceBox fx:id="midi_choicebox" styleClass="choice-box" prefWidth="100.0" onAction="#sendMidiSetting" value="Gervill"/>
+                <Label styleClass="setting_label" text="Video Input Device:" />
+                <HBox>
+                    <ChoiceBox fx:id="camera_choicebox" styleClass="choice-box" prefWidth="50.0" onAction="#sendCameraSetting" value="0"/>
+                    <Button styleClass="button" onAction="#getCameraIndices" text="Scan for cameras"/>
+                </HBox>
             </FlowPane>
 
         </GridPane>
