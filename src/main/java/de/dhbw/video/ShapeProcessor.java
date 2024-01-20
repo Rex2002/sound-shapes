@@ -7,6 +7,7 @@ import de.dhbw.video.shape.Shape;
 import de.dhbw.video.shape.ShapeForm;
 import de.dhbw.video.shape.ShapeType;
 import lombok.Getter;
+import lombok.Setter;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -28,6 +29,7 @@ public class ShapeProcessor {
     private Mat frame;
     @Getter
     private boolean[][] soundMatrix = new boolean[NO_BEATS][NO_NOTES];
+    @Setter
     private double lastVelocity = 0;
     public ShapeProcessor(){
         playFieldBoundaries = new Mat[4];
@@ -100,22 +102,22 @@ public class ShapeProcessor {
 
 
 
-    public int[][] playFieldToLines(){
-        if(playfieldInfo[4] != 1){
-            return null;
-        }
-        int[][] ret = new int[4][4];
-        ret[0] = new int[]{playfieldInfo[0], playfieldInfo[1], playfieldInfo[0] + playfieldInfo[2], playfieldInfo[1]};
-        ret[1] = new int[]{playfieldInfo[0] + playfieldInfo[2], playfieldInfo[1], playfieldInfo[0] + playfieldInfo[2], playfieldInfo[1] + playfieldInfo[3]};
-        ret[2] = new int[]{playfieldInfo[0] + playfieldInfo[2], playfieldInfo[1] + playfieldInfo[3], playfieldInfo[0], playfieldInfo[1] + playfieldInfo[3]};
-        ret[3] = new int[]{playfieldInfo[0], playfieldInfo[1] + playfieldInfo[3], playfieldInfo[0], playfieldInfo[1]};
-        return ret;
-
-    }
+//    public int[][] playFieldToLines(){
+//        if(playfieldInfo[4] != 1){
+//            return null;
+//        }
+//        int[][] ret = new int[4][4];
+//        ret[0] = new int[]{playfieldInfo[0], playfieldInfo[1], playfieldInfo[0] + playfieldInfo[2], playfieldInfo[1]};
+//        ret[1] = new int[]{playfieldInfo[0] + playfieldInfo[2], playfieldInfo[1], playfieldInfo[0] + playfieldInfo[2], playfieldInfo[1] + playfieldInfo[3]};
+//        ret[2] = new int[]{playfieldInfo[0] + playfieldInfo[2], playfieldInfo[1] + playfieldInfo[3], playfieldInfo[0], playfieldInfo[1] + playfieldInfo[3]};
+//        ret[3] = new int[]{playfieldInfo[0], playfieldInfo[1] + playfieldInfo[3], playfieldInfo[0], playfieldInfo[1]};
+//        return ret;
+//
+//    }
 
     public void detectControlMarkers(){
         List<Shape> circles = shapes.stream().filter(shape -> shape.getForm() == ShapeForm.CIRCLE && shape.getType() == ShapeType.NONE).toList();
-        List<Shape> triangles = shapes.stream().filter(shape -> shape.getForm() == ShapeForm.TRIANGLE && shape.getType() == ShapeType.NONE).toList();
+        //List<Shape> triangles = shapes.stream().filter(shape -> shape.getForm() == ShapeForm.TRIANGLE && shape.getType() == ShapeType.NONE).toList();
 
         if(circles.size() == 1 && ( circles.get(0).pos[0] < playfieldInfo[0] || circles.get(0).pos[0] > playfieldInfo[0] + playfieldInfo[2])){
             double nextVelocity = (double) circles.get(0).pos[1]/480;

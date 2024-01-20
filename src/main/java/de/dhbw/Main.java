@@ -63,6 +63,10 @@ public class Main {
                             break;
                         case MUTE:
                             midiAdapter.setMute((Boolean) setting.getValue());
+                            if(!(Boolean) setting.getValue()){
+                                shapeProcessor.setLastVelocity(0.5);
+                                midiAdapter.setVelocity((int) (0.5 * MAX_VELOCITY));
+                            }
                             break;
                         case METRONOME:
                             // TODO find out where the information that should be displayed should be stored
