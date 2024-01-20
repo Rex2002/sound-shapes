@@ -1,5 +1,8 @@
 package de.dhbw.video;
 
+import de.dhbw.communication.EventQueues;
+import de.dhbw.communication.Setting;
+import de.dhbw.communication.SettingType;
 import de.dhbw.video.shape.Shape;
 import de.dhbw.video.shape.ShapeForm;
 import de.dhbw.video.shape.ShapeType;
@@ -25,6 +28,7 @@ public class ShapeProcessor {
     private Mat frame;
     @Getter
     private boolean[][] soundMatrix = new boolean[NO_BEATS][NO_NOTES];
+    private double lastVelocity = 0;
     public ShapeProcessor(){
         playFieldBoundaries = new Mat[4];
         for(int i = 0; i < 4; i++) {
@@ -43,6 +47,7 @@ public class ShapeProcessor {
         if(playfieldInfo[4] == 1){
             generateSoundMatrix();
         }
+        detectControlMarkers();
         // TODO > treat control markers
     }
 
@@ -75,10 +80,10 @@ public class ShapeProcessor {
                 corners[3] = square;
             }
         }
-        for(Shape c : corners) c.setType(ShapeType.FIELD_MARKER);
         for(int i = 0; i < 4; i++){
             playFieldBoundaries[i].put(0,0, corners[i].pos[0] - corners[(i+1) % 4].pos[0]);
             playFieldBoundaries[i].put(1,0, corners[i].pos[1] - corners[(i+1) % 4].pos[1]);
+            corners[i].setType(ShapeType.FIELD_MARKER);
         }
         playfieldInfo[0] = (corners[0].pos[0] + corners[3].pos[0]) / 2;
         playfieldInfo[1] = (corners[0].pos[1] + corners[1].pos[1]) / 2;
@@ -105,6 +110,20 @@ public class ShapeProcessor {
         ret[2] = new int[]{playfieldInfo[0] + playfieldInfo[2], playfieldInfo[1] + playfieldInfo[3], playfieldInfo[0], playfieldInfo[1] + playfieldInfo[3]};
         ret[3] = new int[]{playfieldInfo[0], playfieldInfo[1] + playfieldInfo[3], playfieldInfo[0], playfieldInfo[1]};
         return ret;
+
+    }
+
+    public void detectControlMarkers(){
+        List<Shape> circles = shapes.stream().filter(shape -> shape.getForm() == ShapeForm.CIRCLE && shape.getType() == ShapeType.NONE).toList();
+        List<Shape> triangles = shapes.stream().filter(shape -> shape.getForm() == ShapeForm.TRIANGLE && shape.getType() == ShapeType.NONE).toList();
+
+        if(circles.size() == 1){
+            double nextVelocity = (double) circles.get(0).pos[1]/480;
+            if(Math.abs(nextVelocity - lastVelocity) > 0.05){
+                lastVelocity = nextVelocity;
+                EventQueues.toController.offer(new Setting(SettingType.VELOCITY, lastVelocity));
+            }
+        }
 
     }
 

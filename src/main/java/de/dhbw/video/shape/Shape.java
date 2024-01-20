@@ -17,6 +17,7 @@ public class Shape {
         this.contour = contour;
         this.form = form;
         this.pos = pos;
+        this.type = ShapeType.NONE;
     }
 
     public static int[] calcPositionFromMoments(Moments m){
