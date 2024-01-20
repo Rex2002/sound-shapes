@@ -34,6 +34,18 @@
     -fx-background-radius: 20 0 0 20;
 }
 
+#music_tab{
+    -fx-min-width: 40;
+    -fx-max-width: 60;
+    -fx-max-height: 40;
+    -fx-background-radius: 0 20 20 0;
+}
+
+#music_pane{
+    -fx-padding: 10;
+    -fx-background-radius: 0 20 20 0;
+}
+
 .heading {
     -fx-font-size: 200%;
     -fx-end-margin: 20;
@@ -48,4 +60,7 @@
     -fx-border-radius: 20;
     -fx-background-color: white;
     margin: 10;
+}
+
+.textfield {
 }
