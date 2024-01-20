@@ -11,15 +11,6 @@
     -fx-background: rgb(247, 248, 250);
 }
 
-.button{
-    -fx-text-fill: white;
-    -fx-border-style: none;
-    -fx-background-color: rgb(110, 160, 191);
-    -fx-background-radius: 10;
-    -fx-padding: 6 6 6 6;
-    float: center;
-}
-
 .flow_pane{
     -fx-background-color: rgb(244, 171, 41);
     -fx-min-height: 40;
@@ -28,7 +19,7 @@
 
 #playback_box{
     -fx-min-width: 100;
-    -fx-max-width: 280;
+    -fx-max-width: 250;
 }
 
 #settings_tab{
