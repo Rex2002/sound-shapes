@@ -17,10 +17,7 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.LineTo;
-import javafx.scene.shape.MoveTo;
-import javafx.scene.shape.Path;
-import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.*;
 import javafx.util.Duration;
 import javafx.util.converter.IntegerStringConverter;
 import org.opencv.core.Mat;
@@ -84,7 +81,6 @@ public class VideoScene {
     private double frameWidth = -1;
     private double scaleRatio;
     ChangeListener<? super Number> sizeChangeListener;
-    private boolean fieldPaneCleared = false;
     private int tempo = 120;
 
     @FXML
@@ -106,7 +102,6 @@ public class VideoScene {
         EventQueues.toUI.clear();
     }
     private void handleQueue() {
-        fieldPaneCleared = false;
         List<UIMessage> messages = checkQueueService.getValue();
         for (UIMessage message : messages) {
             if (message.getFrame() != null) {
@@ -120,13 +115,12 @@ public class VideoScene {
             }
             if (message.getPlayFieldInformation() != null && message.getPlayFieldInformation()[4] == 1){
                 fieldPane.getChildren().clear();
-                fieldPaneCleared = true;
                 drawPlayField( message.getPlayFieldInformation() );
+                if (message.getPositionMarker() != null){
+                    drawPositionMarker(message.getPositionMarker());
+                }
             }
-            if (message.getPositionMarker() != null){
-                if(!fieldPaneCleared) fieldPane.getChildren().clear();
-                drawPositionMarker(message.getPositionMarker());
-            }
+
         }
     }
 
@@ -175,9 +169,22 @@ public class VideoScene {
             playFieldInfo[i] = scaleCoordinate(input[i]);
         }
         Rectangle playfield = new Rectangle(playFieldInfo[0], playFieldInfo[1], playFieldInfo[2], playFieldInfo[3]);
+
+        List<Line> lines = new ArrayList<>();
+        Line l = new Line(playFieldInfo[0], playFieldInfo[1] + playFieldInfo[3]/2, playFieldInfo[0] + playFieldInfo[2], playFieldInfo[1]+playFieldInfo[3]/2 );
+        l.setStroke(Color.YELLOW);
+        lines.add(l);
+        double x;
+        // TODO maybe remove magic numbers here
+        for(int i = 1; i < 4; i++){
+            x = playFieldInfo[0] + playFieldInfo[2] * i/4;
+            l = new Line(x,playFieldInfo[1], x, playFieldInfo[1] + playFieldInfo[3]);
+            l.setStroke(Color.YELLOW);
+            lines.add(l);
+        }
         playfield.setStroke(Color.YELLOW);
         playfield.setFill(Color.TRANSPARENT);
-
+        fieldPane.getChildren().addAll(lines);
         fieldPane.getChildren().add(playfield);
     }
 

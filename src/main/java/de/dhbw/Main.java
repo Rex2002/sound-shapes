@@ -29,7 +29,7 @@ public class Main {
         long time_zero = System.currentTimeMillis();
         long time = time_zero;
 
-        VideoInput videoIn = new VideoInput(0);
+        VideoInput videoIn = new VideoInput(2);
         MarkerRecognizer markerRecognizer = new MarkerRecognizer();
         ShapeProcessor shapeProcessor = new ShapeProcessor();
         PositionMarker positionMarker = new PositionMarker();
