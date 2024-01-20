@@ -18,10 +18,11 @@ public class PositionMarker {
     public void updatePositionMarker(int[] playFieldInformation, int currentBeat){
         // height is always half the playField's height (2 lines)
         height = playFieldInformation[3]/2;
-        width = playFieldInformation[2]/8;
+        width = playFieldInformation[2]/4;
         // map to 0...3 (i.e. quarter)
-        correctedBeat = currentBeat % (statics.NO_BEATS/2);
-        relPos = correctedBeat / (statics.NO_BEATS/2f);
+        // TODO maybe do some magic number elimination
+        correctedBeat = (currentBeat % (statics.NO_BEATS/2))/2;
+        relPos = (correctedBeat / (statics.NO_BEATS/2f)) * 2;
 
         posAsRect[0] = playFieldInformation[0] + (int) ( (double) playFieldInformation[2] * relPos);
         posAsRect[1] = currentBeat >= statics.NO_BEATS/2 ? playFieldInformation[1] + height : playFieldInformation[1];

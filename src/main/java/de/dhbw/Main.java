@@ -32,7 +32,7 @@ public class Main {
         Setting setting;
         //UIMessage uiMessage = new UIMessage();
 
-        VideoInput videoIn = new VideoInput(0);
+        VideoInput videoIn = new VideoInput(2);
         MarkerRecognizer markerRecognizer = new MarkerRecognizer();
         ShapeProcessor shapeProcessor = new ShapeProcessor();
         PositionMarker positionMarker = new PositionMarker();
@@ -49,8 +49,6 @@ public class Main {
             // message independent code:
             clock.tick(System.currentTimeMillis());
             videoIn.grabImage(frame);
-            System.out.println(frame.width() + ", " + frame.height());
-
             markerRecognizer.setFrame(frame);
             markerRecognizer.detectShapes();
             shapeProcessor.processShapes(markerRecognizer.getShapes(), frame.width(), frame.height(), frame);
