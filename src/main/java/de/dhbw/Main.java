@@ -2,6 +2,7 @@ package de.dhbw;
 
 import de.dhbw.communication.EventQueues;
 import de.dhbw.communication.Setting;
+import de.dhbw.communication.SettingType;
 import de.dhbw.communication.UIMessage;
 import de.dhbw.music.MidiAdapter;
 import de.dhbw.music.MidiOutputDevice;
@@ -80,9 +81,13 @@ public class Main {
                             break;
                         case CAMERA:
                             videoIn.setInputDevice((int) setting.getValue());
+                            EventQueues.toUI.add( new UIMessage( new Setting<>(SettingType.CAMERA, true) ) );
                             break;
                         case STOP_LOOP:
                             stopped = (boolean) setting.getValue();
+                            if (stopped) {
+                                EventQueues.toUI.add( new UIMessage( new Setting<>(SettingType.STOP_LOOP, false) ) );
+                            }
                         case null, default:
                             break;
                     }

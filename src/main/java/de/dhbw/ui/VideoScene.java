@@ -92,25 +92,33 @@ public class VideoScene {
             if (message.getFrame() != null) {
                 updateFrame( message.getFrame() );
             }
-            if (message.getSetting() != null) {
-                switch ( message.getSetting().getType() ) {
-                    case VELOCITY:
-                        //update velocity icon
-                    case null, default:
-                        break;
-                }
-            }
             if (message.getShapes() != null) {
                 processShapes( message.getShapes() );
             }
-            if (message.getPlayFieldInformation() != null && message.getPlayFieldInformation()[4] == 1){
+            if (message.getPlayFieldInformation() != null && message.getPlayFieldInformation()[4] == 1) {
                 fieldPane.getChildren().clear();
                 drawPlayField( message.getPlayFieldInformation() );
                 if (message.getPositionMarker() != null){
                     drawPositionMarker(message.getPositionMarker());
                 }
             }
-
+            if (message.getSetting() != null) {
+                switch ( message.getSetting().getType() ) {
+                    case VELOCITY:
+                        //update velocity icon
+                        break;
+                    case STOP_LOOP:
+                        if (! (boolean) message.getSetting().getValue() ) {
+                            getCameraIndices();
+                        }
+                        break;
+                    case CAMERA:
+                        fieldPane.getChildren().clear();
+                        break;
+                    case null, default:
+                        break;
+                }
+            }
         }
     }
 
@@ -189,7 +197,6 @@ public class VideoScene {
         positionMarker.opacityProperty().setValue(0.4);
 
         fieldPane.getChildren().add(positionMarker);
-
     }
 
     private void setUIDimensions() {
@@ -262,16 +269,16 @@ public class VideoScene {
         midi_choicebox.getItems().addAll(devices);
     }
 
+    @FXML
+    private void stopVideoProcessing() {
+        Setting<Boolean> stop = new Setting<>(SettingType.STOP_LOOP, true);
+        EventQueues.toController.add(stop);
+    }
+
     /**
      * Gets list of working cameras' indices by trying to connect to indices 0 through 9.
      */
-    @FXML
     private void getCameraIndices() {
-        Setting<Boolean> stop = new Setting<>(SettingType.STOP_LOOP, true);
-        EventQueues.toController.add(stop);
-
-        //TODO: make sure main loop has been stopped before continuing
-
         List<Integer> cameras = new ArrayList<>(10);
         VideoCapture cap;
         for (int i = 0; i < 10; i++) {

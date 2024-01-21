@@ -82,7 +82,7 @@
                 <Label styleClass="setting_label" text="Video Input Device:" />
                 <HBox>
                     <ChoiceBox fx:id="camera_choicebox" styleClass="choice-box" prefWidth="50.0" onAction="#sendCameraSetting" value="0"/>
-                    <Button styleClass="button" onAction="#getCameraIndices" text="Scan for cameras"/>
+                    <Button styleClass="button" onAction="#stopVideoProcessing" text="Scan for cameras"/>
                 </HBox>
             </FlowPane>
 
