@@ -7,5 +7,6 @@ public enum SettingType {
     MUTE,
     MIDI_DEVICE,
     CAMERA,
-    STOP_LOOP
+    STOP_LOOP,
+    TEMPO
 }

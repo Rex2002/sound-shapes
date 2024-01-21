@@ -8,6 +8,8 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextField?>
+
 <AnchorPane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="340.0" minWidth="600.0" prefHeight="450.0"
             prefWidth="800.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.dhbw.ui.VideoScene"
 >
@@ -84,6 +86,30 @@
                     <ChoiceBox fx:id="camera_choicebox" styleClass="choice-box" prefWidth="50.0" onAction="#sendCameraSetting" value="0"/>
                     <Button styleClass="button" onAction="#stopVideoProcessing" text="Scan for cameras"/>
                 </HBox>
+            </FlowPane>
+
+            <FlowPane fx:id="music_tab" alignment="CENTER" nodeOrientation="LEFT_TO_RIGHT" prefHeight="40.0"
+                      prefWidth="40.0" styleClass="flow_pane" GridPane.columnIndex="0" GridPane.halignment="LEFT"
+                      GridPane.rowIndex="0" GridPane.valignment="CENTER" onMouseClicked="#toggleMusicPane"
+            >
+                <cursor>
+                    <Cursor fx:constant="HAND" />
+                </cursor>
+                <ImageView fx:id="music_btn" fitHeight="30" preserveRatio="true">
+                    <Image url="icons/note_eighth_blue.png" backgroundLoading="true"/>
+                    <FlowPane.margin>
+                        <Insets left="20.0" right="20.0" />
+                    </FlowPane.margin>
+                </ImageView>
+            </FlowPane>
+            <FlowPane fx:id="music_pane" nodeOrientation="LEFT_TO_RIGHT" prefHeight="120.0"
+                      prefWidth="100.0" styleClass="flow_pane" visible="false" GridPane.columnIndex="0"
+                      GridPane.halignment="LEFT" GridPane.rowIndex="1" GridPane.valignment="CENTER"
+                      orientation="VERTICAL"
+            >
+                <Label styleClass="heading" text="Music Settings:"/>
+                <Label styleClass="setting_label" text="Tempo:"/>
+                <TextField fx:id="tempo_field" styleClass="textfield" prefWidth="80.0" onAction="#sendTempoSetting"/>
             </FlowPane>
 
         </GridPane>

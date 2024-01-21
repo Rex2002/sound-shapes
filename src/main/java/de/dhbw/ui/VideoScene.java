@@ -8,6 +8,8 @@ import de.dhbw.video.shape.Shape;
 import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
@@ -17,6 +19,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
 import javafx.util.Duration;
+import javafx.util.converter.IntegerStringConverter;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.core.Point;
@@ -41,12 +44,14 @@ public class VideoScene {
     private AnchorPane shapePane;
     @FXML
     private GridPane menu_grid;
+
     @FXML
     private ImageView mute_btn;
     @FXML
     private ImageView play_btn;
     @FXML
     private ImageView metronome_btn;
+
     @FXML
     private FlowPane settings_tab;
     @FXML
@@ -58,16 +63,28 @@ public class VideoScene {
     @FXML
     private ChoiceBox<Integer> camera_choicebox;
 
+    @FXML
+    private FlowPane music_tab;
+    @FXML
+    private ImageView music_btn;
+    @FXML
+    private FlowPane music_pane;
+    @FXML
+    private TextField tempo_field;
+
     private CheckQueueService checkQueueService;
     private ResourceProvider resourceProvider;
     private boolean playing = true;
     private boolean metronomeRunning = false;
     private boolean mute = false;
     private boolean settingsVisible = false;
+    private boolean musicPaneVisible = false;
     private double aspectRatioFrame;
     private double frameWidth = -1;
     private double scaleRatio;
     ChangeListener<? super Number> sizeChangeListener;
+    private int tempo = 120;
+
     @FXML
     private void initialize() {
         //bind ImageView dimensions to parent
@@ -78,8 +95,11 @@ public class VideoScene {
         stack.widthProperty().addListener(sizeChangeListener);
 
         camera_choicebox.getItems().add(0);
+        
+        tempo_field.setTextFormatter( new TextFormatter<>( new IntegerStringConverter() ) );
 
         resourceProvider = new ResourceProvider();
+      
         checkQueueService = new CheckQueueService();
         checkQueueService.setPeriod(Duration.millis(33));
         checkQueueService.setOnSucceeded((event) -> handleQueue());
@@ -249,6 +269,9 @@ public class VideoScene {
 
     @FXML
     private void toggleSettingsPane() {
+        if (musicPaneVisible) {
+            toggleMusicPane();
+        }
         settings_pane.setVisible(!settingsVisible);
         settingsVisible = !settingsVisible;
         if (settingsVisible) {
@@ -298,6 +321,22 @@ public class VideoScene {
         Setting<Boolean> restart = new Setting<>(SettingType.STOP_LOOP, false);
         EventQueues.toController.add(restart);
     }
+    
+    @FXML
+    private void toggleMusicPane() {
+        if (settingsVisible) {
+            toggleSettingsPane();
+        }
+        music_pane.setVisible(!musicPaneVisible);
+        musicPaneVisible = !musicPaneVisible;
+        if (musicPaneVisible) {
+            refreshMusicPane();
+        }
+    }
+
+    private void refreshMusicPane() {
+        tempo_field.setText(String.valueOf(tempo));
+    }
 
     @FXML
     private void sendMidiSetting() {
@@ -311,4 +350,16 @@ public class VideoScene {
         EventQueues.toController.add(setting);
     }
 
+    private void sendTempoSetting() {
+        enforceTempoLimits( Integer.parseInt(tempo_field.getText()) );
+        Setting<Integer> setting = new Setting<>( SettingType.TEMPO, tempo );
+        EventQueues.toController.add(setting);
+    }
+
+    private void enforceTempoLimits(int input) {
+        if (input > 250) input = 250;
+        if (input < 40) input = 40;
+        tempo_field.setText(String.valueOf(input));
+        tempo = input;
+    }
 }
