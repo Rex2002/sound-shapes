@@ -80,6 +80,10 @@ public class VideoScene {
     private TextField velocity_field;
     @FXML
     private Slider velocity_slider;
+    @FXML
+    private TextField time_field_enumerator;
+    @FXML
+    private TextField time_field_denominator;
 
     private CheckQueueService checkQueueService;
     private final ResourceProvider resourceProvider = new ResourceProvider();
@@ -93,6 +97,7 @@ public class VideoScene {
     private double frameWidth = -1;
     private double scaleRatio;
     ChangeListener<? super Number> sizeChangeListener;
+    private int[] timeSignature = {4, 4};
 
     @FXML
     private void initialize() {
@@ -109,11 +114,14 @@ public class VideoScene {
         tempo_field.setText(String.valueOf(DEFAULT_TEMPO));
         velocity_field.setTextFormatter( new TextFormatter<>( new IntegerStringConverter() ) );
         velocity_field.setText(String.valueOf(DEFAULT_VELOCITY));
-      
+
         velocity_slider.setMin(MIN_VELOCITY);
         velocity_slider.setMax(MAX_VELOCITY);
         velocity_slider.setValue(DEFAULT_VELOCITY);
         velocity_field.textProperty().bindBidirectional( velocity_slider.valueProperty(), NumberFormat.getIntegerInstance() );
+
+        time_field_enumerator.setTextFormatter( new TextFormatter<>( new IntegerStringConverter() ) );
+        time_field_denominator.setTextFormatter( new TextFormatter<>( new IntegerStringConverter() ) );
 
         checkQueueService = new CheckQueueService();
         checkQueueService.setPeriod(Duration.millis(33));
@@ -402,6 +410,10 @@ public class VideoScene {
         }
     }
 
+    private void refreshMusicPane() {
+        time_field_enumerator.setText(String.valueOf(timeSignature[0]));
+        time_field_denominator.setText(String.valueOf(timeSignature[1]));
+    }
 
     @FXML
     private void sendMidiSetting() {
@@ -462,6 +474,29 @@ public class VideoScene {
 
         Setting<Double> setting = new Setting<>( SettingType.GUI_VELOCITY, normalizedValue );
         EventQueues.toController.add(setting);
+    }
+
+    @FXML
+    private void sendTimeSignatureSetting() {
+        enforceTimeSignatureLimits(
+                Integer.parseInt(time_field_enumerator.getText()),
+                Integer.parseInt(time_field_denominator.getText())
+        );
+        Setting<int[]> setting = new Setting<>(SettingType.TIME_SIGNATURE, timeSignature);
+        EventQueues.toController.add(setting);
+    }
+
+    private void enforceTimeSignatureLimits(int enumerator, int denominator) {
+        if (enumerator > 12) enumerator = 12;
+        if (enumerator < 1) enumerator = 1;
+
+        if (denominator > 12) denominator = 12;
+        if (denominator < 2) denominator = 2;
+
+        time_field_enumerator.setText(String.valueOf(enumerator));
+        time_field_denominator.setText(String.valueOf(denominator));
+        timeSignature[0] = enumerator;
+        timeSignature[1] = denominator;
     }
 
     private int enforceValueLimits(int input, int min, int max) {
