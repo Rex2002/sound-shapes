@@ -74,7 +74,7 @@ public class Main {
                             midiAdapter.setMetronomeActive((Boolean) setting.getValue());
                             break;
                         case TEMPO:
-                            clock.setTempo((int) setting.getValue());
+                            clock.setTempo((int) setting.getValue() * MAX_TEMPO_SPAN + MIN_TEMPO);
                             break;
                         case PLAY:
                             clock.setPlaying((Boolean) setting.getValue());
