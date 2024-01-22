@@ -13,6 +13,8 @@ public class Shape {
     public int[] pos;
     @Setter
     ShapeType type;
+    @Setter
+    ShapeColor color;
     public Shape(MatOfPoint contour, ShapeForm form, int[] pos){
         this.contour = contour;
         this.form = form;
