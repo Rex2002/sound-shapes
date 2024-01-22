@@ -2,23 +2,19 @@ package de.dhbw.music;
 
 import de.dhbw.communication.EventQueues;
 import de.dhbw.communication.MidiBatchMessage;
-import de.dhbw.statics;
+import de.dhbw.Statics;
+import lombok.Setter;
 
-import static de.dhbw.statics.DEFAULT_VELOCITY;
+import static de.dhbw.Statics.DEFAULT_VELOCITY;
 
 public class MidiAdapter {
     int lastInterval = -1;
+    @Setter
     int velocity = DEFAULT_VELOCITY;
     boolean playing = true;
+    @Setter
     boolean metronomeActive = false;
     MidiBatchMessage midiBatchMessage = new MidiBatchMessage();
-
-    public void setVelocity(int velocity){
-        this.velocity = velocity;
-    }
-    public void setMetronomeActive(boolean metronomeActive){
-        this.metronomeActive = metronomeActive;
-    }
 
     public void setMute(boolean muted){
         this.playing = !muted;
@@ -28,7 +24,7 @@ public class MidiAdapter {
             midiBatchMessage.clearMessages();
             lastInterval = posInBeat;
             if(metronomeActive && posInBeat % 2 == 0){
-                midiBatchMessage.addMidiMessage(statics.METRONOME_SOUND, velocity, -1);
+                midiBatchMessage.addMidiMessage(Statics.METRONOME_SOUND, velocity, -1);
             }
             for(int note = 0; note < soundMatrix[posInBeat].length; note++){
                 if (soundMatrix[posInBeat][note]){

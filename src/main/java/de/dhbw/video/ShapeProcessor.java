@@ -14,7 +14,7 @@ import org.opencv.core.Mat;
 
 import java.util.List;
 
-import static de.dhbw.statics.*;
+import static de.dhbw.Statics.*;
 
 public class ShapeProcessor {
 

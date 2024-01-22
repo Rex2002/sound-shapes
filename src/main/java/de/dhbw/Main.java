@@ -13,7 +13,7 @@ import javafx.application.Application;
 import nu.pattern.OpenCV;
 import org.opencv.core.Mat;
 
-import static de.dhbw.statics.*;
+import static de.dhbw.Statics.*;
 
 public class Main {
     static boolean running = true;
@@ -74,7 +74,7 @@ public class Main {
                             midiAdapter.setMetronomeActive((Boolean) setting.getValue());
                             break;
                         case TEMPO:
-                            clock.setTempo((int) setting.getValue() * MAX_TEMPO_SPAN + MIN_TEMPO);
+                            clock.setTempo((int) Math.round((double) setting.getValue() * MAX_TEMPO + MIN_TEMPO));
                             break;
                         case PLAY:
                             clock.setPlaying((Boolean) setting.getValue());

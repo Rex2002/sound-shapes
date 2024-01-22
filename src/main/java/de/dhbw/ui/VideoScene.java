@@ -31,6 +31,8 @@ import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import static de.dhbw.Statics.*;
+
 public class VideoScene {
     @FXML
     private AnchorPane root;
@@ -81,7 +83,7 @@ public class VideoScene {
     private double frameWidth = -1;
     private double scaleRatio;
     ChangeListener<? super Number> sizeChangeListener;
-    private int tempo = 120;
+    private int tempo = DEFAULT_TEMPO;
 
     @FXML
     private void initialize() {
@@ -300,13 +302,14 @@ public class VideoScene {
     @FXML
     private void sendTempoSetting() {
         enforceTempoLimits( Integer.parseInt(tempo_field.getText()) );
-        Setting<Integer> setting = new Setting<>( SettingType.TEMPO, tempo );
+        double normalisedTempo = (tempo - MIN_TEMPO) / (double) MAX_TEMPO;
+        Setting<Double> setting = new Setting<>( SettingType.TEMPO, normalisedTempo );
         EventQueues.toController.add(setting);
     }
 
     private void enforceTempoLimits(int input) {
-        if (input > 250) input = 250;
-        if (input < 40) input = 40;
+        if (input > MAX_TEMPO) input = MAX_TEMPO;
+        if (input < MIN_TEMPO) input = MIN_TEMPO;
         tempo_field.setText(String.valueOf(input));
         tempo = input;
     }
