@@ -28,9 +28,6 @@ public class Main {
         // time_zero is not set to zero to optionally allow sync wit ext. clocks later on by simply manipulating time_zero
         long time_zero = System.currentTimeMillis();
         long time = time_zero;
-        Settings settings = new Settings(120);
-        Setting setting;
-        //UIMessage uiMessage = new UIMessage();
 
         VideoInput videoIn = new VideoInput(2);
         MarkerRecognizer markerRecognizer = new MarkerRecognizer();
@@ -41,14 +38,18 @@ public class Main {
         midiOutputDevice.setMidiDevice("Gervill");
         midiOutputDevice.updateSettings(null);
         midiOutputDevice.start();
+
         Clock clock = new Clock(time_zero);
-        clock.setTempo(settings.tempo);
+        clock.setTempo(120);
+
         Mat frame = new Mat();
+        Setting setting;
         int counter = 0;
         while (running) {
             // message independent code:
             clock.tick(System.currentTimeMillis());
             videoIn.grabImage(frame);
+
             markerRecognizer.setFrame(frame);
             markerRecognizer.detectShapes();
             shapeProcessor.processShapes(markerRecognizer.getShapes(), frame.width(), frame.height(), frame);
@@ -71,11 +72,12 @@ public class Main {
                         case METRONOME:
                             // TODO find out where the information that should be displayed should be stored
                             midiAdapter.setMetronomeActive((Boolean) setting.getValue());
-                            //clock.setTempo((int) (setting.getValue() * MAX_TEMPO_SPAN + MIN_TEMPO));
+                            break;
+                        case TEMPO:
+                            clock.setTempo((int) setting.getValue());
                             break;
                         case PLAY:
                             clock.setPlaying((Boolean) setting.getValue());
-                            //midiAdapter.setMute(!(setting.getValue() > 0.5));
                             break;
                         case MIDI_DEVICE:
                             midiOutputDevice.setMidiDevice((String) setting.getValue());
@@ -94,7 +96,6 @@ public class Main {
             if(EventQueues.toUI.size() < 19) {
                 EventQueues.toUI.add(uiMessage);
             }
-            // TODO does it make a difference if the frame-offering is at the end
 
             if (counter % 100 == 0) {
                 printStats(time);
