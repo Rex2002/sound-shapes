@@ -103,6 +103,12 @@
                 <Label styleClass="heading" text="Music Settings:"/>
                 <Label styleClass="setting_label" text="Tempo:"/>
                 <TextField fx:id="tempo_field" styleClass="textfield" prefWidth="80.0" onAction="#sendTempoSetting"/>
+                <Label styleClass="setting_label" text="Time signature:"/>
+                <HBox>
+                    <TextField fx:id="time_field_enumerator" styleClass="textfield" prefWidth="50" />
+                    <Label styleClass="setting_label" text=" / "/>
+                    <TextField fx:id="time_field_denominator" styleClass="textfield" prefWidth="50" />
+                </HBox>
             </FlowPane>
 
         </GridPane>
