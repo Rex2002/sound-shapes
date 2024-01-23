@@ -72,25 +72,26 @@ public class MarkerRecognizer {
     }
 
     private void detectColours(){
-        Mat mask = new Mat(frame.size(), CvType.CV_8UC1, Scalar.all(0));
-
-        int idxMax = 0;
-        double prevMax = 0;
-        int c = 0;
+        double[] vals;
+        int idxMax; double prevMax;
         for(Shape s:shapes){
+            idxMax = 0;
+            prevMax = 0;
+            Mat mask = new Mat(frame.size(), CvType.CV_8UC1, Scalar.all(0));
             Imgproc.drawContours(mask, List.of(s.getContour()), -1, new Scalar(255), -1);
-            for(double val : Core.mean(frame, mask).val){
-                if(val > prevMax){
-                    idxMax = c;
-                    prevMax = val;
+            vals = Core.mean(frame, mask).val;
+            mask.release();
+            for (int idx = 0; idx < 3; idx++) {
+                if(vals[idx] > prevMax){
+                    prevMax = vals[idx];
+                    idxMax = idx;
                 }
-                c++;
             }
             switch (idxMax){
-                case 0: s.setColor(ShapeColor.BLUE);
-                case 1: s.setColor(ShapeColor.GREEN);
-                case 2: s.setColor(ShapeColor.RED);
-                default:s.setColor(ShapeColor.UNDEFINED);
+                case 0: s.setColor(ShapeColor.BLUE); break;
+                case 1: s.setColor(ShapeColor.GREEN); break;
+                case 2: s.setColor(ShapeColor.RED); break;
+                default:s.setColor(ShapeColor.UNDEFINED); break;
             }
         }
     }
@@ -99,7 +100,7 @@ public class MarkerRecognizer {
         Imgproc.cvtColor(frame, gray, Imgproc.COLOR_BGR2GRAY);
         // TODO find out what these values actually mean and potentially adapt
         Imgproc.GaussianBlur(gray, blurred, new Size(11,11), 4/6f);
-        Imgproc.threshold(blurred, bin, 65, 255, Imgproc.THRESH_BINARY_INV);
+        Imgproc.threshold(blurred, bin, 90, 255, Imgproc.THRESH_BINARY_INV);
         // TODO find out what RETR_TREE and CHAIN_APPROX_SIMPLE mean
         Imgproc.findContours(bin, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
     }
