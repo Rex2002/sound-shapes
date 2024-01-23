@@ -21,16 +21,18 @@ public class Clock {
 
     public void setPlaying(boolean p){
         if(p){
-            time_zero = System.currentTimeMillis();
             playing = true;
+            time_zero = System.currentTimeMillis();
+            relPos = 0;
+            currentBar = 0;
         }
         else{
             playing = false;
         }
     }
 
-    public int tick(long time){
-        if(!playing) return 0;
+    public void tick(long time){
+        if(!playing) return;
         diff = time - time_zero;
         nextRelPos = (diff % (secondsPerBar * 1000f)) / (secondsPerBar * 1000f);
         if(nextRelPos < relPos){
@@ -38,6 +40,5 @@ public class Clock {
         }
         relPos = nextRelPos;
         currentBeat = (int) (relPos * Statics.NO_BEATS/ Statics.NO_BARS) + Statics.NO_BEATS/ Statics.NO_BARS * currentBar;
-        return currentBeat;
     }
 }
