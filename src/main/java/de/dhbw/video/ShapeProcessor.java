@@ -126,9 +126,10 @@ public class ShapeProcessor {
                 EventQueues.toController.offer(new Setting<>(SettingType.VELOCITY, lastVelocity));
             }
         }
-        if(triangles.size() == 1 && (triangles.get(0).pos[0] < playfieldInfo[0] || circles.get(0).pos[0] > playfieldInfo[0] + playfieldInfo[2])){
+        if(triangles.size() == 1 && (triangles.get(0).pos[0] < playfieldInfo[0] || triangles.get(0).pos[0] > playfieldInfo[0] + playfieldInfo[2])){
             double nextTempo = (double) triangles.get(0).pos[1]/480;
             if(Math.abs(nextTempo - lastTempo) > 0.05){
+                System.out.println("Changing tempo with cm: " + triangles.size() + ", setting to " + nextTempo);
                 lastTempo = nextTempo;
                 EventQueues.toController.offer(new Setting<>(SettingType.TEMPO, lastTempo));
             }
