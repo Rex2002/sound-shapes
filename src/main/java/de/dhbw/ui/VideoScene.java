@@ -350,6 +350,7 @@ public class VideoScene {
         EventQueues.toController.add(setting);
     }
 
+    @FXML
     private void sendTempoSetting() {
         enforceTempoLimits( Integer.parseInt(tempo_field.getText()) );
         Setting<Integer> setting = new Setting<>( SettingType.TEMPO, tempo );
