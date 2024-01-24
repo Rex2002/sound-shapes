@@ -40,17 +40,16 @@ public class ShapeProcessor {
     }
 
     //TODO check if making the width and height of the input-video globally available makes sense
-    public void processShapes(List<Shape> shapes, int width, int height, Mat frame){
+    public void processShapes(List<Shape> shapes, Mat frame){
         this.shapes = shapes;
         this.frame = frame;
-        frameWidth = width;
-        frameHeight = height;
+        frameWidth = frame.width();
+        frameHeight = frame.height();
         detectPlayfield();
         if(playfieldInfo[4] == 1){
             generateSoundMatrix();
         }
         detectControlMarkers();
-        // TODO > treat control markers
     }
 
 
@@ -99,21 +98,6 @@ public class ShapeProcessor {
             }
         }
     }
-
-
-
-//    public int[][] playFieldToLines(){
-//        if(playfieldInfo[4] != 1){
-//            return null;
-//        }
-//        int[][] ret = new int[4][4];
-//        ret[0] = new int[]{playfieldInfo[0], playfieldInfo[1], playfieldInfo[0] + playfieldInfo[2], playfieldInfo[1]};
-//        ret[1] = new int[]{playfieldInfo[0] + playfieldInfo[2], playfieldInfo[1], playfieldInfo[0] + playfieldInfo[2], playfieldInfo[1] + playfieldInfo[3]};
-//        ret[2] = new int[]{playfieldInfo[0] + playfieldInfo[2], playfieldInfo[1] + playfieldInfo[3], playfieldInfo[0], playfieldInfo[1] + playfieldInfo[3]};
-//        ret[3] = new int[]{playfieldInfo[0], playfieldInfo[1] + playfieldInfo[3], playfieldInfo[0], playfieldInfo[1]};
-//        return ret;
-//
-//    }
 
     public void detectControlMarkers(){
         List<Shape> circles = shapes.stream().filter(shape -> shape.getForm() == ShapeForm.CIRCLE && shape.getType() == ShapeType.NONE).toList();

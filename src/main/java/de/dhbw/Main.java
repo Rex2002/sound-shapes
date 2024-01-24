@@ -52,7 +52,7 @@ public class Main {
 
             markerRecognizer.setFrame(frame);
             markerRecognizer.detectShapes();
-            shapeProcessor.processShapes(markerRecognizer.getShapes(), frame.width(), frame.height(), frame);
+            shapeProcessor.processShapes(markerRecognizer.getShapes(), frame);
             positionMarker.updatePositionMarker(shapeProcessor.getPlayfieldInfo(), clock.currentBeat);
             // message dependent / message sending code:
             if(!EventQueues.toController.isEmpty()){
