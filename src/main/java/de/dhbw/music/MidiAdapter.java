@@ -35,6 +35,7 @@ public class MidiAdapter {
         }
     }
 
+    // TODO rework sound numbers, since it just repeats thrice at the moment
     public int int2Note(int i){
         return switch (i) {
             case 0 -> 42;
@@ -42,6 +43,16 @@ public class MidiAdapter {
             case 2 -> 38;
             case 3 -> 49;
             case 4 -> 51;
+            case 5 -> 42;
+            case 6 -> 36;
+            case 7 -> 38;
+            case 8 -> 49;
+            case 9 -> 51;
+            case 10 -> 42;
+            case 11 -> 36;
+            case 12 -> 38;
+            case 13 -> 49;
+            case 14 -> 51;
             default -> 56;
         };
     }

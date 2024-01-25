@@ -13,6 +13,8 @@ public class Shape {
     public int[] pos;
     @Setter
     ShapeType type;
+    @Setter
+    ShapeColor color;
     public Shape(MatOfPoint contour, ShapeForm form, int[] pos){
         this.contour = contour;
         this.form = form;
@@ -25,6 +27,10 @@ public class Shape {
                 (int)(m.m10 / m.m00),
                 (int)(m.m01 / m.m00)
         };
+    }
+
+    public int toInt(){
+        return form.toInt() * 3 + color.toInt();
     }
 
 }
