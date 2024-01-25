@@ -15,4 +15,13 @@ public enum ShapeColor {
             default -> {return "UNDEFINED";}
         }
     }
+
+    public int toInt(){
+        switch (this){
+            case RED -> { return 0; }
+            case GREEN -> { return 1; }
+            case BLUE -> { return 2; }
+            default -> { return 0; }
+        }
+    }
 }

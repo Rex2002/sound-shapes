@@ -28,4 +28,8 @@ public class Shape {
         };
     }
 
+    public int toInt(){
+        return form.toInt() * 3 + color.toInt();
+    }
+
 }
