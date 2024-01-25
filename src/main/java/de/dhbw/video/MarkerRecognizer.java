@@ -1,6 +1,7 @@
 package de.dhbw.video;
 
 import de.dhbw.video.shape.Shape;
+import de.dhbw.video.shape.ShapeColor;
 import de.dhbw.video.shape.ShapeForm;
 import lombok.Getter;
 import org.opencv.core.*;
@@ -13,7 +14,7 @@ public class MarkerRecognizer {
     private static final int EXPECTED_SHAPE_NO = 30;
     @Getter
     Mat frame, gray = new Mat(), blurred=new Mat(), bin = new Mat(), hierarchy = new Mat();
-    List<MatOfPoint> contours;
+    List<MatOfPoint> contours = new ArrayList<>(EXPECTED_SHAPE_NO);
     @Getter
     List<Shape> shapes;
     int height, width;
@@ -25,7 +26,7 @@ public class MarkerRecognizer {
         width = frame.width();
         height = frame.height();
         // TODO check how many contours usually are found and adapt initial capacity
-        contours = new ArrayList<>(EXPECTED_SHAPE_NO);
+        contours.clear();
     }
 
     public void detectShapes(){
@@ -67,14 +68,39 @@ public class MarkerRecognizer {
             }
             shapes.add(new Shape(contour, form, Shape.calcPositionFromMoments(Imgproc.moments(contour))));
         }
+        detectColours();
     }
 
+    private void detectColours(){
+        double[] vals;
+        int idxMax; double prevMax;
+        for(Shape s:shapes){
+            idxMax = 0;
+            prevMax = 0;
+            Mat mask = new Mat(frame.size(), CvType.CV_8UC1, Scalar.all(0));
+            Imgproc.drawContours(mask, List.of(s.getContour()), -1, new Scalar(255), -1);
+            vals = Core.mean(frame, mask).val;
+            mask.release();
+            for (int idx = 0; idx < 3; idx++) {
+                if(vals[idx] > prevMax){
+                    prevMax = vals[idx];
+                    idxMax = idx;
+                }
+            }
+            switch (idxMax){
+                case 0: s.setColor(ShapeColor.BLUE); break;
+                case 1: s.setColor(ShapeColor.GREEN); break;
+                case 2: s.setColor(ShapeColor.RED); break;
+                default:s.setColor(ShapeColor.UNDEFINED); break;
+            }
+        }
+    }
 
     private void findContours(){
         Imgproc.cvtColor(frame, gray, Imgproc.COLOR_BGR2GRAY);
         // TODO find out what these values actually mean and potentially adapt
         Imgproc.GaussianBlur(gray, blurred, new Size(11,11), 4/6f);
-        Imgproc.threshold(blurred, bin, 65, 255, Imgproc.THRESH_BINARY_INV);
+        Imgproc.threshold(blurred, bin, 90, 255, Imgproc.THRESH_BINARY_INV);
         // TODO find out what RETR_TREE and CHAIN_APPROX_SIMPLE mean
         Imgproc.findContours(bin, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
     }
