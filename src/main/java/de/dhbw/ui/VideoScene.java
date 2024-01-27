@@ -31,6 +31,8 @@ import javax.sound.midi.MidiSystem;
 import java.io.ByteArrayInputStream;
 import java.util.*;
 
+import static de.dhbw.statics.DEFAULT_MIDI_DEVICE;
+
 public class VideoScene {
     @FXML
     private AnchorPane root;
@@ -288,8 +290,10 @@ public class VideoScene {
             }
             devices.add(deviceInfo.getName());
         }
+        String currentDevice = midi_choicebox.getValue();
         midi_choicebox.getItems().clear();
         midi_choicebox.getItems().addAll(devices);
+        midi_choicebox.setValue( devices.contains(currentDevice) ? currentDevice : DEFAULT_MIDI_DEVICE );
     }
 
     @FXML
@@ -342,6 +346,7 @@ public class VideoScene {
 
     @FXML
     private void sendMidiSetting() {
+        if (midi_choicebox.getValue() == null) return;
         Setting<String> setting = new Setting<>(SettingType.MIDI_DEVICE, midi_choicebox.getValue());
         EventQueues.toController.add(setting);
     }

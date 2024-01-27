@@ -37,7 +37,7 @@ public class Main {
         PositionMarker positionMarker = new PositionMarker();
         MidiAdapter midiAdapter = new MidiAdapter();
         MidiOutputDevice midiOutputDevice = new MidiOutputDevice();
-        midiOutputDevice.setMidiDevice("Gervill");
+        midiOutputDevice.setMidiDevice(DEFAULT_MIDI_DEVICE);
         midiOutputDevice.updateSettings(null);
         midiOutputDevice.start();
 
