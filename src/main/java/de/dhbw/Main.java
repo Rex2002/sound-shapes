@@ -95,9 +95,12 @@ public class Main {
                     }
                 }
             }
+            if (stopped) {
+                continue;
+            }
             midiAdapter.tickMidi(clock.currentBeat, shapeProcessor.getSoundMatrix());
             UIMessage uiMessage = new UIMessage();
-            uiMessage.setFrame(shapeProcessor.getFrame());
+            if (shapeProcessor.getFrame() != null) uiMessage.setFrame(shapeProcessor.getFrame());
             uiMessage.setPlayFieldInformation(shapeProcessor.getPlayfieldInfo());
             uiMessage.setPositionMarker(positionMarker.getPosAsRect());
             uiMessage.setShapes(markerRecognizer.getShapes());

@@ -61,7 +61,7 @@ public class VideoScene {
     @FXML
     private ChoiceBox<String> midi_choicebox;
     @FXML
-    private ChoiceBox<Integer> camera_choicebox;
+    private ChoiceBox<String> camera_choicebox;
 
     @FXML
     private FlowPane music_tab;
@@ -94,7 +94,7 @@ public class VideoScene {
         sizeChangeListener = (observable, oldValue, newValue) -> setUIDimensions();
         stack.widthProperty().addListener(sizeChangeListener);
 
-        camera_choicebox.getItems().add(0);
+        camera_choicebox.getItems().add("0");
         
         tempo_field.setTextFormatter( new TextFormatter<>( new IntegerStringConverter() ) );
 
@@ -302,7 +302,7 @@ public class VideoScene {
      * Gets list of working cameras' indices by trying to connect to indices 0 through 9.
      */
     private void getCameraIndices() {
-        List<Integer> cameras = new ArrayList<>(10);
+        List<String> cameras = new ArrayList<>(10);
         VideoCapture cap;
         for (int i = 0; i < 10; i++) {
             try {
@@ -311,13 +311,15 @@ public class VideoScene {
                 continue;
             }
             if (cap.isOpened()) {
-                cameras.add(i);
+                cameras.add( String.valueOf(i) );
             }
             cap.release();
         }
 
+        String currentCam = camera_choicebox.getValue();
         camera_choicebox.getItems().clear();
         camera_choicebox.getItems().addAll(cameras);
+        camera_choicebox.setValue( cameras.contains(currentCam) ? currentCam : "0" );
         Setting<Boolean> restart = new Setting<>(SettingType.STOP_LOOP, false);
         EventQueues.toController.add(restart);
     }
@@ -346,7 +348,8 @@ public class VideoScene {
 
     @FXML
     private void sendCameraSetting() {
-        Setting<Integer> setting = new Setting<>(SettingType.CAMERA, camera_choicebox.getValue());
+        if (camera_choicebox.getValue() == null) return;
+        Setting<Integer> setting = new Setting<>(SettingType.CAMERA, Integer.parseInt(camera_choicebox.getValue()) );
         EventQueues.toController.add(setting);
     }
 
