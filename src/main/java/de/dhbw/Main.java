@@ -2,6 +2,7 @@ package de.dhbw;
 
 import de.dhbw.communication.EventQueues;
 import de.dhbw.communication.Setting;
+import de.dhbw.communication.SettingType;
 import de.dhbw.communication.UIMessage;
 import de.dhbw.music.MidiAdapter;
 import de.dhbw.music.MidiOutputDevice;
@@ -61,6 +62,9 @@ public class Main {
                     switch (setting.getType()) {
                         case VELOCITY:
                             midiAdapter.setVelocity((int) ((double) setting.getValue() * MAX_VELOCITY));
+                            //not yet happy with this because these messages are redundant, if setting was sent by UI
+                            UIMessage veloMsg = new UIMessage( new Setting<>( SettingType.VELOCITY, (double) setting.getValue() ) );
+                            EventQueues.toUI.add(veloMsg);
                             break;
                         case MUTE:
                             midiAdapter.setMute((Boolean) setting.getValue());

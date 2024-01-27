@@ -28,7 +28,7 @@
             </rowConstraints>
             <FlowPane id="playback_box" alignment="CENTER" nodeOrientation="LEFT_TO_RIGHT" prefHeight="40.0" prefWidth="200.0" styleClass="flow_pane" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER">
                 <ImageView fx:id="mute_btn" onMouseClicked="#toggleMute" fitHeight="30" preserveRatio="true">
-                    <Image url="icons/volume_max_blue.png" backgroundLoading="true"/>
+                    <Image url="icons/volume_high_blue.png" backgroundLoading="true"/>
                     <cursor>
                         <Cursor fx:constant="HAND"/>
                     </cursor>
