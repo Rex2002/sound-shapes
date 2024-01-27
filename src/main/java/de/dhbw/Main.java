@@ -79,6 +79,9 @@ public class Main {
                             break;
                         case TEMPO:
                             clock.setTempo((int) Math.round((double) setting.getValue() * MAX_TEMPO + MIN_TEMPO));
+                            //not yet happy with this because these messages are redundant, if setting was sent by UI
+                            UIMessage tempoMsg = new UIMessage( new Setting<>( SettingType.TEMPO, (double) setting.getValue() ) );
+                            EventQueues.toUI.add(tempoMsg);
                             break;
                         case PLAY:
                             clock.setPlaying((Boolean) setting.getValue());

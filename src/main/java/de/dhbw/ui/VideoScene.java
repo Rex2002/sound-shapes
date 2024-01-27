@@ -114,6 +114,10 @@ public class VideoScene {
                     case VELOCITY:
                         setVelocityIcon( (double) message.getSetting().getValue() );
                         break;
+                    case TEMPO:
+                        tempo = (int) Math.round((double) message.getSetting().getValue() * MAX_TEMPO + MIN_TEMPO);
+                        tempo_field.setText(String.valueOf(tempo));
+                        break;
                     case null, default:
                         break;
                 }
