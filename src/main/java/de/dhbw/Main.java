@@ -42,21 +42,12 @@ public class Main {
         midiOutputDevice.start();
 
         Clock clock = new Clock(time_zero);
-        clock.setTempo(120);
+        clock.setTempo(DEFAULT_TEMPO);
 
         Mat frame = new Mat();
         Setting setting;
         int counter = 0;
         while (running) {
-            if (!stopped) {
-                // message independent code:
-                clock.tick(System.currentTimeMillis());
-                videoIn.grabImage(frame);
-                markerRecognizer.setFrame(frame);
-                markerRecognizer.detectShapes();
-                shapeProcessor.processShapes(markerRecognizer.getShapes(), frame.width(), frame.height(), frame);
-                positionMarker.updatePositionMarker(shapeProcessor.getPlayfieldInfo(), clock.currentBeat);
-            }
             // message dependent / message sending code:
             if(!EventQueues.toController.isEmpty()){
                 setting = EventQueues.toController.poll();
@@ -95,12 +86,22 @@ public class Main {
                     }
                 }
             }
-            if (stopped) {
-                continue;
-            }
+            if (stopped) continue;
+
+            // message independent code:
+            clock.tick(System.currentTimeMillis());
+            videoIn.grabImage(frame);
+            markerRecognizer.setFrame(frame);
+            markerRecognizer.detectShapes();
+            shapeProcessor.processShapes(markerRecognizer.getShapes(), frame.width(), frame.height(), frame);
+            positionMarker.updatePositionMarker(shapeProcessor.getPlayfieldInfo(), clock.currentBeat);
+
             midiAdapter.tickMidi(clock.currentBeat, shapeProcessor.getSoundMatrix());
+
+            if (shapeProcessor.getFrame() == null) continue;
+
             UIMessage uiMessage = new UIMessage();
-            if (shapeProcessor.getFrame() != null) uiMessage.setFrame(shapeProcessor.getFrame());
+            uiMessage.setFrame(shapeProcessor.getFrame());
             uiMessage.setPlayFieldInformation(shapeProcessor.getPlayfieldInfo());
             uiMessage.setPositionMarker(positionMarker.getPosAsRect());
             uiMessage.setShapes(markerRecognizer.getShapes());
@@ -117,7 +118,6 @@ public class Main {
         }
         videoIn.releaseCap();
         midiOutputDevice.stopDevice();
-
     }
 
     private static void printStats(long time) {
