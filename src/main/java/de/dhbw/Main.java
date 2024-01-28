@@ -18,6 +18,7 @@ import static de.dhbw.Statics.*;
 
 public class Main {
     static boolean running = true;
+    static boolean stopped = false;
     public static void main(String[] args) {
         OpenCV.loadLocally();
         Thread uiThread = new Thread( () -> Application.launch( App.class, args) );
@@ -30,31 +31,23 @@ public class Main {
         long time_zero = System.currentTimeMillis();
         long time = time_zero;
 
-        VideoInput videoIn = new VideoInput(2);
+        VideoInput videoIn = new VideoInput(0);
         MarkerRecognizer markerRecognizer = new MarkerRecognizer();
         ShapeProcessor shapeProcessor = new ShapeProcessor();
         PositionMarker positionMarker = new PositionMarker();
         MidiAdapter midiAdapter = new MidiAdapter();
         MidiOutputDevice midiOutputDevice = new MidiOutputDevice();
-        midiOutputDevice.setMidiDevice("Gervill");
+        midiOutputDevice.setMidiDevice(DEFAULT_MIDI_DEVICE);
         midiOutputDevice.updateSettings(null);
         midiOutputDevice.start();
 
         Clock clock = new Clock(time_zero);
-        clock.setTempo(120);
+        clock.setTempo(DEFAULT_TEMPO);
 
         Mat frame = new Mat();
         Setting setting;
         int counter = 0;
         while (running) {
-            // message independent code:
-            clock.tick(System.currentTimeMillis());
-            videoIn.grabImage(frame);
-
-            markerRecognizer.setFrame(frame);
-            markerRecognizer.detectShapes();
-            shapeProcessor.processShapes(markerRecognizer.getShapes(), frame);
-            positionMarker.updatePositionMarker(shapeProcessor.getPlayfieldInfo(), clock.currentBeat);
             // message dependent / message sending code:
             if(!EventQueues.toController.isEmpty()){
                 setting = EventQueues.toController.poll();
@@ -89,12 +82,34 @@ public class Main {
                         case MIDI_DEVICE:
                             midiOutputDevice.setMidiDevice((String) setting.getValue());
                             break;
+                        case CAMERA:
+                            videoIn.setInputDevice((int) setting.getValue());
+                            EventQueues.toUI.add( new UIMessage( new Setting<>(SettingType.CAMERA, true) ) );
+                            break;
+                        case STOP_LOOP:
+                            stopped = (boolean) setting.getValue();
+                            if (stopped) {
+                                EventQueues.toUI.add( new UIMessage( new Setting<>(SettingType.STOP_LOOP, false) ) );
+                            }
                         case null, default:
                             break;
                     }
                 }
             }
+            if (stopped) continue;
+
+            // message independent code:
+            clock.tick(System.currentTimeMillis());
+            videoIn.grabImage(frame);
+            markerRecognizer.setFrame(frame);
+            markerRecognizer.detectShapes();
+            shapeProcessor.processShapes(markerRecognizer.getShapes(), frame);
+            positionMarker.updatePositionMarker(shapeProcessor.getPlayfieldInfo(), clock.currentBeat);
+
             midiAdapter.tickMidi(clock.currentBeat, shapeProcessor.getSoundMatrix());
+
+            if (shapeProcessor.getFrame() == null) continue;
+
             UIMessage uiMessage = new UIMessage();
             uiMessage.setFrame(shapeProcessor.getFrame());
             uiMessage.setPlayFieldInformation(shapeProcessor.getPlayfieldInfo());
@@ -113,7 +128,6 @@ public class Main {
         }
         videoIn.releaseCap();
         midiOutputDevice.stopDevice();
-
     }
 
     private static void printStats(long time) {

@@ -24,12 +24,13 @@ import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.core.Point;
 import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.videoio.VideoCapture;
 
 import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiSystem;
 import java.io.ByteArrayInputStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import static de.dhbw.Statics.DEFAULT_MIDI_DEVICE;
 
 import static de.dhbw.Statics.*;
 
@@ -62,6 +63,8 @@ public class VideoScene {
     private FlowPane settings_pane;
     @FXML
     private ChoiceBox<String> midi_choicebox;
+    @FXML
+    private ChoiceBox<String> camera_choicebox;
 
     @FXML
     private FlowPane music_tab;
@@ -94,9 +97,12 @@ public class VideoScene {
         sizeChangeListener = (observable, oldValue, newValue) -> setUIDimensions();
         stack.widthProperty().addListener(sizeChangeListener);
 
+        camera_choicebox.getItems().add("0");
+
         tempo_field.setTextFormatter( new TextFormatter<>( new IntegerStringConverter() ) );
 
         resourceProvider = new ResourceProvider();
+
         checkQueueService = new CheckQueueService();
         checkQueueService.setPeriod(Duration.millis(33));
         checkQueueService.setOnSucceeded((event) -> handleQueue());
@@ -126,14 +132,30 @@ public class VideoScene {
             if (message.getShapes() != null) {
                 processShapes( message.getShapes() );
             }
-            if (message.getPlayFieldInformation() != null && message.getPlayFieldInformation()[4] == 1){
+            if (message.getPlayFieldInformation() != null && message.getPlayFieldInformation()[4] == 1) {
                 fieldPane.getChildren().clear();
                 drawPlayField( message.getPlayFieldInformation() );
                 if (message.getPositionMarker() != null){
                     drawPositionMarker(message.getPositionMarker());
                 }
             }
-
+            if (message.getSetting() != null) {
+                switch ( message.getSetting().getType() ) {
+                    case VELOCITY:
+                        //update velocity icon
+                        break;
+                    case STOP_LOOP:
+                        if (! (boolean) message.getSetting().getValue() ) {
+                            getCameraIndices();
+                        }
+                        break;
+                    case CAMERA:
+                        fieldPane.getChildren().clear();
+                        break;
+                    case null, default:
+                        break;
+                }
+            }
         }
     }
 
@@ -212,7 +234,6 @@ public class VideoScene {
         positionMarker.opacityProperty().setValue(0.4);
 
         fieldPane.getChildren().add(positionMarker);
-
     }
 
     private void setUIDimensions() {
@@ -298,8 +319,42 @@ public class VideoScene {
             }
             devices.add(deviceInfo.getName());
         }
+        String currentDevice = midi_choicebox.getValue();
         midi_choicebox.getItems().clear();
         midi_choicebox.getItems().addAll(devices);
+        midi_choicebox.setValue( devices.contains(currentDevice) ? currentDevice : DEFAULT_MIDI_DEVICE );
+    }
+
+    @FXML
+    private void stopVideoProcessing() {
+        Setting<Boolean> stop = new Setting<>(SettingType.STOP_LOOP, true);
+        EventQueues.toController.add(stop);
+    }
+
+    /**
+     * Gets list of working cameras' indices by trying to connect to indices 0 through 9.
+     */
+    private void getCameraIndices() {
+        List<String> cameras = new ArrayList<>(10);
+        VideoCapture cap;
+        for (int i = 0; i < 10; i++) {
+            try {
+                cap = new VideoCapture(i);
+            } catch (Exception e) {
+                continue;
+            }
+            if (cap.isOpened()) {
+                cameras.add( String.valueOf(i) );
+            }
+            cap.release();
+        }
+
+        String currentCam = camera_choicebox.getValue();
+        camera_choicebox.getItems().clear();
+        camera_choicebox.getItems().addAll(cameras);
+        camera_choicebox.setValue( cameras.contains(currentCam) ? currentCam : "0" );
+        Setting<Boolean> restart = new Setting<>(SettingType.STOP_LOOP, false);
+        EventQueues.toController.add(restart);
     }
 
     @FXML
@@ -320,7 +375,15 @@ public class VideoScene {
 
     @FXML
     private void sendMidiSetting() {
+        if (midi_choicebox.getValue() == null) return;
         Setting<String> setting = new Setting<>(SettingType.MIDI_DEVICE, midi_choicebox.getValue());
+        EventQueues.toController.add(setting);
+    }
+
+    @FXML
+    private void sendCameraSetting() {
+        if (camera_choicebox.getValue() == null) return;
+        Setting<Integer> setting = new Setting<>(SettingType.CAMERA, Integer.parseInt(camera_choicebox.getValue()) );
         EventQueues.toController.add(setting);
     }
 
@@ -338,5 +401,4 @@ public class VideoScene {
         tempo_field.setText(String.valueOf(input));
         tempo = input;
     }
-
 }

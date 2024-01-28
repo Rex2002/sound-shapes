@@ -58,8 +58,16 @@
 .choice-box {
     -fx-background-radius: 20;
     -fx-border-radius: 20;
-    -fx-background-color: white;
-    margin: 10;
+    -fx-background-color: rgb(247, 248, 250);
+    margin: 20;
+}
+
+.button {
+    -fx-background-radius: 20;
+    -fx-border-radius: 20;
+    -fx-background-color: rgb(110, 160, 191);
+    -fx-text-fill: rgb(247, 248, 250);
+    margin: 20;
 }
 
 .textfield {
