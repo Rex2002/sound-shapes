@@ -46,11 +46,9 @@ public class MarkerRecognizer {
         ShapeForm form;
         ShapeColor color;
         shapes = new ArrayList<>(EXPECTED_SHAPE_NO);
-        int skipping = 0;
         for(MatOfPoint contour : contours){
             area = Imgproc.contourArea(contour);
             if(area < 80){
-                skipping++;
                 continue;
             }
             contour2f = new MatOfPoint2f(contour.toArray());
