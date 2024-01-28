@@ -53,11 +53,13 @@ public class Main {
                 setting = EventQueues.toController.poll();
                 if(setting != null) {
                     switch (setting.getType()) {
-                        case VELOCITY:
+                        case CM_VELOCITY:
                             midiAdapter.setVelocity((int) ((double) setting.getValue() * MAX_VELOCITY));
-                            //not yet happy with this because these messages are redundant, if setting was sent by UI
-                            UIMessage veloMsg = new UIMessage( new Setting<>( SettingType.VELOCITY, (double) setting.getValue() ) );
+                            UIMessage veloMsg = new UIMessage( new Setting<>( SettingType.CM_VELOCITY, (double) setting.getValue() ) );
                             EventQueues.toUI.add(veloMsg);
+                            break;
+                        case GUI_VELOCITY:
+                            midiAdapter.setVelocity((int) ((double) setting.getValue() * MAX_VELOCITY));
                             break;
                         case MUTE:
                             midiAdapter.setMute((Boolean) setting.getValue());
@@ -70,11 +72,13 @@ public class Main {
                             // TODO find out where the information that should be displayed should be stored
                             midiAdapter.setMetronomeActive((Boolean) setting.getValue());
                             break;
-                        case TEMPO:
+                        case CM_TEMPO:
                             clock.setTempo((int) Math.round((double) setting.getValue() * MAX_TEMPO + MIN_TEMPO));
-                            //not yet happy with this because these messages are redundant, if setting was sent by UI
-                            UIMessage tempoMsg = new UIMessage( new Setting<>( SettingType.TEMPO, (double) setting.getValue() ) );
+                            UIMessage tempoMsg = new UIMessage( new Setting<>( SettingType.CM_TEMPO, (double) setting.getValue() ) );
                             EventQueues.toUI.add(tempoMsg);
+                            break;
+                        case GUI_TEMPO:
+                            clock.setTempo((int) Math.round((double) setting.getValue() * MAX_TEMPO + MIN_TEMPO));
                             break;
                         case PLAY:
                             clock.setPlaying((Boolean) setting.getValue());

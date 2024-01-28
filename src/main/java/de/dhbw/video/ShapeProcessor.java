@@ -108,7 +108,7 @@ public class ShapeProcessor {
             if(Math.abs(nextVelocity - lastVelocity) > 0.05){
                 System.out.println("Changing velocity with cm: " + rect.size() + ", setting to " + nextVelocity);
                 lastVelocity = nextVelocity;
-                EventQueues.toController.offer(new Setting<>(SettingType.VELOCITY, lastVelocity));
+                EventQueues.toController.offer(new Setting<>(SettingType.CM_VELOCITY, lastVelocity));
             }
         }
         if(triangles.size() == 1 && (triangles.get(0).pos[0] < playfieldInfo[0] || triangles.get(0).pos[0] > playfieldInfo[0] + playfieldInfo[2])){
@@ -116,7 +116,7 @@ public class ShapeProcessor {
             if(Math.abs(nextTempo - lastTempo) > 0.05){
                 System.out.println("Changing tempo with cm: " + triangles.size() + ", setting to " + nextTempo);
                 lastTempo = nextTempo;
-                EventQueues.toController.offer(new Setting<>(SettingType.TEMPO, lastTempo));
+                EventQueues.toController.offer(new Setting<>(SettingType.CM_TEMPO, lastTempo));
             }
         }
 
