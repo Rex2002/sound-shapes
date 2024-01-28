@@ -111,10 +111,10 @@ public class VideoScene {
             }
             if (message.getSetting() != null) {
                 switch (message.getSetting().getType()) {
-                    case VELOCITY:
+                    case CM_VELOCITY:
                         setVelocityIcon( (double) message.getSetting().getValue() );
                         break;
-                    case TEMPO:
+                    case CM_TEMPO:
                         tempo = (int) Math.round((double) message.getSetting().getValue() * MAX_TEMPO + MIN_TEMPO);
                         tempo_field.setText(String.valueOf(tempo));
                         break;
@@ -328,7 +328,7 @@ public class VideoScene {
     private void sendTempoSetting() {
         enforceTempoLimits( Integer.parseInt(tempo_field.getText()) );
         double normalisedTempo = (tempo - MIN_TEMPO) / (double) MAX_TEMPO;
-        Setting<Double> setting = new Setting<>( SettingType.TEMPO, normalisedTempo );
+        Setting<Double> setting = new Setting<>( SettingType.GUI_TEMPO, normalisedTempo );
         EventQueues.toController.add(setting);
     }
 

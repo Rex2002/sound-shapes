@@ -3,8 +3,10 @@ package de.dhbw.communication;
 public enum SettingType {
     PLAY,
     METRONOME,
-    VELOCITY,
+    GUI_VELOCITY,
+    CM_VELOCITY,
     MUTE,
     MIDI_DEVICE,
-    TEMPO
+    GUI_TEMPO,
+    CM_TEMPO
 }
