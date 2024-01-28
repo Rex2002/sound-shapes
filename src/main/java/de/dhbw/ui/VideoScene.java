@@ -110,6 +110,17 @@ public class VideoScene {
                 updateFrame( message.getFrame() );
             }
             if (message.getSetting() != null) {
+                switch (message.getSetting().getType()) {
+                    case VELOCITY:
+                        setVelocityIcon( (double) message.getSetting().getValue() );
+                        break;
+                    case TEMPO:
+                        tempo = (int) Math.round((double) message.getSetting().getValue() * MAX_TEMPO + MIN_TEMPO);
+                        tempo_field.setText(String.valueOf(tempo));
+                        break;
+                    case null, default:
+                        break;
+                }
                 //do something
             }
             if (message.getShapes() != null) {
@@ -225,6 +236,20 @@ public class VideoScene {
         return coordinate / scaleRatio;
     }
 
+    private void setVelocityIcon(double value) {
+        String iconPath = "src/main/resources/icons/";
+        if (value == 0.0) {
+            iconPath += "volume_mute_blue.png";
+        } else if (value < 0.4) {
+            iconPath += "volume_low_blue.png";
+        } else if (value < 0.8) {
+            iconPath += "volume_mid_blue.png";
+        } else {
+            iconPath += "volume_high_blue.png";
+        }
+        mute_btn.setImage( new Image( resourceProvider.getResource(iconPath).toURI().toString() ) );
+    }
+
     @FXML
     private void togglePlayPause() {
         playing = !playing;
@@ -248,7 +273,7 @@ public class VideoScene {
         mute = !mute;
         Setting<Boolean> setting = new Setting<>(SettingType.MUTE, mute);
         EventQueues.toController.add(setting);
-        String iconPath = "src/main/resources/icons/" + (mute ? "volume_mute_blue.png" : "volume_max_blue.png");
+        String iconPath = "src/main/resources/icons/" + (mute ? "volume_mute_blue.png" : "volume_high_blue.png");
         mute_btn.setImage( new Image( resourceProvider.getResource(iconPath).toURI().toString() ) );
     }
 

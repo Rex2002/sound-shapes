@@ -106,6 +106,7 @@ public class ShapeProcessor {
         if(circles.size() == 1 && ( circles.get(0).pos[0] < playfieldInfo[0] || circles.get(0).pos[0] > playfieldInfo[0] + playfieldInfo[2])){
             double nextVelocity = (double) circles.get(0).pos[1]/480;
             if(Math.abs(nextVelocity - lastVelocity) > 0.05){
+                System.out.println("Changing velocity with cm: " + circles.size() + ", setting to " + nextVelocity);
                 lastVelocity = nextVelocity;
                 EventQueues.toController.offer(new Setting<>(SettingType.VELOCITY, lastVelocity));
             }
