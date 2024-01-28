@@ -16,7 +16,7 @@ public class MarkerRecognizer {
     Mat frame, gray = new Mat(), blurred=new Mat(), bin = new Mat(), hierarchy = new Mat();
     List<MatOfPoint> contours = new ArrayList<>(EXPECTED_SHAPE_NO);
     @Getter
-    List<Shape> shapes;
+    List<Shape> shapes = new ArrayList<>(EXPECTED_SHAPE_NO);
     int height, width;
     public MarkerRecognizer(){
     }
@@ -27,6 +27,7 @@ public class MarkerRecognizer {
         height = frame.height();
         // TODO check how many contours usually are found and adapt initial capacity
         contours.clear();
+        //shapes.clear();
     }
 
     public void detectShapes(){
@@ -39,12 +40,17 @@ public class MarkerRecognizer {
 
         MatOfPoint2f contour2f; MatOfPoint2f contourTarget2f = new MatOfPoint2f();
         RotatedRect rrec;
-        double perimeter, area, areaRatio;
+        double perimeter, area, areaRatio, prevMax;
+        int idxMax;
+        double[] vals;
         ShapeForm form;
+        ShapeColor color;
         shapes = new ArrayList<>(EXPECTED_SHAPE_NO);
+        int skipping = 0;
         for(MatOfPoint contour : contours){
             area = Imgproc.contourArea(contour);
             if(area < 80){
+                skipping++;
                 continue;
             }
             contour2f = new MatOfPoint2f(contour.toArray());
@@ -63,22 +69,18 @@ public class MarkerRecognizer {
             else if(edgeNo == 5){
                 form = ShapeForm.PENTAGON;
             }
-            else{
+            else if (edgeNo > 6){
+
                 form = ShapeForm.CIRCLE;
             }
-            shapes.add(new Shape(contour, form, Shape.calcPositionFromMoments(Imgproc.moments(contour))));
-        }
-        detectColours();
-    }
-
-    private void detectColours(){
-        double[] vals;
-        int idxMax; double prevMax;
-        for(Shape s:shapes){
+            else {
+                //System.out.println("skipping shape because of edge mismatch");
+                continue;
+            }
             idxMax = 0;
             prevMax = 0;
             Mat mask = new Mat(frame.size(), CvType.CV_8UC1, Scalar.all(0));
-            Imgproc.drawContours(mask, List.of(s.getContour()), -1, new Scalar(255), -1);
+            Imgproc.drawContours(mask, List.of(contour), -1, new Scalar(255), -1);
             vals = Core.mean(frame, mask).val;
             mask.release();
             for (int idx = 0; idx < 3; idx++) {
@@ -87,14 +89,41 @@ public class MarkerRecognizer {
                     idxMax = idx;
                 }
             }
-            switch (idxMax){
-                case 0: s.setColor(ShapeColor.BLUE); break;
-                case 1: s.setColor(ShapeColor.GREEN); break;
-                case 2: s.setColor(ShapeColor.RED); break;
-                default:s.setColor(ShapeColor.UNDEFINED); break;
-            }
+            color = switch (idxMax) {
+                case 0 -> ShapeColor.BLUE;
+                case 1 -> ShapeColor.GREEN;
+                case 2 -> ShapeColor.RED;
+                default -> ShapeColor.UNDEFINED;
+            };
+            shapes.add(new Shape(contour, form, Shape.calcPositionFromMoments(Imgproc.moments(contour)), color));
         }
+//        detectColours();
     }
+
+//    private void detectColours(){
+//        double[] vals;
+//        int idxMax; double prevMax;
+//        for(Shape s:shapes){
+//            idxMax = 0;
+//            prevMax = 0;
+//            Mat mask = new Mat(frame.size(), CvType.CV_8UC1, Scalar.all(0));
+//            Imgproc.drawContours(mask, List.of(s.getContour()), -1, new Scalar(255), -1);
+//            vals = Core.mean(frame, mask).val;
+//            mask.release();
+//            for (int idx = 0; idx < 3; idx++) {
+//                if(vals[idx] > prevMax){
+//                    prevMax = vals[idx];
+//                    idxMax = idx;
+//                }
+//            }
+//            switch (idxMax){
+//                case 0: s.setColor(ShapeColor.BLUE); break;
+//                case 1: s.setColor(ShapeColor.GREEN); break;
+//                case 2: s.setColor(ShapeColor.RED); break;
+//                default:s.setColor(ShapeColor.UNDEFINED); break;
+//            }
+//        }
+//    }
 
     private void findContours(){
         Imgproc.cvtColor(frame, gray, Imgproc.COLOR_BGR2GRAY);

@@ -100,13 +100,13 @@ public class ShapeProcessor {
     }
 
     public void detectControlMarkers(){
-        List<Shape> circles = shapes.stream().filter(shape -> shape.getForm() == ShapeForm.CIRCLE && shape.getType() == ShapeType.NONE).toList();
+        List<Shape> rect = shapes.stream().filter(shape -> shape.getForm() == ShapeForm.RECT && shape.getType() == ShapeType.NONE).toList();
         List<Shape> triangles = shapes.stream().filter(shape -> shape.getForm() == ShapeForm.TRIANGLE && shape.getType() == ShapeType.NONE).toList();
 
-        if(circles.size() == 1 && ( circles.get(0).pos[0] < playfieldInfo[0] || circles.get(0).pos[0] > playfieldInfo[0] + playfieldInfo[2])){
-            double nextVelocity = (double) circles.get(0).pos[1]/480;
+        if(rect.size() == 1 && ( rect.get(0).pos[0] < playfieldInfo[0] || rect.get(0).pos[0] > playfieldInfo[0] + playfieldInfo[2])){
+            double nextVelocity = (double) rect.get(0).pos[1]/480;
             if(Math.abs(nextVelocity - lastVelocity) > 0.05){
-                System.out.println("Changing velocity with cm: " + circles.size() + ", setting to " + nextVelocity);
+                System.out.println("Changing velocity with cm: " + rect.size() + ", setting to " + nextVelocity);
                 lastVelocity = nextVelocity;
                 EventQueues.toController.offer(new Setting<>(SettingType.VELOCITY, lastVelocity));
             }

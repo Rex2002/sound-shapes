@@ -15,11 +15,12 @@ public class Shape {
     ShapeType type;
     @Setter
     ShapeColor color;
-    public Shape(MatOfPoint contour, ShapeForm form, int[] pos){
+    public Shape(MatOfPoint contour, ShapeForm form, int[] pos, ShapeColor color){
         this.contour = contour;
         this.form = form;
         this.pos = pos;
         this.type = ShapeType.NONE;
+        this.color = color;
     }
 
     public static int[] calcPositionFromMoments(Moments m){
