@@ -45,7 +45,7 @@ public class Main {
         clock.setTempo(DEFAULT_TEMPO);
 
         Mat frame = new Mat();
-        Setting setting;
+        Setting<?> setting;
         int counter = 0;
         while (running) {
             // message dependent / message sending code:
