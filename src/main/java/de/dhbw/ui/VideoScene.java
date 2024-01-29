@@ -124,6 +124,14 @@ public class VideoScene {
                         tempo = (int) Math.round((double) message.getSetting().getValue() * MAX_TEMPO + MIN_TEMPO);
                         tempo_field.setText(String.valueOf(tempo));
                         break;
+                    case STOP_LOOP:
+                        if (! (boolean) message.getSetting().getValue() ) {
+                            getCameraIndices();
+                        }
+                        break;
+                    case CAMERA:
+                        fieldPane.getChildren().clear();
+                        break;
                     case null, default:
                         break;
                 }
@@ -137,23 +145,6 @@ public class VideoScene {
                 drawPlayField( message.getPlayFieldInformation() );
                 if (message.getPositionMarker() != null){
                     drawPositionMarker(message.getPositionMarker());
-                }
-            }
-            if (message.getSetting() != null) {
-                switch ( message.getSetting().getType() ) {
-                    case VELOCITY:
-                        //update velocity icon
-                        break;
-                    case STOP_LOOP:
-                        if (! (boolean) message.getSetting().getValue() ) {
-                            getCameraIndices();
-                        }
-                        break;
-                    case CAMERA:
-                        fieldPane.getChildren().clear();
-                        break;
-                    case null, default:
-                        break;
                 }
             }
         }

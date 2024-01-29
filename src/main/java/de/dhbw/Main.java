@@ -75,7 +75,7 @@ public class Main {
                         case CM_TEMPO:
                             clock.setTempo((int) Math.round((double) setting.getValue() * MAX_TEMPO + MIN_TEMPO));
                             UIMessage tempoMsg = new UIMessage( new Setting<>( SettingType.CM_TEMPO, (double) setting.getValue() ) );
-                            EventQueues.toUI.add(tempoMsg);
+                            if(EventQueues.toUI.size() < 19 ) EventQueues.toUI.add(tempoMsg);
                             break;
                         case GUI_TEMPO:
                             clock.setTempo((int) Math.round((double) setting.getValue() * MAX_TEMPO + MIN_TEMPO));
