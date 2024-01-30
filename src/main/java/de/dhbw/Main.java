@@ -45,7 +45,7 @@ public class Main {
         clock.setTempo(DEFAULT_TEMPO);
 
         Mat frame = new Mat();
-        Setting setting;
+        Setting<?> setting;
         int counter = 0;
         while (running) {
             // message dependent / message sending code:
@@ -56,7 +56,7 @@ public class Main {
                         case CM_VELOCITY:
                             midiAdapter.setVelocity((int) ((double) setting.getValue() * MAX_VELOCITY));
                             UIMessage veloMsg = new UIMessage( new Setting<>( SettingType.CM_VELOCITY, (double) setting.getValue() ) );
-                            EventQueues.toUI.add(veloMsg);
+                            EventQueues.toUI.offer(veloMsg);
                             break;
                         case GUI_VELOCITY:
                             midiAdapter.setVelocity((int) ((double) setting.getValue() * MAX_VELOCITY));
@@ -75,7 +75,7 @@ public class Main {
                         case CM_TEMPO:
                             clock.setTempo((int) Math.round((double) setting.getValue() * MAX_TEMPO + MIN_TEMPO));
                             UIMessage tempoMsg = new UIMessage( new Setting<>( SettingType.CM_TEMPO, (double) setting.getValue() ) );
-                            if(EventQueues.toUI.size() < 19 ) EventQueues.toUI.add(tempoMsg);
+                            EventQueues.toUI.offer(tempoMsg);
                             break;
                         case GUI_TEMPO:
                             clock.setTempo((int) Math.round((double) setting.getValue() * MAX_TEMPO + MIN_TEMPO));
