@@ -87,13 +87,19 @@ public class Main {
                             midiOutputDevice.setMidiDevice((String) setting.getValue());
                             break;
                         case CAMERA:
+                            videoIn.releaseCap();
                             videoIn.setInputDevice((int) setting.getValue());
                             EventQueues.toUI.add( new UIMessage( new Setting<>(SettingType.CAMERA, true) ) );
                             break;
                         case STOP_LOOP:
                             stopped = (boolean) setting.getValue();
                             if (stopped) {
+                                videoIn.releaseCap();
                                 EventQueues.toUI.add( new UIMessage( new Setting<>(SettingType.STOP_LOOP, false) ) );
+                            }
+                            else{
+                                // TODO find out how to reset to the prev value
+                                videoIn.setInputDevice(0);
                             }
                         case null, default:
                             break;

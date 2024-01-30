@@ -85,7 +85,7 @@
                 <ChoiceBox fx:id="midi_choicebox" styleClass="choice-box" prefWidth="100.0" onAction="#sendMidiSetting" value="Gervill"/>
                 <Label styleClass="setting_label" text="Video Input Device:" />
                 <HBox>
-                    <ChoiceBox fx:id="camera_choicebox" styleClass="choice-box" prefWidth="50.0" onAction="#sendCameraSetting" value="0"/>
+                    <ChoiceBox fx:id="camera_choicebox" styleClass="choice-box" prefWidth="50.0" onMouseClicked="#sendCameraSetting" value="0"/>
                     <Button styleClass="button" onAction="#stopVideoProcessing" text="Scan for cameras">
                         <cursor>
                             <Cursor fx:constant="HAND" />
