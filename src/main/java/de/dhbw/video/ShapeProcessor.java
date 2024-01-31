@@ -1,16 +1,20 @@
 package de.dhbw.video;
 
+import de.dhbw.communication.EventQueues;
+import de.dhbw.communication.Setting;
+import de.dhbw.communication.SettingType;
 import de.dhbw.video.shape.Shape;
 import de.dhbw.video.shape.ShapeForm;
 import de.dhbw.video.shape.ShapeType;
 import lombok.Getter;
+import lombok.Setter;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 
 import java.util.List;
 
-import static de.dhbw.statics.*;
+import static de.dhbw.Statics.*;
 
 public class ShapeProcessor {
 
@@ -25,6 +29,8 @@ public class ShapeProcessor {
     private Mat frame;
     @Getter
     private boolean[][] soundMatrix = new boolean[NO_BEATS][NO_NOTES];
+    @Setter
+    private double lastVelocity = 0, lastTempo = 0;
     public ShapeProcessor(){
         playFieldBoundaries = new Mat[4];
         for(int i = 0; i < 4; i++) {
@@ -34,16 +40,16 @@ public class ShapeProcessor {
     }
 
     //TODO check if making the width and height of the input-video globally available makes sense
-    public void processShapes(List<Shape> shapes, int width, int height, Mat frame){
+    public void processShapes(List<Shape> shapes, Mat frame){
         this.shapes = shapes;
         this.frame = frame;
-        frameWidth = width;
-        frameHeight = height;
+        frameWidth = frame.width();
+        frameHeight = frame.height();
         detectPlayfield();
         if(playfieldInfo[4] == 1){
             generateSoundMatrix();
         }
-        // TODO > treat control markers
+        detectControlMarkers();
     }
 
 
@@ -75,10 +81,10 @@ public class ShapeProcessor {
                 corners[3] = square;
             }
         }
-        for(Shape c : corners) c.setType(ShapeType.FIELD_MARKER);
         for(int i = 0; i < 4; i++){
             playFieldBoundaries[i].put(0,0, corners[i].pos[0] - corners[(i+1) % 4].pos[0]);
             playFieldBoundaries[i].put(1,0, corners[i].pos[1] - corners[(i+1) % 4].pos[1]);
+            corners[i].setType(ShapeType.FIELD_MARKER);
         }
         playfieldInfo[0] = (corners[0].pos[0] + corners[3].pos[0]) / 2;
         playfieldInfo[1] = (corners[0].pos[1] + corners[1].pos[1]) / 2;
@@ -93,18 +99,26 @@ public class ShapeProcessor {
         }
     }
 
+    public void detectControlMarkers(){
+        List<Shape> rect = shapes.stream().filter(shape -> shape.getForm() == ShapeForm.RECT && shape.getType() == ShapeType.NONE).toList();
+        List<Shape> triangles = shapes.stream().filter(shape -> shape.getForm() == ShapeForm.TRIANGLE && shape.getType() == ShapeType.NONE).toList();
 
-
-    public int[][] playFieldToLines(){
-        if(playfieldInfo[4] != 1){
-            return null;
+        if(rect.size() == 1 && ( rect.get(0).pos[0] < playfieldInfo[0] || rect.get(0).pos[0] > playfieldInfo[0] + playfieldInfo[2])){
+            double nextVelocity = (double) rect.get(0).pos[1]/480;
+            if(Math.abs(nextVelocity - lastVelocity) > 0.05){
+                System.out.println("Changing velocity with cm: " + rect.size() + ", setting to " + nextVelocity);
+                lastVelocity = nextVelocity;
+                EventQueues.toController.offer(new Setting<>(SettingType.CM_VELOCITY, lastVelocity));
+            }
         }
-        int[][] ret = new int[4][4];
-        ret[0] = new int[]{playfieldInfo[0], playfieldInfo[1], playfieldInfo[0] + playfieldInfo[2], playfieldInfo[1]};
-        ret[1] = new int[]{playfieldInfo[0] + playfieldInfo[2], playfieldInfo[1], playfieldInfo[0] + playfieldInfo[2], playfieldInfo[1] + playfieldInfo[3]};
-        ret[2] = new int[]{playfieldInfo[0] + playfieldInfo[2], playfieldInfo[1] + playfieldInfo[3], playfieldInfo[0], playfieldInfo[1] + playfieldInfo[3]};
-        ret[3] = new int[]{playfieldInfo[0], playfieldInfo[1] + playfieldInfo[3], playfieldInfo[0], playfieldInfo[1]};
-        return ret;
+        if(triangles.size() == 1 && (triangles.get(0).pos[0] < playfieldInfo[0] || triangles.get(0).pos[0] > playfieldInfo[0] + playfieldInfo[2])){
+            double nextTempo = (double) triangles.get(0).pos[1]/480;
+            if(Math.abs(nextTempo - lastTempo) > 0.05){
+                System.out.println("Changing tempo with cm: " + triangles.size() + ", setting to " + nextTempo);
+                lastTempo = nextTempo;
+                EventQueues.toController.offer(new Setting<>(SettingType.CM_TEMPO, lastTempo));
+            }
+        }
 
     }
 

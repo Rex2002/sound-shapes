@@ -29,15 +29,17 @@
                 <RowConstraints minHeight="20.0" prefHeight="60.0" vgrow="NEVER" />
             </rowConstraints>
             <FlowPane id="playback_box" alignment="CENTER" nodeOrientation="LEFT_TO_RIGHT" prefHeight="40.0" prefWidth="200.0" styleClass="flow_pane" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER">
-                <ImageView fx:id="mute_btn" onMouseClicked="#toggleMute" fitHeight="30" preserveRatio="true">
-                    <Image url="icons/volume_max_blue.png" backgroundLoading="true"/>
+                <VBox onMouseClicked="#toggleMute">
                     <cursor>
                         <Cursor fx:constant="HAND"/>
                     </cursor>
-                    <FlowPane.margin>
-                        <Insets left="20.0" right="20.0" />
-                    </FlowPane.margin>
-                </ImageView>
+                    <ImageView fx:id="mute_btn" fitHeight="30" preserveRatio="true">
+                        <Image url="icons/volume_high_blue.png" backgroundLoading="true"/>
+                        <FlowPane.margin>
+                            <Insets left="20.0" right="20.0" />
+                        </FlowPane.margin>
+                    </ImageView>
+                </VBox>
                 <ImageView fx:id="play_btn" onMouseClicked="#togglePlayPause" fitHeight="30" preserveRatio="true">
                     <Image url="icons/stop_blue.png" backgroundLoading="true"/>
                     <cursor>
@@ -83,7 +85,7 @@
                 <ChoiceBox fx:id="midi_choicebox" styleClass="choice-box" prefWidth="100.0" onAction="#sendMidiSetting" value="Gervill"/>
                 <Label styleClass="setting_label" text="Video Input Device:" />
                 <HBox>
-                    <ChoiceBox fx:id="camera_choicebox" styleClass="choice-box" prefWidth="50.0" onAction="#sendCameraSetting" value="0"/>
+                    <ChoiceBox fx:id="camera_choicebox" styleClass="choice-box" prefWidth="50.0" onMouseClicked="#sendCameraSetting" value="0"/>
                     <Button styleClass="button" onAction="#stopVideoProcessing" text="Scan for cameras">
                         <cursor>
                             <Cursor fx:constant="HAND" />

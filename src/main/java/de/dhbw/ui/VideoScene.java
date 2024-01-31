@@ -30,8 +30,9 @@ import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiSystem;
 import java.io.ByteArrayInputStream;
 import java.util.*;
+import static de.dhbw.Statics.DEFAULT_MIDI_DEVICE;
 
-import static de.dhbw.statics.DEFAULT_MIDI_DEVICE;
+import static de.dhbw.Statics.*;
 
 public class VideoScene {
     @FXML
@@ -85,7 +86,7 @@ public class VideoScene {
     private double frameWidth = -1;
     private double scaleRatio;
     ChangeListener<? super Number> sizeChangeListener;
-    private int tempo = 120;
+    private int tempo = DEFAULT_TEMPO;
 
     @FXML
     private void initialize() {
@@ -97,11 +98,11 @@ public class VideoScene {
         stack.widthProperty().addListener(sizeChangeListener);
 
         camera_choicebox.getItems().add("0");
-        
+
         tempo_field.setTextFormatter( new TextFormatter<>( new IntegerStringConverter() ) );
 
         resourceProvider = new ResourceProvider();
-      
+
         checkQueueService = new CheckQueueService();
         checkQueueService.setPeriod(Duration.millis(33));
         checkQueueService.setOnSucceeded((event) -> handleQueue());
@@ -114,20 +115,14 @@ public class VideoScene {
             if (message.getFrame() != null) {
                 updateFrame( message.getFrame() );
             }
-            if (message.getShapes() != null) {
-                processShapes( message.getShapes() );
-            }
-            if (message.getPlayFieldInformation() != null && message.getPlayFieldInformation()[4] == 1) {
-                fieldPane.getChildren().clear();
-                drawPlayField( message.getPlayFieldInformation() );
-                if (message.getPositionMarker() != null){
-                    drawPositionMarker(message.getPositionMarker());
-                }
-            }
             if (message.getSetting() != null) {
-                switch ( message.getSetting().getType() ) {
-                    case VELOCITY:
-                        //update velocity icon
+                switch (message.getSetting().getType()) {
+                    case CM_VELOCITY:
+                        setVelocityIcon( (double) message.getSetting().getValue() );
+                        break;
+                    case CM_TEMPO:
+                        tempo = (int) Math.round((double) message.getSetting().getValue() * MAX_TEMPO + MIN_TEMPO);
+                        tempo_field.setText(String.valueOf(tempo));
                         break;
                     case STOP_LOOP:
                         if (! (boolean) message.getSetting().getValue() ) {
@@ -139,6 +134,17 @@ public class VideoScene {
                         break;
                     case null, default:
                         break;
+                }
+                //do something
+            }
+            if (message.getShapes() != null) {
+                processShapes( message.getShapes() );
+            }
+            if (message.getPlayFieldInformation() != null && message.getPlayFieldInformation()[4] == 1) {
+                fieldPane.getChildren().clear();
+                drawPlayField( message.getPlayFieldInformation() );
+                if (message.getPositionMarker() != null){
+                    drawPositionMarker(message.getPositionMarker());
                 }
             }
         }
@@ -242,6 +248,20 @@ public class VideoScene {
         return coordinate / scaleRatio;
     }
 
+    private void setVelocityIcon(double value) {
+        String iconPath = "src/main/resources/icons/";
+        if (value == 0.0) {
+            iconPath += "volume_mute_blue.png";
+        } else if (value < 0.4) {
+            iconPath += "volume_low_blue.png";
+        } else if (value < 0.8) {
+            iconPath += "volume_mid_blue.png";
+        } else {
+            iconPath += "volume_high_blue.png";
+        }
+        mute_btn.setImage( new Image( resourceProvider.getResource(iconPath).toURI().toString() ) );
+    }
+
     @FXML
     private void togglePlayPause() {
         playing = !playing;
@@ -265,7 +285,7 @@ public class VideoScene {
         mute = !mute;
         Setting<Boolean> setting = new Setting<>(SettingType.MUTE, mute);
         EventQueues.toController.add(setting);
-        String iconPath = "src/main/resources/icons/" + (mute ? "volume_mute_blue.png" : "volume_max_blue.png");
+        String iconPath = "src/main/resources/icons/" + (mute ? "volume_mute_blue.png" : "volume_high_blue.png");
         mute_btn.setImage( new Image( resourceProvider.getResource(iconPath).toURI().toString() ) );
     }
 
@@ -327,7 +347,7 @@ public class VideoScene {
         Setting<Boolean> restart = new Setting<>(SettingType.STOP_LOOP, false);
         EventQueues.toController.add(restart);
     }
-    
+
     @FXML
     private void toggleMusicPane() {
         if (settingsVisible) {
@@ -361,13 +381,14 @@ public class VideoScene {
     @FXML
     private void sendTempoSetting() {
         enforceTempoLimits( Integer.parseInt(tempo_field.getText()) );
-        Setting<Integer> setting = new Setting<>( SettingType.TEMPO, tempo );
+        double normalisedTempo = (tempo - MIN_TEMPO) / (double) MAX_TEMPO;
+        Setting<Double> setting = new Setting<>( SettingType.GUI_TEMPO, normalisedTempo );
         EventQueues.toController.add(setting);
     }
 
     private void enforceTempoLimits(int input) {
-        if (input > 250) input = 250;
-        if (input < 40) input = 40;
+        if (input > MAX_TEMPO) input = MAX_TEMPO;
+        if (input < MIN_TEMPO) input = MIN_TEMPO;
         tempo_field.setText(String.valueOf(input));
         tempo = input;
     }

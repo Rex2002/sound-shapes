@@ -14,7 +14,7 @@ import javafx.application.Application;
 import nu.pattern.OpenCV;
 import org.opencv.core.Mat;
 
-import static de.dhbw.statics.*;
+import static de.dhbw.Statics.*;
 
 public class Main {
     static boolean running = true;
@@ -45,7 +45,7 @@ public class Main {
         clock.setTempo(DEFAULT_TEMPO);
 
         Mat frame = new Mat();
-        Setting setting;
+        Setting<?> setting;
         int counter = 0;
         while (running) {
             // message dependent / message sending code:
@@ -53,18 +53,32 @@ public class Main {
                 setting = EventQueues.toController.poll();
                 if(setting != null) {
                     switch (setting.getType()) {
-                        case VELOCITY:
+                        case CM_VELOCITY:
+                            midiAdapter.setVelocity((int) ((double) setting.getValue() * MAX_VELOCITY));
+                            UIMessage veloMsg = new UIMessage( new Setting<>( SettingType.CM_VELOCITY, (double) setting.getValue() ) );
+                            EventQueues.toUI.offer(veloMsg);
+                            break;
+                        case GUI_VELOCITY:
                             midiAdapter.setVelocity((int) ((double) setting.getValue() * MAX_VELOCITY));
                             break;
                         case MUTE:
                             midiAdapter.setMute((Boolean) setting.getValue());
+                            if(!(Boolean) setting.getValue()){
+                                shapeProcessor.setLastVelocity(0.5);
+                                midiAdapter.setVelocity((int) (0.5 * MAX_VELOCITY));
+                            }
                             break;
                         case METRONOME:
                             // TODO find out where the information that should be displayed should be stored
                             midiAdapter.setMetronomeActive((Boolean) setting.getValue());
                             break;
-                        case TEMPO:
-                            clock.setTempo((int) setting.getValue());
+                        case CM_TEMPO:
+                            clock.setTempo((int) Math.round((double) setting.getValue() * MAX_TEMPO + MIN_TEMPO));
+                            UIMessage tempoMsg = new UIMessage( new Setting<>( SettingType.CM_TEMPO, (double) setting.getValue() ) );
+                            EventQueues.toUI.offer(tempoMsg);
+                            break;
+                        case GUI_TEMPO:
+                            clock.setTempo((int) Math.round((double) setting.getValue() * MAX_TEMPO + MIN_TEMPO));
                             break;
                         case PLAY:
                             clock.setPlaying((Boolean) setting.getValue());
@@ -73,13 +87,19 @@ public class Main {
                             midiOutputDevice.setMidiDevice((String) setting.getValue());
                             break;
                         case CAMERA:
+                            videoIn.releaseCap();
                             videoIn.setInputDevice((int) setting.getValue());
                             EventQueues.toUI.add( new UIMessage( new Setting<>(SettingType.CAMERA, true) ) );
                             break;
                         case STOP_LOOP:
                             stopped = (boolean) setting.getValue();
                             if (stopped) {
+                                videoIn.releaseCap();
                                 EventQueues.toUI.add( new UIMessage( new Setting<>(SettingType.STOP_LOOP, false) ) );
+                            }
+                            else{
+                                // TODO find out how to reset to the prev value
+                                videoIn.setInputDevice(0);
                             }
                         case null, default:
                             break;
@@ -93,7 +113,7 @@ public class Main {
             videoIn.grabImage(frame);
             markerRecognizer.setFrame(frame);
             markerRecognizer.detectShapes();
-            shapeProcessor.processShapes(markerRecognizer.getShapes(), frame.width(), frame.height(), frame);
+            shapeProcessor.processShapes(markerRecognizer.getShapes(), frame);
             positionMarker.updatePositionMarker(shapeProcessor.getPlayfieldInfo(), clock.currentBeat);
 
             midiAdapter.tickMidi(clock.currentBeat, shapeProcessor.getSoundMatrix());

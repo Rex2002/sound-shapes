@@ -3,7 +3,7 @@ package de.dhbw;
 public class Clock {
     long time_zero, diff;
     int currentBeat, currentBar, tempo;
-    double secondsPerBar, nextRelPos, relPos;;
+    double secondsPerBar, nextRelPos, relPos;
     boolean playing = true;
     public Clock(long time_zero){
         this.time_zero = time_zero;
@@ -21,23 +21,24 @@ public class Clock {
 
     public void setPlaying(boolean p){
         if(p){
-            time_zero = System.currentTimeMillis();
             playing = true;
+            time_zero = System.currentTimeMillis();
+            relPos = 0;
+            currentBar = 0;
         }
         else{
             playing = false;
         }
     }
 
-    public int tick(long time){
-        if(!playing) return 0;
+    public void tick(long time){
+        if(!playing) return;
         diff = time - time_zero;
         nextRelPos = (diff % (secondsPerBar * 1000f)) / (secondsPerBar * 1000f);
         if(nextRelPos < relPos){
-            currentBar = ++currentBar % statics.NO_BARS;
+            currentBar = ++currentBar % Statics.NO_BARS;
         }
         relPos = nextRelPos;
-        currentBeat = (int) (relPos * statics.NO_BEATS/statics.NO_BARS) + statics.NO_BEATS/statics.NO_BARS * currentBar;
-        return currentBeat;
+        currentBeat = (int) (relPos * Statics.NO_BEATS/ Statics.NO_BARS) + Statics.NO_BEATS/ Statics.NO_BARS * currentBar;
     }
 }

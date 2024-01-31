@@ -21,11 +21,11 @@ public class PositionMarker {
         width = playFieldInformation[2]/4;
         // map to 0...3 (i.e. quarter)
         // TODO maybe do some magic number elimination
-        correctedBeat = (currentBeat % (statics.NO_BEATS/2))/2;
-        relPos = (correctedBeat / (statics.NO_BEATS/2f)) * 2;
+        correctedBeat = (currentBeat % (Statics.NO_BEATS/2))/2;
+        relPos = (correctedBeat / (Statics.NO_BEATS/2f)) * 2;
 
         posAsRect[0] = playFieldInformation[0] + (int) ( (double) playFieldInformation[2] * relPos);
-        posAsRect[1] = currentBeat >= statics.NO_BEATS/2 ? playFieldInformation[1] + height : playFieldInformation[1];
+        posAsRect[1] = currentBeat >= Statics.NO_BEATS/2 ? playFieldInformation[1] + height : playFieldInformation[1];
         posAsRect[2] = width;
         posAsRect[3] = height;
         prevPos0 = posAsRect[0];
