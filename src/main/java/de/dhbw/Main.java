@@ -101,6 +101,10 @@ public class Main {
                                 // TODO find out how to reset to the prev value
                                 videoIn.setInputDevice(0);
                             }
+                            break;
+                        case TOGGLE_CM:
+                            shapeProcessor.setEnableControlMarker((boolean) setting.getValue());
+                            break;
                         case null, default:
                             break;
                     }
