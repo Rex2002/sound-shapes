@@ -28,6 +28,7 @@ import org.opencv.videoio.VideoCapture;
 import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiSystem;
 import java.io.ByteArrayInputStream;
+import java.text.NumberFormat;
 import java.util.*;
 import static de.dhbw.Statics.DEFAULT_MIDI_DEVICE;
 
@@ -77,6 +78,8 @@ public class VideoScene {
     private TextField tempo_field;
     @FXML
     private TextField velocity_field;
+    @FXML
+    private Slider velocity_slider;
 
     private CheckQueueService checkQueueService;
     private final ResourceProvider resourceProvider = new ResourceProvider();
@@ -106,6 +109,11 @@ public class VideoScene {
         tempo_field.setText(String.valueOf(DEFAULT_TEMPO));
         velocity_field.setTextFormatter( new TextFormatter<>( new IntegerStringConverter() ) );
         velocity_field.setText(String.valueOf(DEFAULT_VELOCITY));
+
+        velocity_slider.setMin(MIN_VELOCITY);
+        velocity_slider.setMax(MAX_VELOCITY);
+        velocity_slider.setValue(DEFAULT_VELOCITY);
+        velocity_field.textProperty().bindBidirectional( velocity_slider.valueProperty(), NumberFormat.getIntegerInstance() );
 
         checkQueueService = new CheckQueueService();
         checkQueueService.setPeriod(Duration.millis(33));
@@ -407,6 +415,32 @@ public class VideoScene {
         if (camera_choicebox.getValue() == null) return;
         Setting<Integer> setting = new Setting<>(SettingType.CAMERA, Integer.parseInt(camera_choicebox.getValue()) );
         EventQueues.toController.add(setting);
+    }
+
+    @FXML
+    private void decreaseTempoTen() {
+        changeTempo(-10);
+    }
+
+    @FXML
+    private void decreaseTempoFive() {
+        changeTempo(-5);
+    }
+
+    @FXML
+    private void increaseTempoFive() {
+        changeTempo(5);
+    }
+
+    @FXML
+    private void increaseTempoTen() {
+        changeTempo(10);
+    }
+
+    private void changeTempo(int value) {
+        value = enforceValueLimits( Integer.parseInt(tempo_field.getText()) + value, MIN_TEMPO, MAX_TEMPO );
+        tempo_field.setText(String.valueOf(value));
+        sendTempoSetting();
     }
 
     @FXML
