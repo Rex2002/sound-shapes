@@ -12,20 +12,6 @@ public class MidiOutputDevice extends Thread{
     Receiver recv;
     boolean running = true, suspended = false;
 
-    public void setMidiDevice(int deviceNo){
-        release();
-        MidiDevice.Info[] mdInfo = MidiSystem.getMidiDeviceInfo();
-        try {
-            md = MidiSystem.getMidiDevice(mdInfo[deviceNo]);
-            if(!md.isOpen()){
-                md.open();
-            }
-            recv = md.getReceiver();
-        } catch (MidiUnavailableException e) {
-            // TODO send message to UI about failure
-            throw new RuntimeException(e);
-        }
-    }
 
     public void setMidiDevice(String deviceName){
         release();
@@ -50,10 +36,6 @@ public class MidiOutputDevice extends Thread{
             // TODO send message to UI about failure
             throw new RuntimeException(e);
         }
-    }
-
-    public static MidiDevice.Info[] getMidiDeviceInfo(){
-        return MidiSystem.getMidiDeviceInfo();
     }
 
     public void updateSettings(Settings settings){
