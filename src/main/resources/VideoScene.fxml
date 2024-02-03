@@ -92,6 +92,8 @@
                         </cursor>
                     </Button>
                 </HBox>
+                <Label styleClass="setting_label" text="Instrument" />
+                <ChoiceBox fx:id="inst_choicebox" styleClass="choice-box" prefWidth="100.0" onAction="#sendInstSetting" value="Drums"/>
             </FlowPane>
 
             <FlowPane fx:id="music_tab" alignment="CENTER" nodeOrientation="LEFT_TO_RIGHT" prefHeight="40.0"
