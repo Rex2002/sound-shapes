@@ -7,9 +7,7 @@ import de.dhbw.communication.UIMessage;
 import de.dhbw.video.shape.Shape;
 import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TextFormatter;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
@@ -65,6 +63,8 @@ public class VideoScene {
     private ChoiceBox<String> midi_choicebox;
     @FXML
     private ChoiceBox<String> camera_choicebox;
+    @FXML
+    private Button cm_button;
 
     @FXML
     private FlowPane music_tab;
@@ -81,6 +81,7 @@ public class VideoScene {
     private boolean metronomeRunning = false;
     private boolean mute = false;
     private boolean settingsVisible = false;
+    private boolean controlMarkersEnabled = true;
     private boolean musicPaneVisible = false;
     private double aspectRatioFrame;
     private double frameWidth = -1;
@@ -346,6 +347,15 @@ public class VideoScene {
         camera_choicebox.setValue( cameras.contains(currentCam) ? currentCam : "0" );
         Setting<Boolean> restart = new Setting<>(SettingType.STOP_LOOP, false);
         EventQueues.toController.add(restart);
+    }
+
+    @FXML
+    private void toggleControlMarkers() {
+        controlMarkersEnabled = !controlMarkersEnabled;
+        Setting<Boolean> setting = new Setting<>(SettingType.TOGGLE_CM, controlMarkersEnabled);
+        EventQueues.toController.add(setting);
+
+        cm_button.setText(controlMarkersEnabled ? "Disable" : "Enable");
     }
 
     @FXML
