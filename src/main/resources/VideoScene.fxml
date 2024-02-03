@@ -130,6 +130,8 @@
                 <Label styleClass="heading" text="Music Settings:"/>
                 <Label styleClass="setting_label" text="Tempo:"/>
                 <TextField fx:id="tempo_field" styleClass="textfield" prefWidth="80.0" onAction="#sendTempoSetting"/>
+                <Label styleClass="setting_label" text="Velocity:"/>
+                <TextField fx:id="velocity_field" styleClass="textfield" prefWidth="80.0" onAction="#sendVelocitySetting"/>
             </FlowPane>
 
         </GridPane>
