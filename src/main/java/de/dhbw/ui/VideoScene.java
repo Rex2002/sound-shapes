@@ -83,7 +83,7 @@ public class VideoScene {
 
     private CheckQueueService checkQueueService;
     private final ResourceProvider resourceProvider = new ResourceProvider();
-    private boolean playing = true;
+    private boolean playing = false;
     private boolean metronomeRunning = false;
     private boolean mute = false;
     private boolean settingsVisible = false;

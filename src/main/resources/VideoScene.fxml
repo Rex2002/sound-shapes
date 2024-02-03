@@ -42,7 +42,7 @@
                     </ImageView>
                 </VBox>
                 <ImageView fx:id="play_btn" onMouseClicked="#togglePlayPause" fitHeight="30" preserveRatio="true">
-                    <Image url="icons/stop_blue.png" backgroundLoading="true"/>
+                    <Image url="icons/play_blue.png" backgroundLoading="true"/>
                     <cursor>
                         <Cursor fx:constant="HAND"/>
                     </cursor>
