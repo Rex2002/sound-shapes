@@ -24,7 +24,12 @@ public class MidiAdapter {
             midiBatchMessage.clearMessages();
             lastInterval = posInBeat;
             if(metronomeActive && posInBeat % 2 == 0){
-                midiBatchMessage.addMidiMessage(Statics.METRONOME_SOUND, velocity, -1);
+                if(posInBeat == 0 || posInBeat == Statics.NO_BEATS/2){
+                    midiBatchMessage.addMidiMessage(Statics.METRONOME_UP_SOUND, velocity, -1);
+                }
+                else{
+                    midiBatchMessage.addMidiMessage(Statics.METRONOME_SOUND, velocity, -1);
+                }
             }
             for(int note = 0; note < soundMatrix[posInBeat].length; note++){
                 if (soundMatrix[posInBeat][note]){

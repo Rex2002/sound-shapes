@@ -82,16 +82,30 @@
             >
                 <Label styleClass="heading" text="Settings:"/>
                 <Label styleClass="setting_label" text="MIDI Output:" />
-                <ChoiceBox fx:id="midi_choicebox" styleClass="choice-box" prefWidth="100.0" onAction="#sendMidiSetting" value="Gervill"/>
+                <ChoiceBox fx:id="midi_choicebox" styleClass="choice-box" prefWidth="100.0" onAction="#sendMidiSetting" value="Gervill">
+                    <cursor>
+                        <Cursor fx:constant="HAND" />
+                    </cursor>
+                </ChoiceBox>
                 <Label styleClass="setting_label" text="Video Input Device:" />
                 <HBox>
-                    <ChoiceBox fx:id="camera_choicebox" styleClass="choice-box" prefWidth="50.0" onMouseClicked="#sendCameraSetting" value="0"/>
+                    <ChoiceBox fx:id="camera_choicebox" styleClass="choice-box" prefWidth="50.0" onMouseClicked="#sendCameraSetting" value="0">
+                        <cursor>
+                            <Cursor fx:constant="HAND" />
+                        </cursor>
+                    </ChoiceBox>
                     <Button styleClass="button" onAction="#stopVideoProcessing" text="Scan for cameras">
                         <cursor>
                             <Cursor fx:constant="HAND" />
                         </cursor>
                     </Button>
                 </HBox>
+                <Label styleClass="setting_label" text="Detect ControlMarkers:" />
+                <Button fx:id="cm_button" styleClass="button" onAction="#toggleControlMarkers" text="Disable">
+                    <cursor>
+                        <Cursor fx:constant="HAND" />
+                    </cursor>
+                </Button>
             </FlowPane>
 
             <FlowPane fx:id="music_tab" alignment="CENTER" nodeOrientation="LEFT_TO_RIGHT" prefHeight="40.0"
@@ -116,6 +130,8 @@
                 <Label styleClass="heading" text="Music Settings:"/>
                 <Label styleClass="setting_label" text="Tempo:"/>
                 <TextField fx:id="tempo_field" styleClass="textfield" prefWidth="80.0" onAction="#sendTempoSetting"/>
+                <Label styleClass="setting_label" text="Velocity:"/>
+                <TextField fx:id="velocity_field" styleClass="textfield" prefWidth="80.0" onAction="#sendVelocitySetting"/>
             </FlowPane>
 
         </GridPane>

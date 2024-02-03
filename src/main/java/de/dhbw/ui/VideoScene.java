@@ -7,9 +7,7 @@ import de.dhbw.communication.UIMessage;
 import de.dhbw.video.shape.Shape;
 import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TextFormatter;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
@@ -65,6 +63,8 @@ public class VideoScene {
     private ChoiceBox<String> midi_choicebox;
     @FXML
     private ChoiceBox<String> camera_choicebox;
+    @FXML
+    private Button cm_button;
 
     @FXML
     private FlowPane music_tab;
@@ -74,19 +74,21 @@ public class VideoScene {
     private FlowPane music_pane;
     @FXML
     private TextField tempo_field;
+    @FXML
+    private TextField velocity_field;
 
     private CheckQueueService checkQueueService;
-    private ResourceProvider resourceProvider;
+    private final ResourceProvider resourceProvider = new ResourceProvider();
     private boolean playing = true;
     private boolean metronomeRunning = false;
     private boolean mute = false;
     private boolean settingsVisible = false;
+    private boolean controlMarkersEnabled = true;
     private boolean musicPaneVisible = false;
     private double aspectRatioFrame;
     private double frameWidth = -1;
     private double scaleRatio;
     ChangeListener<? super Number> sizeChangeListener;
-    private int tempo = DEFAULT_TEMPO;
 
     @FXML
     private void initialize() {
@@ -100,8 +102,9 @@ public class VideoScene {
         camera_choicebox.getItems().add("0");
 
         tempo_field.setTextFormatter( new TextFormatter<>( new IntegerStringConverter() ) );
-
-        resourceProvider = new ResourceProvider();
+        tempo_field.setText(String.valueOf(DEFAULT_TEMPO));
+        velocity_field.setTextFormatter( new TextFormatter<>( new IntegerStringConverter() ) );
+        velocity_field.setText(String.valueOf(DEFAULT_VELOCITY));
 
         checkQueueService = new CheckQueueService();
         checkQueueService.setPeriod(Duration.millis(33));
@@ -119,9 +122,11 @@ public class VideoScene {
                 switch (message.getSetting().getType()) {
                     case CM_VELOCITY:
                         setVelocityIcon( (double) message.getSetting().getValue() );
+                        int value = (int) Math.round((double) message.getSetting().getValue() * MAX_VELOCITY);
+                        velocity_field.setText(String.valueOf(value));
                         break;
                     case CM_TEMPO:
-                        tempo = (int) Math.round((double) message.getSetting().getValue() * MAX_TEMPO + MIN_TEMPO);
+                        int tempo = (int) Math.round((double) message.getSetting().getValue() * MAX_TEMPO + MIN_TEMPO);
                         tempo_field.setText(String.valueOf(tempo));
                         break;
                     case STOP_LOOP:
@@ -349,20 +354,23 @@ public class VideoScene {
     }
 
     @FXML
+    private void toggleControlMarkers() {
+        controlMarkersEnabled = !controlMarkersEnabled;
+        Setting<Boolean> setting = new Setting<>(SettingType.TOGGLE_CM, controlMarkersEnabled);
+        EventQueues.toController.add(setting);
+
+        cm_button.setText(controlMarkersEnabled ? "Disable" : "Enable");
+    }
+
+    @FXML
     private void toggleMusicPane() {
         if (settingsVisible) {
             toggleSettingsPane();
         }
         music_pane.setVisible(!musicPaneVisible);
         musicPaneVisible = !musicPaneVisible;
-        if (musicPaneVisible) {
-            refreshMusicPane();
-        }
     }
 
-    private void refreshMusicPane() {
-        tempo_field.setText(String.valueOf(tempo));
-    }
 
     @FXML
     private void sendMidiSetting() {
@@ -380,16 +388,28 @@ public class VideoScene {
 
     @FXML
     private void sendTempoSetting() {
-        enforceTempoLimits( Integer.parseInt(tempo_field.getText()) );
-        double normalisedTempo = (tempo - MIN_TEMPO) / (double) MAX_TEMPO;
-        Setting<Double> setting = new Setting<>( SettingType.GUI_TEMPO, normalisedTempo );
+        int value = enforceValueLimits( Integer.parseInt(tempo_field.getText()), MIN_TEMPO, MAX_TEMPO );
+        tempo_field.setText(String.valueOf(value));
+
+        double normalizedTempo = (value - MIN_TEMPO) / (double) MAX_TEMPO;
+        Setting<Double> setting = new Setting<>( SettingType.GUI_TEMPO, normalizedTempo );
         EventQueues.toController.add(setting);
     }
 
-    private void enforceTempoLimits(int input) {
-        if (input > MAX_TEMPO) input = MAX_TEMPO;
-        if (input < MIN_TEMPO) input = MIN_TEMPO;
-        tempo_field.setText(String.valueOf(input));
-        tempo = input;
+    @FXML
+    private void sendVelocitySetting() {
+        int value = enforceValueLimits( Integer.parseInt(velocity_field.getText()), MIN_VELOCITY, MAX_VELOCITY );
+        velocity_field.setText(String.valueOf(value));
+        double normalizedValue = value / (double) MAX_VELOCITY;
+        setVelocityIcon( normalizedValue );
+
+        Setting<Double> setting = new Setting<>( SettingType.GUI_VELOCITY, normalizedValue );
+        EventQueues.toController.add(setting);
+    }
+
+    private int enforceValueLimits(int input, int min, int max) {
+        if (input > max) input = max;
+        if (input < min) input = min;
+        return input;
     }
 }

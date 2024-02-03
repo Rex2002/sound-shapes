@@ -10,5 +10,6 @@ public enum SettingType {
     GUI_TEMPO,
     CM_TEMPO,
     CAMERA,
-    STOP_LOOP
+    STOP_LOOP,
+    TOGGLE_CM
 }

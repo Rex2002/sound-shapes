@@ -72,7 +72,6 @@ public class MarkerRecognizer {
                 form = ShapeForm.CIRCLE;
             }
             else {
-                //System.out.println("skipping shape because of edge mismatch");
                 continue;
             }
             idxMax = 0;
@@ -95,33 +94,7 @@ public class MarkerRecognizer {
             };
             shapes.add(new Shape(contour, form, Shape.calcPositionFromMoments(Imgproc.moments(contour)), color));
         }
-//        detectColours();
     }
-
-//    private void detectColours(){
-//        double[] vals;
-//        int idxMax; double prevMax;
-//        for(Shape s:shapes){
-//            idxMax = 0;
-//            prevMax = 0;
-//            Mat mask = new Mat(frame.size(), CvType.CV_8UC1, Scalar.all(0));
-//            Imgproc.drawContours(mask, List.of(s.getContour()), -1, new Scalar(255), -1);
-//            vals = Core.mean(frame, mask).val;
-//            mask.release();
-//            for (int idx = 0; idx < 3; idx++) {
-//                if(vals[idx] > prevMax){
-//                    prevMax = vals[idx];
-//                    idxMax = idx;
-//                }
-//            }
-//            switch (idxMax){
-//                case 0: s.setColor(ShapeColor.BLUE); break;
-//                case 1: s.setColor(ShapeColor.GREEN); break;
-//                case 2: s.setColor(ShapeColor.RED); break;
-//                default:s.setColor(ShapeColor.UNDEFINED); break;
-//            }
-//        }
-//    }
 
     private void findContours(){
         Imgproc.cvtColor(frame, gray, Imgproc.COLOR_BGR2GRAY);

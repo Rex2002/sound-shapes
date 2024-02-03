@@ -23,9 +23,11 @@ public class Statics {
     public final static int MIN_TEMPO = 40;
     public final static int DEFAULT_VELOCITY = 80;
     public final static int MAX_VELOCITY = 127;
+    public final static int MIN_VELOCITY = 0;
 
     //MIDI
     public final static String DEFAULT_MIDI_DEVICE = "Gervill";
     // TODO find clicking sound
     public final static int METRONOME_SOUND = 45;
+    public final static int METRONOME_UP_SOUND = 47;
 }
