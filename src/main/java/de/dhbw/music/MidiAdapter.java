@@ -27,15 +27,15 @@ public class MidiAdapter {
             lastInterval = posInBeat;
             if(metronomeActive && posInBeat % 2 == 0){
                 if(posInBeat == 0 || posInBeat == Statics.NO_BEATS/2){
-                    midiBatchMessage.addMidiMessage(Statics.METRONOME_UP_SOUND, velocity, -1);
+                    midiBatchMessage.addMidiMessage(Statics.METRONOME_UP_SOUND, velocity, -1, 9);
                 }
                 else{
-                    midiBatchMessage.addMidiMessage(Statics.METRONOME_SOUND, velocity, -1);
+                    midiBatchMessage.addMidiMessage(Statics.METRONOME_SOUND, velocity, -1, 9);
                 }
             }
             for(int note = 0; note < soundMatrix[posInBeat].length; note++){
                 if (soundMatrix[posInBeat][note]){
-                    midiBatchMessage.addMidiMessage(int2Note(note), velocity, -1);
+                    midiBatchMessage.addMidiMessage(int2Note(note), velocity, -1, channel);
                 }
             }
             EventQueues.toMidi.offer(midiBatchMessage);

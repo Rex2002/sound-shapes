@@ -39,8 +39,7 @@ public class Main {
         MidiOutputDevice midiOutputDevice = new MidiOutputDevice();
         midiOutputDevice.setMidiDevice(DEFAULT_MIDI_DEVICE);
         midiOutputDevice.updateSettings(null);
-        midiOutputDevice.updateChannel(10);
-        midiAdapter.setChannel(10);
+        midiAdapter.setChannel(9);
 
         midiOutputDevice.start();
 
@@ -110,7 +109,6 @@ public class Main {
                             break;
                         case CHANNEL_CHG:
                             int v = ((boolean) setting.getValue()) ? 9 : 10;
-                            midiOutputDevice.updateChannel(v);
                             midiAdapter.setChannel(v);
                             break;
                         case null, default:
