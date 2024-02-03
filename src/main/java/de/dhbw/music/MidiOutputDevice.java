@@ -11,6 +11,7 @@ public class MidiOutputDevice extends Thread{
     MidiDevice md;
     Receiver recv;
     boolean running = true, suspended = false;
+    int channel = 9;
 
     public void setMidiDevice(int deviceNo){
         release();
@@ -70,6 +71,10 @@ public class MidiOutputDevice extends Thread{
         }
     }
 
+    public void updateChannel(int newChannel){
+        channel = newChannel;
+    }
+
     public void run(){
         running = true;
         if(md == null || !md.isOpen() || recv == null){
@@ -89,8 +94,11 @@ public class MidiOutputDevice extends Thread{
                     int[] message;
                     for(int messageNo = 0; messageNo < ms.getSize(); messageNo++){
                         message = ms.getMidiMessage(messageNo);
-                        smg.setMessage(ShortMessage.NOTE_ON, 9, message[0], message[1]);
+                        smg.setMessage(ShortMessage.NOTE_ON, channel, message[0], message[1]);
                         recv.send(smg, message[2]);
+                        // TODO check whether 500000 sounds good on piano that actually sustains
+                        smg.setMessage(ShortMessage.NOTE_OFF, channel, message[0], message[1]);
+                        recv.send(smg, md.getMicrosecondPosition() + 500000);
                     }
                 }
             }

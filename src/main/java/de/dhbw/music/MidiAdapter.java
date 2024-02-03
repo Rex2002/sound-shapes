@@ -15,6 +15,8 @@ public class MidiAdapter {
     @Setter
     boolean metronomeActive = false;
     MidiBatchMessage midiBatchMessage = new MidiBatchMessage();
+    @Setter
+    int channel = 9;
 
     public void setMute(boolean muted){
         this.playing = !muted;
@@ -42,6 +44,7 @@ public class MidiAdapter {
 
     // TODO rework sound numbers, since it just repeats thrice at the moment
     public int int2Note(int i){
+        if(channel == 10) return i  + 60;
         return switch (i) {
             case 0 -> 42;
             case 1 -> 36;
