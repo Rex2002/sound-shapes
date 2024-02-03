@@ -10,6 +10,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
@@ -111,6 +112,23 @@ public class VideoScene {
         checkQueueService.setOnSucceeded((event) -> handleQueue());
         checkQueueService.start();
         EventQueues.toUI.clear();
+
+        root.setOnKeyPressed(this::handleKeyStroke);
+    }
+
+    private void handleKeyStroke(KeyEvent event) {
+        if (event.isShortcutDown()) {
+            switch (event.getCode()) {
+                case COMMA -> toggleSettingsPane();
+                case M -> toggleMusicPane();
+            }
+        } else {
+            switch (event.getCode()) {
+                case SPACE -> togglePlayPause();
+                case M -> toggleMute();
+                case K -> toggleMetronome();
+            }
+        }
     }
     private void handleQueue() {
         List<UIMessage> messages = checkQueueService.getValue();
@@ -303,6 +321,8 @@ public class VideoScene {
         settingsVisible = !settingsVisible;
         if (settingsVisible) {
             refreshSettingsPane();
+        } else if (!musicPaneVisible) {
+            root.requestFocus();
         }
     }
 
@@ -369,6 +389,9 @@ public class VideoScene {
         }
         music_pane.setVisible(!musicPaneVisible);
         musicPaneVisible = !musicPaneVisible;
+        if (!settingsVisible && !musicPaneVisible) {
+            root.requestFocus();
+        }
     }
 
 
