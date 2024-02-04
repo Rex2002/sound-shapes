@@ -10,6 +10,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
@@ -27,6 +28,7 @@ import org.opencv.videoio.VideoCapture;
 import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiSystem;
 import java.io.ByteArrayInputStream;
+import java.text.NumberFormat;
 import java.util.*;
 import static de.dhbw.Statics.DEFAULT_MIDI_DEVICE;
 
@@ -76,10 +78,12 @@ public class VideoScene {
     private TextField tempo_field;
     @FXML
     private TextField velocity_field;
+    @FXML
+    private Slider velocity_slider;
 
     private CheckQueueService checkQueueService;
     private final ResourceProvider resourceProvider = new ResourceProvider();
-    private boolean playing = true;
+    private boolean playing = false;
     private boolean metronomeRunning = false;
     private boolean mute = false;
     private boolean settingsVisible = false;
@@ -105,12 +109,34 @@ public class VideoScene {
         tempo_field.setText(String.valueOf(DEFAULT_TEMPO));
         velocity_field.setTextFormatter( new TextFormatter<>( new IntegerStringConverter() ) );
         velocity_field.setText(String.valueOf(DEFAULT_VELOCITY));
+      
+        velocity_slider.setMin(MIN_VELOCITY);
+        velocity_slider.setMax(MAX_VELOCITY);
+        velocity_slider.setValue(DEFAULT_VELOCITY);
+        velocity_field.textProperty().bindBidirectional( velocity_slider.valueProperty(), NumberFormat.getIntegerInstance() );
 
         checkQueueService = new CheckQueueService();
         checkQueueService.setPeriod(Duration.millis(33));
         checkQueueService.setOnSucceeded((event) -> handleQueue());
         checkQueueService.start();
         EventQueues.toUI.clear();
+
+        root.setOnKeyPressed(this::handleKeyStroke);
+    }
+
+    private void handleKeyStroke(KeyEvent event) {
+        if (event.isShortcutDown()) {
+            switch (event.getCode()) {
+                case COMMA -> toggleSettingsPane();
+                case M -> toggleMusicPane();
+            }
+        } else {
+            switch (event.getCode()) {
+                case SPACE -> togglePlayPause();
+                case M -> toggleMute();
+                case K -> toggleMetronome();
+            }
+        }
     }
     private void handleQueue() {
         List<UIMessage> messages = checkQueueService.getValue();
@@ -303,6 +329,8 @@ public class VideoScene {
         settingsVisible = !settingsVisible;
         if (settingsVisible) {
             refreshSettingsPane();
+        } else if (!musicPaneVisible) {
+            root.requestFocus();
         }
     }
 
@@ -369,6 +397,9 @@ public class VideoScene {
         }
         music_pane.setVisible(!musicPaneVisible);
         musicPaneVisible = !musicPaneVisible;
+        if (!settingsVisible && !musicPaneVisible) {
+            root.requestFocus();
+        }
     }
 
 
@@ -384,6 +415,32 @@ public class VideoScene {
         if (camera_choicebox.getValue() == null) return;
         Setting<Integer> setting = new Setting<>(SettingType.CAMERA, Integer.parseInt(camera_choicebox.getValue()) );
         EventQueues.toController.add(setting);
+    }
+
+    @FXML
+    private void decreaseTempoTen() {
+        changeTempo(-10);
+    }
+
+    @FXML
+    private void decreaseTempoFive() {
+        changeTempo(-5);
+    }
+
+    @FXML
+    private void increaseTempoFive() {
+        changeTempo(5);
+    }
+
+    @FXML
+    private void increaseTempoTen() {
+        changeTempo(10);
+    }
+
+    private void changeTempo(int value) {
+        value = enforceValueLimits( Integer.parseInt(tempo_field.getText()) + value, MIN_TEMPO, MAX_TEMPO );
+        tempo_field.setText(String.valueOf(value));
+        sendTempoSetting();
     }
 
     @FXML

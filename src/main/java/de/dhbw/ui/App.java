@@ -14,6 +14,9 @@ public class App extends Application {
         AnchorPane root = loader.load();
         Scene videoScene = new Scene(root);
 
+        root.setFocusTraversable(true);
+        root.requestFocus();
+
         primaryStage.setTitle("SoundShapes");
         primaryStage.setMinHeight(340);
         primaryStage.setMinWidth(600);

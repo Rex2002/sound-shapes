@@ -10,6 +10,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.TextField?>
 
+<?import javafx.scene.control.Slider?>
 <AnchorPane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="340.0" minWidth="600.0" prefHeight="450.0"
             prefWidth="800.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.dhbw.ui.VideoScene"
 >
@@ -41,7 +42,7 @@
                     </ImageView>
                 </VBox>
                 <ImageView fx:id="play_btn" onMouseClicked="#togglePlayPause" fitHeight="30" preserveRatio="true">
-                    <Image url="icons/stop_blue.png" backgroundLoading="true"/>
+                    <Image url="icons/play_blue.png" backgroundLoading="true"/>
                     <cursor>
                         <Cursor fx:constant="HAND"/>
                     </cursor>
@@ -129,9 +130,38 @@
             >
                 <Label styleClass="heading" text="Music Settings:"/>
                 <Label styleClass="setting_label" text="Tempo:"/>
-                <TextField fx:id="tempo_field" styleClass="textfield" prefWidth="80.0" onAction="#sendTempoSetting"/>
+                <HBox>
+                    <Button styleClass="button" onAction="#decreaseTempoTen" text="-10">
+                        <cursor>
+                            <Cursor fx:constant="HAND" />
+                        </cursor>
+                    </Button>
+                    <Button styleClass="button" onAction="#decreaseTempoFive" text="-5">
+                        <cursor>
+                            <Cursor fx:constant="HAND" />
+                        </cursor>
+                    </Button>
+                    <TextField fx:id="tempo_field" styleClass="textfield" onAction="#sendTempoSetting"/>
+                    <Button styleClass="button" onAction="#increaseTempoFive" text="+5">
+                        <cursor>
+                            <Cursor fx:constant="HAND" />
+                        </cursor>
+                    </Button>
+                    <Button styleClass="button" onAction="#increaseTempoTen" text="+10">
+                        <cursor>
+                            <Cursor fx:constant="HAND" />
+                        </cursor>
+                    </Button>
+                </HBox>
                 <Label styleClass="setting_label" text="Velocity:"/>
-                <TextField fx:id="velocity_field" styleClass="textfield" prefWidth="80.0" onAction="#sendVelocitySetting"/>
+                <HBox>
+                    <TextField fx:id="velocity_field" styleClass="textfield" onAction="#sendVelocitySetting"/>
+                    <Slider fx:id="velocity_slider" showTickMarks="true" onMouseReleased="#sendVelocitySetting">
+                        <cursor>
+                            <Cursor fx:constant="HAND" />
+                        </cursor>
+                    </Slider>
+                </HBox>
             </FlowPane>
 
         </GridPane>
