@@ -109,7 +109,7 @@ public class VideoScene {
         tempo_field.setText(String.valueOf(DEFAULT_TEMPO));
         velocity_field.setTextFormatter( new TextFormatter<>( new IntegerStringConverter() ) );
         velocity_field.setText(String.valueOf(DEFAULT_VELOCITY));
-
+      
         velocity_slider.setMin(MIN_VELOCITY);
         velocity_slider.setMax(MAX_VELOCITY);
         velocity_slider.setValue(DEFAULT_VELOCITY);
