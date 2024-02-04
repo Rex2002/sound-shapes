@@ -49,7 +49,7 @@ public class Main {
         int counter = 0;
         while (running) {
             // message dependent / message sending code:
-            if(!EventQueues.toController.isEmpty()){
+            if(!EventQueues.toController.isEmpty()) {
                 setting = EventQueues.toController.poll();
                 if(setting != null) {
                     switch (setting.getType()) {
@@ -69,7 +69,6 @@ public class Main {
                             }
                             break;
                         case METRONOME:
-                            // TODO find out where the information that should be displayed should be stored
                             midiAdapter.setMetronomeActive((Boolean) setting.getValue());
                             break;
                         case CM_TEMPO:
@@ -105,6 +104,13 @@ public class Main {
                         case TOGGLE_CM:
                             shapeProcessor.setEnableControlMarker((boolean) setting.getValue());
                             break;
+                        case TIME_SIGNATURE:
+                            Integer[] value = (Integer[]) setting.getValue();
+                            clock.setBeatsPerBar(value[0]);
+                            positionMarker.setBeatsPerBar(value[0]);
+                            shapeProcessor.setBeatsPerBar(value[0]);
+                            midiAdapter.setBeatsPerBar(value[0]);
+                            break;
                         case null, default:
                             break;
                     }
@@ -118,7 +124,7 @@ public class Main {
             markerRecognizer.setFrame(frame);
             markerRecognizer.detectShapes();
             shapeProcessor.processShapes(markerRecognizer.getShapes(), frame);
-            positionMarker.updatePositionMarker(shapeProcessor.getPlayfieldInfo(), clock.currentBeat);
+            positionMarker.updatePositionMarker(shapeProcessor.getPlayFieldInfo(), clock.currentBeat);
 
             midiAdapter.tickMidi(clock.currentBeat, shapeProcessor.getSoundMatrix());
 
@@ -126,7 +132,7 @@ public class Main {
 
             UIMessage uiMessage = new UIMessage();
             uiMessage.setFrame(shapeProcessor.getFrame());
-            uiMessage.setPlayFieldInformation(shapeProcessor.getPlayfieldInfo());
+            uiMessage.setPlayFieldInformation(shapeProcessor.getPlayFieldInfo());
             uiMessage.setPositionMarker(positionMarker.getPosAsRect());
             uiMessage.setShapes(markerRecognizer.getShapes());
             if(EventQueues.toUI.size() < 19) {

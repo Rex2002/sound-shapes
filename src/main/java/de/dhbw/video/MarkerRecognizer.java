@@ -68,7 +68,6 @@ public class MarkerRecognizer {
                 form = ShapeForm.PENTAGON;
             }
             else if (edgeNo > 6){
-
                 form = ShapeForm.CIRCLE;
             }
             else {

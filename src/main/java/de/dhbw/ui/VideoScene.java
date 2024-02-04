@@ -30,7 +30,6 @@ import javax.sound.midi.MidiSystem;
 import java.io.ByteArrayInputStream;
 import java.text.NumberFormat;
 import java.util.*;
-import static de.dhbw.Statics.DEFAULT_MIDI_DEVICE;
 
 import static de.dhbw.Statics.*;
 
@@ -97,7 +96,7 @@ public class VideoScene {
     private double frameWidth = -1;
     private double scaleRatio;
     ChangeListener<? super Number> sizeChangeListener;
-    private int[] timeSignature = {4, 4};
+    private final Integer[] timeSignature = {DEFAULT_TIME_ENUMERATOR, DEFAULT_TIME_DENOMINATOR};
 
     @FXML
     private void initialize() {
@@ -114,14 +113,12 @@ public class VideoScene {
         tempo_field.setText(String.valueOf(DEFAULT_TEMPO));
         velocity_field.setTextFormatter( new TextFormatter<>( new IntegerStringConverter() ) );
         velocity_field.setText(String.valueOf(DEFAULT_VELOCITY));
-
         velocity_slider.setMin(MIN_VELOCITY);
         velocity_slider.setMax(MAX_VELOCITY);
         velocity_slider.setValue(DEFAULT_VELOCITY);
         velocity_field.textProperty().bindBidirectional( velocity_slider.valueProperty(), NumberFormat.getIntegerInstance() );
-
-        time_field_enumerator.setTextFormatter( new TextFormatter<>( new IntegerStringConverter() ) );
-        time_field_denominator.setTextFormatter( new TextFormatter<>( new IntegerStringConverter() ) );
+        initializeTimeField(time_field_enumerator, DEFAULT_TIME_ENUMERATOR, MIN_TIME_ENUMERATOR, MAX_TIME_ENUMERATOR);
+        initializeTimeField(time_field_denominator, DEFAULT_TIME_DENOMINATOR, MIN_TIME_DENOMINATOR, MAX_TIME_DENOMINATOR);
 
         checkQueueService = new CheckQueueService();
         checkQueueService.setPeriod(Duration.millis(33));
@@ -130,6 +127,16 @@ public class VideoScene {
         EventQueues.toUI.clear();
 
         root.setOnKeyPressed(this::handleKeyStroke);
+    }
+
+    private void initializeTimeField(TextField timeField, int defaultValue, int min, int max) {
+        timeField.setTextFormatter( new TextFormatter<>( new IntegerStringConverter() ) );
+        timeField.setText(String.valueOf(defaultValue));
+        timeField.focusedProperty().addListener((o, oV, newValue) -> {
+            if (!newValue) {
+                timeField.setText(String.valueOf( enforceValueLimits(Integer.parseInt(timeField.getText()), min, max) ));
+            }
+        });
     }
 
     private void handleKeyStroke(KeyEvent event) {
@@ -233,24 +240,23 @@ public class VideoScene {
         for (int i = 0; i < playFieldInfo.length; i++) {
             playFieldInfo[i] = scaleCoordinate(input[i]);
         }
-        Rectangle playfield = new Rectangle(playFieldInfo[0], playFieldInfo[1], playFieldInfo[2], playFieldInfo[3]);
+        Rectangle playField = new Rectangle(playFieldInfo[0], playFieldInfo[1], playFieldInfo[2], playFieldInfo[3]);
 
         List<Line> lines = new ArrayList<>();
         Line l = new Line(playFieldInfo[0], playFieldInfo[1] + playFieldInfo[3]/2, playFieldInfo[0] + playFieldInfo[2], playFieldInfo[1]+playFieldInfo[3]/2 );
         l.setStroke(Color.YELLOW);
         lines.add(l);
         double x;
-        // TODO maybe remove magic numbers here
-        for(int i = 1; i < 4; i++){
-            x = playFieldInfo[0] + playFieldInfo[2] * i/4;
+        for(int i = 1; i < timeSignature[0]; i++) {
+            x = playFieldInfo[0] + playFieldInfo[2] * i/timeSignature[0];
             l = new Line(x,playFieldInfo[1], x, playFieldInfo[1] + playFieldInfo[3]);
             l.setStroke(Color.YELLOW);
             lines.add(l);
         }
-        playfield.setStroke(Color.YELLOW);
-        playfield.setFill(Color.TRANSPARENT);
+        playField.setStroke(Color.YELLOW);
+        playField.setFill(Color.TRANSPARENT);
         fieldPane.getChildren().addAll(lines);
-        fieldPane.getChildren().add(playfield);
+        fieldPane.getChildren().add(playField);
     }
 
     private void drawPositionMarker(int[] input){
@@ -410,11 +416,6 @@ public class VideoScene {
         }
     }
 
-    private void refreshMusicPane() {
-        time_field_enumerator.setText(String.valueOf(timeSignature[0]));
-        time_field_denominator.setText(String.valueOf(timeSignature[1]));
-    }
-
     @FXML
     private void sendMidiSetting() {
         if (midi_choicebox.getValue() == null) return;
@@ -478,25 +479,15 @@ public class VideoScene {
 
     @FXML
     private void sendTimeSignatureSetting() {
-        enforceTimeSignatureLimits(
-                Integer.parseInt(time_field_enumerator.getText()),
-                Integer.parseInt(time_field_denominator.getText())
-        );
-        Setting<int[]> setting = new Setting<>(SettingType.TIME_SIGNATURE, timeSignature);
-        EventQueues.toController.add(setting);
-    }
-
-    private void enforceTimeSignatureLimits(int enumerator, int denominator) {
-        if (enumerator > 12) enumerator = 12;
-        if (enumerator < 1) enumerator = 1;
-
-        if (denominator > 12) denominator = 12;
-        if (denominator < 2) denominator = 2;
-
+        int enumerator = enforceValueLimits(Integer.parseInt(time_field_enumerator.getText()), MIN_TIME_ENUMERATOR, MAX_TIME_ENUMERATOR);
         time_field_enumerator.setText(String.valueOf(enumerator));
-        time_field_denominator.setText(String.valueOf(denominator));
         timeSignature[0] = enumerator;
+        int denominator = enforceValueLimits(Integer.parseInt(time_field_denominator.getText()), MIN_TIME_DENOMINATOR, MAX_TIME_DENOMINATOR);
+        time_field_denominator.setText(String.valueOf(denominator));
         timeSignature[1] = denominator;
+
+        Setting<Integer[]> setting = new Setting<>(SettingType.TIME_SIGNATURE, timeSignature);
+        EventQueues.toController.add(setting);
     }
 
     private int enforceValueLimits(int input, int min, int max) {
