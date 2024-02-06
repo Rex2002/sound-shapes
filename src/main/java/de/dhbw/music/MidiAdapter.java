@@ -15,6 +15,8 @@ public class MidiAdapter {
     @Setter
     boolean metronomeActive = false;
     MidiBatchMessage midiBatchMessage = new MidiBatchMessage();
+    @Setter
+    int channel = 9;
 
     public void setMute(boolean muted){
         this.playing = !muted;
@@ -25,15 +27,15 @@ public class MidiAdapter {
             lastInterval = posInBeat;
             if(metronomeActive && posInBeat % 2 == 0){
                 if(posInBeat == 0 || posInBeat == Statics.NO_BEATS/2){
-                    midiBatchMessage.addMidiMessage(Statics.METRONOME_UP_SOUND, velocity, -1);
+                    midiBatchMessage.addMidiMessage(Statics.METRONOME_UP_SOUND, velocity, -1, 9);
                 }
                 else{
-                    midiBatchMessage.addMidiMessage(Statics.METRONOME_SOUND, velocity, -1);
+                    midiBatchMessage.addMidiMessage(Statics.METRONOME_SOUND, velocity, -1, 9);
                 }
             }
             for(int note = 0; note < soundMatrix[posInBeat].length; note++){
                 if (soundMatrix[posInBeat][note]){
-                    midiBatchMessage.addMidiMessage(int2Note(note), velocity, -1);
+                    midiBatchMessage.addMidiMessage(int2Note(note), velocity, -1, channel);
                 }
             }
             EventQueues.toMidi.offer(midiBatchMessage);
@@ -42,6 +44,7 @@ public class MidiAdapter {
 
     // TODO rework sound numbers, since it just repeats thrice at the moment
     public int int2Note(int i){
+        if(channel == 10) return i  + 60;
         return switch (i) {
             case 0 -> 42;
             case 1 -> 36;

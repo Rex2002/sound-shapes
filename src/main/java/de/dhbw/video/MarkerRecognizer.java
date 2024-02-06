@@ -67,8 +67,7 @@ public class MarkerRecognizer {
             else if(edgeNo == 5){
                 form = ShapeForm.PENTAGON;
             }
-            else if (edgeNo > 6){
-
+            else if (edgeNo > 5){
                 form = ShapeForm.CIRCLE;
             }
             else {

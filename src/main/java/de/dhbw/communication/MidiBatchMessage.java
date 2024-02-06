@@ -11,17 +11,19 @@ public class MidiBatchMessage {
     List<Integer> notes = new ArrayList<>();
     List<Integer> velocities = new ArrayList<>();
     List<Integer> offsets = new ArrayList<>();
-    int[] ret = new int[3];
+    List<Integer> channels = new ArrayList<>();
+    int[] ret = new int[4];
     public void clearMessages(){
-        notes.clear(); velocities.clear(); offsets.clear();
+        notes.clear(); velocities.clear(); offsets.clear(); channels.clear();
     }
-    public void addMidiMessage(int note, int velocity, int offset){
-        notes.add(note); velocities.add(velocity); offsets.add(offset);
+    public void addMidiMessage(int note, int velocity, int offset, int channel){
+        notes.add(note); velocities.add(velocity); offsets.add(offset); channels.add(channel);
     }
     public int[] getMidiMessage(int no){
         ret[0] = notes.get(no);
         ret[1] = velocities.get(no);
         ret[2] = offsets.get(no);
+        ret[3] = channels.get(no);
         return ret;
     }
 
