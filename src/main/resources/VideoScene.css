@@ -71,4 +71,5 @@
 }
 
 .textfield {
+    -fx-pref-width: 40;
 }
