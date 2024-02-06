@@ -164,14 +164,9 @@
                 </HBox>
                 <Label styleClass="setting_label" text="Time signature:"/>
                 <HBox>
-                    <TextField fx:id="time_field_enumerator" styleClass="textfield" onAction="#sendTimeSignatureSetting"/>
+                    <ChoiceBox fx:id="time_field_enumerator" styleClass="choice-box" onAction="#sendTimeSignatureSetting"/>
                     <Label styleClass="setting_label" text=" / "/>
-                    <TextField fx:id="time_field_denominator" styleClass="textfield" onAction="#sendTimeSignatureSetting"/>
-                    <Button styleClass="button" onAction="#sendTimeSignatureSetting" text="Apply">
-                        <cursor>
-                            <Cursor fx:constant="HAND" />
-                        </cursor>
-                    </Button>
+                    <ChoiceBox fx:id="time_field_denominator" styleClass="choice-box" onAction="#handleTimeDenominator"/>
                 </HBox>
             </FlowPane>
 

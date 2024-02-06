@@ -16,7 +16,7 @@ public class MidiAdapter {
     boolean metronomeActive = false;
     MidiBatchMessage midiBatchMessage = new MidiBatchMessage();
     @Setter
-    private int beatsPerBar = DEFAULT_TIME_ENUMERATOR;
+    private int beatsPerBar = DEFAULT_TIME_ENUMERATOR * 2;
 
     public void setMute(boolean muted) {
         this.playing = !muted;

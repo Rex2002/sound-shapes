@@ -35,7 +35,7 @@ public class ShapeProcessor {
     private boolean enableControlMarker = true;
     private final int[] cmRegocCount = new int[2];
     @Setter
-    private int beatsPerBar = DEFAULT_TIME_ENUMERATOR;
+    private int beatsPerBar = DEFAULT_TIME_ENUMERATOR * 2;
     public ShapeProcessor(){
         playFieldBoundaries = new Mat[4];
         for(int i = 0; i < 4; i++) {

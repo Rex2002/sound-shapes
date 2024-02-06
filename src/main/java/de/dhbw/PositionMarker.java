@@ -1,7 +1,6 @@
 package de.dhbw;
 
 import lombok.Getter;
-import lombok.Setter;
 
 import static de.dhbw.Statics.DEFAULT_TIME_ENUMERATOR;
 
@@ -11,19 +10,25 @@ public class PositionMarker {
     @Getter
     private int[] posAsRect;
     int height, width, correctedBeat, prevPos0 = 0;
-    @Setter
     private int beatsPerBar = DEFAULT_TIME_ENUMERATOR;
+    private boolean doubled;
 
-    public PositionMarker(){
+    public PositionMarker() {
         height = 0;
         width = 0;
         posAsRect = new int[4];
     }
 
-    public void updatePositionMarker(int[] playFieldInformation, int currentBeat){
+    public void setTimeInfo(int beatsPerBar, boolean doubled) {
+        this.beatsPerBar = beatsPerBar;
+        this.doubled = doubled;
+    }
+
+    public void updatePositionMarker(int[] playFieldInformation, int currentBeat) {
+        int factor = doubled ? 2 : 1;
         // height is always half the playField's height (2 lines)
         height = playFieldInformation[3]/2;
-        width = playFieldInformation[2]/ beatsPerBar;
+        width = playFieldInformation[2]/ beatsPerBar * factor;
         // map to 0...3 (i.e. quarter in case of 4/4)
         correctedBeat = (currentBeat % beatsPerBar)/2;
         double relPos = ((double) correctedBeat / beatsPerBar) * 2;

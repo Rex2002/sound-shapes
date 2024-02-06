@@ -105,11 +105,12 @@ public class Main {
                             shapeProcessor.setEnableControlMarker((boolean) setting.getValue());
                             break;
                         case TIME_SIGNATURE:
-                            Integer[] value = (Integer[]) setting.getValue();
-                            clock.setBeatsPerBar(value[0]);
-                            positionMarker.setBeatsPerBar(value[0]);
-                            shapeProcessor.setBeatsPerBar(value[0]);
-                            midiAdapter.setBeatsPerBar(value[0]);
+                            Integer[] timeSignature = (Integer[]) setting.getValue();
+                            int resolution = getTimeResolution(timeSignature);
+                            positionMarker.setTimeInfo(resolution, resolution != timeSignature[0]); //timeSignature[0]);
+                            clock.setBeatsPerBar(resolution);
+                            shapeProcessor.setBeatsPerBar(resolution);
+                            midiAdapter.setBeatsPerBar(resolution);
                             break;
                         case null, default:
                             break;
@@ -148,6 +149,10 @@ public class Main {
         }
         videoIn.releaseCap();
         midiOutputDevice.stopDevice();
+    }
+
+    private static int getTimeResolution(Integer[] timeSignature) {
+        return timeSignature[1] == 4 ? timeSignature[0] * 2 : timeSignature[0];
     }
 
     private static void printStats(long time) {

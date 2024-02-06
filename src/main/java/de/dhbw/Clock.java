@@ -7,7 +7,7 @@ public class Clock {
     long time_zero, diff;
     int currentBeat, currentBar, tempo;
     double secondsPerBar, nextRelPos, relPos;
-    private int beatsPerBar = DEFAULT_TIME_ENUMERATOR;
+    private int beatsPerBar = DEFAULT_TIME_ENUMERATOR * 2;
     boolean playing = false;
     public Clock(long time_zero){
         this.time_zero = time_zero;
