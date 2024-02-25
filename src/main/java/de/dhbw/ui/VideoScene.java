@@ -154,7 +154,7 @@ public class VideoScene {
     private void handleQueue() {
         List<UIMessage> messages = checkQueueService.getValue();
         for (UIMessage message : messages) {
-            if (message.getFrame() != null) {
+            if (message.getFrame() != null && !message.getFrame().empty()) {
                 updateFrame( message.getFrame() );
             }
             if (message.getSetting() != null) {
