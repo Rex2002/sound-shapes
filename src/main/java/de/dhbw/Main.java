@@ -112,6 +112,8 @@ public class Main {
                             shapeProcessor.setBeatsPerBar(resolution);
                             midiAdapter.setBeatsPerBar(resolution);
                             break;
+                        case QUIT:
+                            running = false;
                         case null, default:
                             break;
                     }
@@ -149,6 +151,7 @@ public class Main {
         }
         videoIn.releaseCap();
         midiOutputDevice.stopDevice();
+
     }
 
     private static int getTimeResolution(Integer[] timeSignature) {

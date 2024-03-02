@@ -12,5 +12,6 @@ public enum SettingType {
     CAMERA,
     STOP_LOOP,
     TOGGLE_CM,
-    TIME_SIGNATURE
+    TIME_SIGNATURE,
+    QUIT
 }

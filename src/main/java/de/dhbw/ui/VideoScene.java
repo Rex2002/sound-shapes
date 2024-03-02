@@ -5,6 +5,7 @@ import de.dhbw.communication.Setting;
 import de.dhbw.communication.SettingType;
 import de.dhbw.communication.UIMessage;
 import de.dhbw.video.shape.Shape;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -29,7 +30,8 @@ import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiSystem;
 import java.io.ByteArrayInputStream;
 import java.text.NumberFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import static de.dhbw.Statics.*;
 
@@ -148,6 +150,11 @@ public class VideoScene {
                 case SPACE -> togglePlayPause();
                 case M -> toggleMute();
                 case K -> toggleMetronome();
+                case Q -> {
+                    Platform.exit();
+                    EventQueues.toController.add(new Setting<>(SettingType.QUIT, 0));
+
+                }
             }
         }
     }
