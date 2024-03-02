@@ -108,6 +108,7 @@ public class ShapeProcessor {
         List<Shape> triangles = shapes.stream().filter(shape -> shape.getForm() == ShapeForm.TRIANGLE && shape.getType() == ShapeType.NONE).toList();
 
         if(rect.size() == 1 && ( rect.getFirst().pos[0] < playFieldInfo[0] || rect.getFirst().pos[0] > playFieldInfo[0] + playFieldInfo[2])){
+            rect.getFirst().setType(ShapeType.CONTROL_MARKER);
             double nextVelocity = (double) rect.getFirst().pos[1]/480;
             if(Math.abs(nextVelocity - lastVelocity) > 0.05){
                 cmRegocCount[0]++;
@@ -123,6 +124,7 @@ public class ShapeProcessor {
             }
         }
         if(triangles.size() == 1 && (triangles.getFirst().pos[0] < playFieldInfo[0] || triangles.getFirst().pos[0] > playFieldInfo[0] + playFieldInfo[2])){
+            triangles.getFirst().setType(ShapeType.CONTROL_MARKER);
             double nextTempo = (double) triangles.getFirst().pos[1]/480;
             if(Math.abs(nextTempo - lastTempo) > 0.05){
                 cmRegocCount[1]++;

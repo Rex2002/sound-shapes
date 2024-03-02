@@ -14,7 +14,7 @@ public class MidiAdapter {
     boolean playing = true;
     @Setter
     boolean metronomeActive = false;
-    MidiBatchMessage midiBatchMessage = new MidiBatchMessage();
+    final MidiBatchMessage midiBatchMessage = new MidiBatchMessage();
     @Setter
     private int beatsPerBar = DEFAULT_TIME_ENUMERATOR * 2;
 

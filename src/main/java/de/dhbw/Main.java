@@ -38,7 +38,7 @@ public class Main {
         MidiAdapter midiAdapter = new MidiAdapter();
         MidiOutputDevice midiOutputDevice = new MidiOutputDevice();
         midiOutputDevice.setMidiDevice(DEFAULT_MIDI_DEVICE);
-        midiOutputDevice.updateSettings(null);
+        midiOutputDevice.initialize();
         midiOutputDevice.start();
 
         Clock clock = new Clock(time_zero);

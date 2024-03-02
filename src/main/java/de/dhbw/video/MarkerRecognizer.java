@@ -13,18 +13,26 @@ import java.util.List;
 public class MarkerRecognizer {
     private static final int EXPECTED_SHAPE_NO = 30;
     @Getter
-    Mat frame, gray = new Mat(), blurred=new Mat(), bin = new Mat(), hierarchy = new Mat();
-    List<MatOfPoint> contours = new ArrayList<>(EXPECTED_SHAPE_NO);
+    Mat frame;
+    @Getter
+    final
+    Mat gray = new Mat();
+    @Getter
+    final
+    Mat blurred=new Mat();
+    @Getter
+    final
+    Mat bin = new Mat();
+    @Getter
+    final Mat hierarchy = new Mat();
+    final List<MatOfPoint> contours = new ArrayList<>(EXPECTED_SHAPE_NO);
     @Getter
     List<Shape> shapes = new ArrayList<>(EXPECTED_SHAPE_NO);
-    int height, width;
     public MarkerRecognizer(){
     }
 
     public void setFrame(Mat frame){
         this.frame = frame;
-        width = frame.width();
-        height = frame.height();
         // TODO check how many contours usually are found and adapt initial capacity
         contours.clear();
         //shapes.clear();
@@ -97,10 +105,9 @@ public class MarkerRecognizer {
 
     private void findContours(){
         Imgproc.cvtColor(frame, gray, Imgproc.COLOR_BGR2GRAY);
-        // TODO find out what these values actually mean and potentially adapt
         Imgproc.GaussianBlur(gray, blurred, new Size(11,11), 4/6f);
         Imgproc.threshold(blurred, bin, 90, 255, Imgproc.THRESH_BINARY_INV);
         // TODO find out what RETR_TREE and CHAIN_APPROX_SIMPLE mean
-        Imgproc.findContours(bin, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
+        Imgproc.findContours(bin, contours, hierarchy, Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
     }
 }

@@ -9,7 +9,7 @@ public class PositionMarker {
     //contains x,y, width, height
     @Getter
     private int[] posAsRect;
-    int height, width, correctedBeat, prevPos0 = 0;
+    int height, width, correctedBeat;
     private int beatsPerBar = DEFAULT_TIME_ENUMERATOR;
     private boolean doubled;
 
@@ -37,7 +37,6 @@ public class PositionMarker {
         posAsRect[1] = currentBeat >= beatsPerBar ? playFieldInformation[1] + height : playFieldInformation[1];
         posAsRect[2] = width;
         posAsRect[3] = height;
-        prevPos0 = posAsRect[0];
     }
 
 
