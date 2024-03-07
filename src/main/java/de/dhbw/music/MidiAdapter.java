@@ -33,9 +33,11 @@ public class MidiAdapter {
                     midiBatchMessage.addMidiMessage(Statics.METRONOME_SOUND, velocity, -1);
                 }
             }
-            for(int note = 0; note < soundMatrix[posInBeat].length; note++) {
-                if (soundMatrix[posInBeat][note]) {
-                    midiBatchMessage.addMidiMessage(int2Note(note), velocity, -1);
+            if(soundMatrix != null) {
+                for (int note = 0; note < soundMatrix[posInBeat].length; note++) {
+                    if (soundMatrix[posInBeat][note]) {
+                        midiBatchMessage.addMidiMessage(int2Note(note), velocity, -1);
+                    }
                 }
             }
             EventQueues.toMidi.offer(midiBatchMessage);
