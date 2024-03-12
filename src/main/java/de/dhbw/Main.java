@@ -107,7 +107,7 @@ public class Main {
                         case TIME_SIGNATURE:
                             Integer[] timeSignature = (Integer[]) setting.getValue();
                             int resolution = getTimeResolution(timeSignature);
-                            positionMarker.setTimeInfo(resolution, resolution != timeSignature[0]); //timeSignature[0]);
+                            positionMarker.setTimeInfo(resolution, resolution != timeSignature[0]);
                             clock.setBeatsPerBar(resolution);
                             shapeProcessor.setBeatsPerBar(resolution);
                             midiAdapter.setBeatsPerBar(resolution);

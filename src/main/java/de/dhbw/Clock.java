@@ -19,13 +19,17 @@ public class Clock {
      */
     public void setTempo(int newTempo){
         tempo = newTempo;
-        // 60 seconds per minute, time enumerator sets beats per bar
-        secondsPerBar = (double) (60 * beatsPerBar)/tempo;
+        updateSecondsPerBar();
     }
 
     public void setBeatsPerBar(int beatsPerBar) {
         this.beatsPerBar = beatsPerBar;
-        secondsPerBar = (double) (60 * beatsPerBar)/tempo;
+        updateSecondsPerBar();
+    }
+
+    private void updateSecondsPerBar() {
+        secondsPerBar = (double) (60 * beatsPerBar) / (2 * tempo);
+        // tempo is always given in quarters, resolution is eighths
     }
 
     public void setPlaying(boolean p){
