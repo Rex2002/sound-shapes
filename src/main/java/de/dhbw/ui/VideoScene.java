@@ -144,17 +144,16 @@ public class VideoScene {
             switch (event.getCode()) {
                 case COMMA -> toggleSettingsPane();
                 case M -> toggleMusicPane();
+                case Q -> {
+                    Platform.exit();
+                    EventQueues.toController.add(new Setting<>(SettingType.QUIT, 0));
+                }
             }
         } else {
             switch (event.getCode()) {
                 case SPACE -> togglePlayPause();
                 case M -> toggleMute();
                 case K -> toggleMetronome();
-                case Q -> {
-                    Platform.exit();
-                    EventQueues.toController.add(new Setting<>(SettingType.QUIT, 0));
-
-                }
             }
         }
     }
