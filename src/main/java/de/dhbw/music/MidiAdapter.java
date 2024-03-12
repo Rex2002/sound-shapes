@@ -5,7 +5,7 @@ import de.dhbw.communication.MidiBatchMessage;
 import de.dhbw.Statics;
 import lombok.Setter;
 
-import static de.dhbw.Statics.DEFAULT_VELOCITY;
+import static de.dhbw.Statics.*;
 
 public class MidiAdapter {
     int lastInterval = -1;
@@ -14,26 +14,30 @@ public class MidiAdapter {
     boolean playing = true;
     @Setter
     boolean metronomeActive = false;
-    MidiBatchMessage midiBatchMessage = new MidiBatchMessage();
+    final MidiBatchMessage midiBatchMessage = new MidiBatchMessage();
+    @Setter
+    private int beatsPerBar = DEFAULT_TIME_ENUMERATOR * 2;
 
-    public void setMute(boolean muted){
+    public void setMute(boolean muted) {
         this.playing = !muted;
     }
-    public void tickMidi(int posInBeat, boolean[][] soundMatrix){
+    public void tickMidi(int posInBeat, boolean[][] soundMatrix) {
         if(posInBeat != lastInterval && playing){
             midiBatchMessage.clearMessages();
             lastInterval = posInBeat;
-            if(metronomeActive && posInBeat % 2 == 0){
-                if(posInBeat == 0 || posInBeat == Statics.NO_BEATS/2){
+            if(metronomeActive && posInBeat % NO_BARS == 0) {
+                if(posInBeat == 0 || posInBeat == beatsPerBar) {
                     midiBatchMessage.addMidiMessage(Statics.METRONOME_UP_SOUND, velocity, -1);
                 }
-                else{
+                else {
                     midiBatchMessage.addMidiMessage(Statics.METRONOME_SOUND, velocity, -1);
                 }
             }
-            for(int note = 0; note < soundMatrix[posInBeat].length; note++){
-                if (soundMatrix[posInBeat][note]){
-                    midiBatchMessage.addMidiMessage(int2Note(note), velocity, -1);
+            if(soundMatrix != null) {
+                for (int note = 0; note < soundMatrix[posInBeat].length; note++) {
+                    if (soundMatrix[posInBeat][note]) {
+                        midiBatchMessage.addMidiMessage(int2Note(note), velocity, -1);
+                    }
                 }
             }
             EventQueues.toMidi.offer(midiBatchMessage);
