@@ -12,20 +12,6 @@ public class MidiOutputDevice extends Thread{
     Receiver recv;
     boolean running = true, suspended = false;
 
-    public void setMidiDevice(int deviceNo){
-        release();
-        MidiDevice.Info[] mdInfo = MidiSystem.getMidiDeviceInfo();
-        try {
-            md = MidiSystem.getMidiDevice(mdInfo[deviceNo]);
-            if(!md.isOpen()){
-                md.open();
-            }
-            recv = md.getReceiver();
-        } catch (MidiUnavailableException e) {
-            // TODO send message to UI about failure
-            throw new RuntimeException(e);
-        }
-    }
 
     public void setMidiDevice(String deviceName){
         release();
@@ -50,10 +36,6 @@ public class MidiOutputDevice extends Thread{
             // TODO send message to UI about failure
             throw new RuntimeException(e);
         }
-    }
-
-    public static MidiDevice.Info[] getMidiDeviceInfo(){
-        return MidiSystem.getMidiDeviceInfo();
     }
 
     public void updateSettings(Settings settings){
@@ -89,8 +71,11 @@ public class MidiOutputDevice extends Thread{
                     int[] message;
                     for(int messageNo = 0; messageNo < ms.getSize(); messageNo++){
                         message = ms.getMidiMessage(messageNo);
-                        smg.setMessage(ShortMessage.NOTE_ON, 9, message[0], message[1]);
+                        smg.setMessage(ShortMessage.NOTE_ON, message[3], message[0], message[1]);
                         recv.send(smg, message[2]);
+                        // TODO check whether 500000 sounds good on piano that actually sustains
+                        smg.setMessage(ShortMessage.NOTE_OFF, message[3], message[0], message[1]);
+                        recv.send(smg, md.getMicrosecondPosition() + 500000);
                     }
                 }
             }

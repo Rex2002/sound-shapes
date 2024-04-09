@@ -27,6 +27,7 @@ public class Statics {
 
     //MIDI
     public final static String DEFAULT_MIDI_DEVICE = "Gervill";
+    public final static Integer DEFAULT_CAMERA_DEVICE = 0;
     // TODO find clicking sound
     public final static int METRONOME_SOUND = 45;
     public final static int METRONOME_UP_SOUND = 47;

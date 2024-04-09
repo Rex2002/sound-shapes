@@ -67,6 +67,8 @@ public class VideoScene {
     private ChoiceBox<String> camera_choicebox;
     @FXML
     private Button cm_button;
+    @FXML
+    private ChoiceBox<String> inst_choicebox;
 
     @FXML
     private FlowPane music_tab;
@@ -103,13 +105,15 @@ public class VideoScene {
         sizeChangeListener = (observable, oldValue, newValue) -> setUIDimensions();
         stack.widthProperty().addListener(sizeChangeListener);
 
-        camera_choicebox.getItems().add("0");
+        camera_choicebox.setValue(String.valueOf(DEFAULT_CAMERA_DEVICE));
+        camera_choicebox.getItems().add(String.valueOf(DEFAULT_CAMERA_DEVICE));
+        inst_choicebox.getItems().addAll("Drums", "Piano");
 
         tempo_field.setTextFormatter( new TextFormatter<>( new IntegerStringConverter() ) );
         tempo_field.setText(String.valueOf(DEFAULT_TEMPO));
         velocity_field.setTextFormatter( new TextFormatter<>( new IntegerStringConverter() ) );
         velocity_field.setText(String.valueOf(DEFAULT_VELOCITY));
-      
+
         velocity_slider.setMin(MIN_VELOCITY);
         velocity_slider.setMax(MAX_VELOCITY);
         velocity_slider.setValue(DEFAULT_VELOCITY);
@@ -141,7 +145,7 @@ public class VideoScene {
     private void handleQueue() {
         List<UIMessage> messages = checkQueueService.getValue();
         for (UIMessage message : messages) {
-            if (message.getFrame() != null) {
+            if ( message.getFrame() != null && !message.getFrame().empty() ) {
                 updateFrame( message.getFrame() );
             }
             if (message.getSetting() != null) {
@@ -414,6 +418,14 @@ public class VideoScene {
     private void sendCameraSetting() {
         if (camera_choicebox.getValue() == null) return;
         Setting<Integer> setting = new Setting<>(SettingType.CAMERA, Integer.parseInt(camera_choicebox.getValue()) );
+        EventQueues.toController.add(setting);
+    }
+
+    @FXML
+    private void sendInstSetting() {
+        if (inst_choicebox.getValue() == null) return;
+        boolean value = inst_choicebox.getValue().equals("Drums");
+        Setting<Boolean> setting = new Setting<>(SettingType.CHANNEL_CHG, value);
         EventQueues.toController.add(setting);
     }
 
