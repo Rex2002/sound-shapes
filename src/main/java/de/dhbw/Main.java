@@ -31,7 +31,7 @@ public class Main {
         long time_zero = System.currentTimeMillis();
         long time = time_zero;
 
-        VideoInput videoIn = new VideoInput(2);
+        VideoInput videoIn = new VideoInput(DEFAULT_CAMERA_DEVICE);
         MarkerRecognizer markerRecognizer = new MarkerRecognizer();
         ShapeProcessor shapeProcessor = new ShapeProcessor();
         PositionMarker positionMarker = new PositionMarker();
@@ -154,6 +154,5 @@ public class Main {
         System.out.println("MB used=" + (Runtime.getRuntime().totalMemory() -
                 Runtime.getRuntime().freeMemory()) / (1000 * 1000) + "M");
         System.out.println("fps: " + 100f / (System.currentTimeMillis() - time) * 1000);
-        //System.gc();
     }
 }

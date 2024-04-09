@@ -90,7 +90,7 @@
                 </ChoiceBox>
                 <Label styleClass="setting_label" text="Video Input Device:" />
                 <HBox>
-                    <ChoiceBox fx:id="camera_choicebox" styleClass="choice-box" prefWidth="50.0" onMouseClicked="#sendCameraSetting" value="0">
+                    <ChoiceBox fx:id="camera_choicebox" styleClass="choice-box" prefWidth="50.0" onMouseClicked="#sendCameraSetting">
                         <cursor>
                             <Cursor fx:constant="HAND" />
                         </cursor>

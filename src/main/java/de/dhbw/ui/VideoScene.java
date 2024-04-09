@@ -105,7 +105,8 @@ public class VideoScene {
         sizeChangeListener = (observable, oldValue, newValue) -> setUIDimensions();
         stack.widthProperty().addListener(sizeChangeListener);
 
-        camera_choicebox.getItems().add("0");
+        camera_choicebox.setValue(String.valueOf(DEFAULT_CAMERA_DEVICE));
+        camera_choicebox.getItems().add(String.valueOf(DEFAULT_CAMERA_DEVICE));
         inst_choicebox.getItems().addAll("Drums", "Piano");
 
         tempo_field.setTextFormatter( new TextFormatter<>( new IntegerStringConverter() ) );
@@ -144,7 +145,7 @@ public class VideoScene {
     private void handleQueue() {
         List<UIMessage> messages = checkQueueService.getValue();
         for (UIMessage message : messages) {
-            if (message.getFrame() != null) {
+            if ( message.getFrame() != null && !message.getFrame().empty() ) {
                 updateFrame( message.getFrame() );
             }
             if (message.getSetting() != null) {
