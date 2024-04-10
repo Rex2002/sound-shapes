@@ -13,5 +13,6 @@ public enum SettingType {
     STOP_LOOP,
     TOGGLE_CM,
     TIME_SIGNATURE,
-    QUIT
+    QUIT,
+    CHANNEL_CHG
 }

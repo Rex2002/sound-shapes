@@ -14,7 +14,9 @@ public class MidiAdapter {
     boolean playing = true;
     @Setter
     boolean metronomeActive = false;
-    final MidiBatchMessage midiBatchMessage = new MidiBatchMessage();
+    MidiBatchMessage midiBatchMessage = new MidiBatchMessage();
+    @Setter
+    int channel = 9;
     private int beatsPerBar = DEFAULT_TIME_ENUMERATOR * 2;
     private boolean timeDoubled = true;
 
@@ -28,16 +30,16 @@ public class MidiAdapter {
             lastInterval = posInBeat;
             if(metronomeActive && posInBeat % factor == 0) {
                 if(posInBeat == 0 || posInBeat == beatsPerBar) {
-                    midiBatchMessage.addMidiMessage(Statics.METRONOME_UP_SOUND, velocity, -1);
+                    midiBatchMessage.addMidiMessage(Statics.METRONOME_UP_SOUND, velocity, -1, 9);
                 }
                 else {
-                    midiBatchMessage.addMidiMessage(Statics.METRONOME_SOUND, velocity, -1);
+                    midiBatchMessage.addMidiMessage(Statics.METRONOME_SOUND, velocity, -1, 9);
                 }
             }
             if(soundMatrix != null) {
                 for (int note = 0; note < soundMatrix[posInBeat].length; note++) {
                     if (soundMatrix[posInBeat][note]) {
-                        midiBatchMessage.addMidiMessage(int2Note(note), velocity, -1);
+                        midiBatchMessage.addMidiMessage(int2Note(note), velocity, -1, channel);
                     }
                 }
             }
@@ -52,6 +54,7 @@ public class MidiAdapter {
 
     // TODO rework sound numbers, since it just repeats thrice at the moment
     public int int2Note(int i){
+        if(channel == 10) return i  + 60;
         return switch (i) {
             case 0 -> 42;
             case 1 -> 36;

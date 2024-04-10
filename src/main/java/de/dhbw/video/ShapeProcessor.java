@@ -139,7 +139,6 @@ public class ShapeProcessor {
                 cmRegocCount[1] = 0;
             }
         }
-
     }
 
     /**
