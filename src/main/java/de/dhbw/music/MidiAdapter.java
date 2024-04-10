@@ -15,17 +15,18 @@ public class MidiAdapter {
     @Setter
     boolean metronomeActive = false;
     final MidiBatchMessage midiBatchMessage = new MidiBatchMessage();
-    @Setter
     private int beatsPerBar = DEFAULT_TIME_ENUMERATOR * 2;
+    private boolean timeDoubled = true;
 
     public void setMute(boolean muted) {
         this.playing = !muted;
     }
     public void tickMidi(int posInBeat, boolean[][] soundMatrix) {
+        int factor = timeDoubled ? 2 : 1;
         if(posInBeat != lastInterval && playing){
             midiBatchMessage.clearMessages();
             lastInterval = posInBeat;
-            if(metronomeActive && posInBeat % NO_BARS == 0) {
+            if(metronomeActive && posInBeat % factor == 0) {
                 if(posInBeat == 0 || posInBeat == beatsPerBar) {
                     midiBatchMessage.addMidiMessage(Statics.METRONOME_UP_SOUND, velocity, -1);
                 }
@@ -42,6 +43,11 @@ public class MidiAdapter {
             }
             EventQueues.toMidi.offer(midiBatchMessage);
         }
+    }
+
+    public void setTimeInfo(int beatsPerBar, boolean doubled) {
+        this.beatsPerBar = beatsPerBar;
+        this.timeDoubled = doubled;
     }
 
     // TODO rework sound numbers, since it just repeats thrice at the moment

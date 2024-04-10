@@ -110,7 +110,7 @@ public class Main {
                             positionMarker.setTimeInfo(resolution, resolution != timeSignature[0]);
                             clock.setBeatsPerBar(resolution);
                             shapeProcessor.setBeatsPerBar(resolution);
-                            midiAdapter.setBeatsPerBar(resolution);
+                            midiAdapter.setTimeInfo(resolution, resolution != timeSignature[0]);
                             break;
                         case QUIT:
                             running = false;
