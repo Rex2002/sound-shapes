@@ -26,12 +26,12 @@ public class PositionMarker {
 
     public void updatePositionMarker(int[] playFieldInformation, int currentBeat) {
         int factor = doubled ? 2 : 1;
-        // height is always half the playField's height (2 lines)
+        // height is always half the playField's height (2 bars)
         height = playFieldInformation[3]/2;
-        width = playFieldInformation[2]/ beatsPerBar * factor;
+        width = playFieldInformation[2]/beatsPerBar * factor;
         // map to 0...3 (i.e. quarter in case of 4/4)
-        correctedBeat = (currentBeat % beatsPerBar)/2;
-        double relPos = ((double) correctedBeat / beatsPerBar) * 2;
+        correctedBeat = (currentBeat % beatsPerBar)/factor;
+        double relPos = ((double) correctedBeat / beatsPerBar) * factor;
 
         posAsRect[0] = playFieldInformation[0] + (int) ( (double) playFieldInformation[2] * relPos);
         posAsRect[1] = currentBeat >= beatsPerBar ? playFieldInformation[1] + height : playFieldInformation[1];
