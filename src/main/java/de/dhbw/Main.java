@@ -39,7 +39,6 @@ public class Main {
         MidiOutputDevice midiOutputDevice = new MidiOutputDevice();
         midiOutputDevice.setMidiDevice(DEFAULT_MIDI_DEVICE);
         midiOutputDevice.initialize();
-        midiOutputDevice.updateSettings(null);
         midiOutputDevice.start();
         midiAdapter.setChannel(9);
 
