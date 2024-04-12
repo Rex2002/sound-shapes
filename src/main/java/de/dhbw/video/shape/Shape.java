@@ -7,8 +7,8 @@ import org.opencv.imgproc.Moments;
 
 @Getter
 public class Shape {
-    MatOfPoint contour;
-    ShapeForm form;
+    final MatOfPoint contour;
+    final ShapeForm form;
     @Setter
     public int[] pos;
     @Setter

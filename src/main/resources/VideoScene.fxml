@@ -164,6 +164,12 @@
                         </cursor>
                     </Slider>
                 </HBox>
+                <Label styleClass="setting_label" text="Time signature:"/>
+                <HBox>
+                    <ChoiceBox fx:id="time_field_enumerator" styleClass="choice-box" onAction="#sendTimeSignatureSetting"/>
+                    <Label styleClass="setting_label" text=" / "/>
+                    <ChoiceBox fx:id="time_field_denominator" styleClass="choice-box" onAction="#handleTimeDenominator"/>
+                </HBox>
             </FlowPane>
 
         </GridPane>

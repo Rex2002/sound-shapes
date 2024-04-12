@@ -1,6 +1,5 @@
 package de.dhbw.music;
 
-import de.dhbw.Settings;
 import de.dhbw.communication.EventQueues;
 import de.dhbw.communication.MidiBatchMessage;
 
@@ -38,7 +37,7 @@ public class MidiOutputDevice extends Thread{
         }
     }
 
-    public void updateSettings(Settings settings){
+    public void initialize(){
         if(md == null || !md.isOpen() || recv == null){
             // TODO send message to UI that initialization needs to take place first
             return;

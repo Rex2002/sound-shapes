@@ -5,6 +5,7 @@ import de.dhbw.communication.Setting;
 import de.dhbw.communication.SettingType;
 import de.dhbw.communication.UIMessage;
 import de.dhbw.video.shape.Shape;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -29,8 +30,8 @@ import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiSystem;
 import java.io.ByteArrayInputStream;
 import java.text.NumberFormat;
-import java.util.*;
-import static de.dhbw.Statics.DEFAULT_MIDI_DEVICE;
+import java.util.ArrayList;
+import java.util.List;
 
 import static de.dhbw.Statics.*;
 
@@ -82,6 +83,10 @@ public class VideoScene {
     private TextField velocity_field;
     @FXML
     private Slider velocity_slider;
+    @FXML
+    private ChoiceBox<Integer> time_field_enumerator;
+    @FXML
+    private ChoiceBox<Integer> time_field_denominator;
 
     private CheckQueueService checkQueueService;
     private final ResourceProvider resourceProvider = new ResourceProvider();
@@ -95,6 +100,8 @@ public class VideoScene {
     private double frameWidth = -1;
     private double scaleRatio;
     ChangeListener<? super Number> sizeChangeListener;
+    private final Integer[] timeSignature = {DEFAULT_TIME_ENUMERATOR, DEFAULT_TIME_DENOMINATOR};
+    private final Integer[][] timeEnumerators = {new Integer[5], new Integer[12]};
 
     @FXML
     private void initialize() {
@@ -113,11 +120,20 @@ public class VideoScene {
         tempo_field.setText(String.valueOf(DEFAULT_TEMPO));
         velocity_field.setTextFormatter( new TextFormatter<>( new IntegerStringConverter() ) );
         velocity_field.setText(String.valueOf(DEFAULT_VELOCITY));
-
+      
         velocity_slider.setMin(MIN_VELOCITY);
         velocity_slider.setMax(MAX_VELOCITY);
         velocity_slider.setValue(DEFAULT_VELOCITY);
         velocity_field.textProperty().bindBidirectional( velocity_slider.valueProperty(), NumberFormat.getIntegerInstance() );
+
+        for (int i = 0; i < 12; i++) {
+            timeEnumerators[1][i] = i + 1;
+            if (i < 5) timeEnumerators[0][i] = i +1;
+        }
+        time_field_enumerator.getItems().addAll( timeEnumerators[0] );
+        time_field_enumerator.setValue(DEFAULT_TIME_ENUMERATOR);
+        time_field_denominator.getItems().addAll(4,8);
+        time_field_denominator.setValue(DEFAULT_TIME_DENOMINATOR);
 
         checkQueueService = new CheckQueueService();
         checkQueueService.setPeriod(Duration.millis(33));
@@ -133,6 +149,10 @@ public class VideoScene {
             switch (event.getCode()) {
                 case COMMA -> toggleSettingsPane();
                 case M -> toggleMusicPane();
+                case Q -> {
+                    Platform.exit();
+                    EventQueues.toController.add(new Setting<>(SettingType.QUIT, 0));
+                }
             }
         } else {
             switch (event.getCode()) {
@@ -145,7 +165,7 @@ public class VideoScene {
     private void handleQueue() {
         List<UIMessage> messages = checkQueueService.getValue();
         for (UIMessage message : messages) {
-            if ( message.getFrame() != null && !message.getFrame().empty() ) {
+            if (message.getFrame() != null && !message.getFrame().empty()) {
                 updateFrame( message.getFrame() );
             }
             if (message.getSetting() != null) {
@@ -229,24 +249,38 @@ public class VideoScene {
         for (int i = 0; i < playFieldInfo.length; i++) {
             playFieldInfo[i] = scaleCoordinate(input[i]);
         }
-        Rectangle playfield = new Rectangle(playFieldInfo[0], playFieldInfo[1], playFieldInfo[2], playFieldInfo[3]);
+        Rectangle playField = new Rectangle(playFieldInfo[0], playFieldInfo[1], playFieldInfo[2], playFieldInfo[3]);
 
         List<Line> lines = new ArrayList<>();
         Line l = new Line(playFieldInfo[0], playFieldInfo[1] + playFieldInfo[3]/2, playFieldInfo[0] + playFieldInfo[2], playFieldInfo[1]+playFieldInfo[3]/2 );
         l.setStroke(Color.YELLOW);
         lines.add(l);
         double x;
-        // TODO maybe remove magic numbers here
-        for(int i = 1; i < 4; i++){
-            x = playFieldInfo[0] + playFieldInfo[2] * i/4;
+        for (int i = 1; i < timeSignature[0]; i++) {
+            x = playFieldInfo[0] + playFieldInfo[2] * i/timeSignature[0];
             l = new Line(x,playFieldInfo[1], x, playFieldInfo[1] + playFieldInfo[3]);
             l.setStroke(Color.YELLOW);
             lines.add(l);
         }
-        playfield.setStroke(Color.YELLOW);
-        playfield.setFill(Color.TRANSPARENT);
+        //add eighths subdivisions
+        if (timeSignature[1] == 4) {
+            for (int i = 1; i < timeSignature[0] * 2; i = i + 2) {
+                x = playFieldInfo[0] + playFieldInfo[2] * i/(timeSignature[0]*2);
+                l = new Line(x,playFieldInfo[1], x, playFieldInfo[1] + playFieldInfo[3] * 0.1);
+                l.setStroke(Color.YELLOW);
+                lines.add(l);
+                l = new Line(x,playFieldInfo[1] + playFieldInfo[3] * 0.4, x, playFieldInfo[1] + playFieldInfo[3] * 0.6);
+                l.setStroke(Color.YELLOW);
+                lines.add(l);
+                l = new Line(x,playFieldInfo[1] + playFieldInfo[3] * 0.9, x, playFieldInfo[1] + playFieldInfo[3]);
+                l.setStroke(Color.YELLOW);
+                lines.add(l);
+            }
+        }
+        playField.setStroke(Color.YELLOW);
+        playField.setFill(Color.TRANSPARENT);
         fieldPane.getChildren().addAll(lines);
-        fieldPane.getChildren().add(playfield);
+        fieldPane.getChildren().add(playField);
     }
 
     private void drawPositionMarker(int[] input){
@@ -406,7 +440,6 @@ public class VideoScene {
         }
     }
 
-
     @FXML
     private void sendMidiSetting() {
         if (midi_choicebox.getValue() == null) return;
@@ -473,6 +506,28 @@ public class VideoScene {
         setVelocityIcon( normalizedValue );
 
         Setting<Double> setting = new Setting<>( SettingType.GUI_VELOCITY, normalizedValue );
+        EventQueues.toController.add(setting);
+    }
+
+    @FXML
+    private void handleTimeDenominator() {
+        int value = time_field_enumerator.getValue();
+        time_field_enumerator.getItems().clear();
+        if (time_field_denominator.getValue() == 4) {
+            time_field_enumerator.getItems().addAll(timeEnumerators[0]);
+            time_field_enumerator.setValue(Math.min(value, 5));
+        } else {
+            time_field_enumerator.getItems().addAll(timeEnumerators[1]);
+            time_field_enumerator.setValue(value);
+        }
+        sendTimeSignatureSetting();
+    }
+    @FXML
+    private void sendTimeSignatureSetting() {
+        if (time_field_enumerator.getValue() == null || time_field_denominator.getValue() == null) return;
+        timeSignature[0] = time_field_enumerator.getValue();
+        timeSignature[1] = time_field_denominator.getValue();
+        Setting<Integer[]> setting = new Setting<>(SettingType.TIME_SIGNATURE, timeSignature);
         EventQueues.toController.add(setting);
     }
 

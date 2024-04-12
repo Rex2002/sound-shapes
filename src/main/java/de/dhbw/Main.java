@@ -38,10 +38,9 @@ public class Main {
         MidiAdapter midiAdapter = new MidiAdapter();
         MidiOutputDevice midiOutputDevice = new MidiOutputDevice();
         midiOutputDevice.setMidiDevice(DEFAULT_MIDI_DEVICE);
-        midiOutputDevice.updateSettings(null);
-        midiAdapter.setChannel(9);
-
+        midiOutputDevice.initialize();
         midiOutputDevice.start();
+        midiAdapter.setChannel(9);
 
         Clock clock = new Clock(time_zero);
         clock.setTempo(DEFAULT_TEMPO);
@@ -51,7 +50,7 @@ public class Main {
         int counter = 0;
         while (running) {
             // message dependent / message sending code:
-            if(!EventQueues.toController.isEmpty()){
+            if(!EventQueues.toController.isEmpty()) {
                 setting = EventQueues.toController.poll();
                 if(setting != null) {
                     switch (setting.getType()) {
@@ -71,7 +70,6 @@ public class Main {
                             }
                             break;
                         case METRONOME:
-                            // TODO find out where the information that should be displayed should be stored
                             midiAdapter.setMetronomeActive((Boolean) setting.getValue());
                             break;
                         case CM_TEMPO:
@@ -111,6 +109,16 @@ public class Main {
                             int v = ((boolean) setting.getValue()) ? 9 : 10;
                             midiAdapter.setChannel(v);
                             break;
+                        case TIME_SIGNATURE:
+                            Integer[] timeSignature = (Integer[]) setting.getValue();
+                            int resolution = getTimeResolution(timeSignature);
+                            positionMarker.setTimeInfo(resolution, resolution != timeSignature[0]);
+                            clock.setBeatsPerBar(resolution);
+                            shapeProcessor.setBeatsPerBar(resolution);
+                            midiAdapter.setTimeInfo(resolution, resolution != timeSignature[0]);
+                            break;
+                        case QUIT:
+                            running = false;
                         case null, default:
                             break;
                     }
@@ -124,7 +132,7 @@ public class Main {
             markerRecognizer.setFrame(frame);
             markerRecognizer.detectShapes();
             shapeProcessor.processShapes(markerRecognizer.getShapes(), frame);
-            positionMarker.updatePositionMarker(shapeProcessor.getPlayfieldInfo(), clock.currentBeat);
+            positionMarker.updatePositionMarker(shapeProcessor.getPlayFieldInfo(), clock.currentBeat);
 
             midiAdapter.tickMidi(clock.currentBeat, shapeProcessor.getSoundMatrix());
 
@@ -132,7 +140,7 @@ public class Main {
 
             UIMessage uiMessage = new UIMessage();
             uiMessage.setFrame(shapeProcessor.getFrame());
-            uiMessage.setPlayFieldInformation(shapeProcessor.getPlayfieldInfo());
+            uiMessage.setPlayFieldInformation(shapeProcessor.getPlayFieldInfo());
             uiMessage.setPositionMarker(positionMarker.getPosAsRect());
             uiMessage.setShapes(markerRecognizer.getShapes());
             if(EventQueues.toUI.size() < 19) {
@@ -148,6 +156,10 @@ public class Main {
         }
         videoIn.releaseCap();
         midiOutputDevice.stopDevice();
+    }
+
+    private static int getTimeResolution(Integer[] timeSignature) {
+        return timeSignature[1] == 4 ? timeSignature[0] * 2 : timeSignature[0];
     }
 
     private static void printStats(long time) {

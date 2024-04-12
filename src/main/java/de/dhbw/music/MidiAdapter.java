@@ -5,7 +5,7 @@ import de.dhbw.communication.MidiBatchMessage;
 import de.dhbw.Statics;
 import lombok.Setter;
 
-import static de.dhbw.Statics.DEFAULT_VELOCITY;
+import static de.dhbw.Statics.*;
 
 public class MidiAdapter {
     int lastInterval = -1;
@@ -17,29 +17,39 @@ public class MidiAdapter {
     MidiBatchMessage midiBatchMessage = new MidiBatchMessage();
     @Setter
     int channel = 9;
+    private int beatsPerBar = DEFAULT_TIME_ENUMERATOR * 2;
+    private boolean timeDoubled = true;
 
-    public void setMute(boolean muted){
+    public void setMute(boolean muted) {
         this.playing = !muted;
     }
-    public void tickMidi(int posInBeat, boolean[][] soundMatrix){
+    public void tickMidi(int posInBeat, boolean[][] soundMatrix) {
+        int factor = timeDoubled ? 2 : 1;
         if(posInBeat != lastInterval && playing){
             midiBatchMessage.clearMessages();
             lastInterval = posInBeat;
-            if(metronomeActive && posInBeat % 2 == 0){
-                if(posInBeat == 0 || posInBeat == Statics.NO_BEATS/2){
+            if(metronomeActive && posInBeat % factor == 0) {
+                if(posInBeat == 0 || posInBeat == beatsPerBar) {
                     midiBatchMessage.addMidiMessage(Statics.METRONOME_UP_SOUND, velocity, -1, 9);
                 }
-                else{
+                else {
                     midiBatchMessage.addMidiMessage(Statics.METRONOME_SOUND, velocity, -1, 9);
                 }
             }
-            for(int note = 0; note < soundMatrix[posInBeat].length; note++){
-                if (soundMatrix[posInBeat][note]){
-                    midiBatchMessage.addMidiMessage(int2Note(note), velocity, -1, channel);
+            if(soundMatrix != null) {
+                for (int note = 0; note < soundMatrix[posInBeat].length; note++) {
+                    if (soundMatrix[posInBeat][note]) {
+                        midiBatchMessage.addMidiMessage(int2Note(note), velocity, -1, channel);
+                    }
                 }
             }
             EventQueues.toMidi.offer(midiBatchMessage);
         }
+    }
+
+    public void setTimeInfo(int beatsPerBar, boolean doubled) {
+        this.beatsPerBar = beatsPerBar;
+        this.timeDoubled = doubled;
     }
 
     // TODO rework sound numbers, since it just repeats thrice at the moment

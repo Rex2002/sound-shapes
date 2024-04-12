@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.HashMap;
 
 public class ResourceProvider {
-    HashMap<String, File> loadedResources;
+    final HashMap<String, File> loadedResources;
     public ResourceProvider(){
         loadedResources = new HashMap<>();
     }
@@ -14,9 +14,5 @@ public class ResourceProvider {
             loadedResources.put(res, new File(res));
         }
         return loadedResources.get(res);
-    }
-
-    public void deleteResource(String res){
-        loadedResources.remove(res);
     }
 }
