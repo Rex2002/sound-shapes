@@ -105,9 +105,8 @@ public class MarkerRecognizer {
 
     private void findContours(){
         Imgproc.cvtColor(frame, gray, Imgproc.COLOR_BGR2GRAY);
-        Imgproc.GaussianBlur(gray, blurred, new Size(11,11), 4/6f);
+        Imgproc.GaussianBlur(gray, blurred, new Size(11,11), 0, 0);
         Imgproc.threshold(blurred, bin, 90, 255, Imgproc.THRESH_BINARY_INV);
-        // TODO find out what RETR_TREE and CHAIN_APPROX_SIMPLE mean
         Imgproc.findContours(bin, contours, hierarchy, Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
     }
 }
