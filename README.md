@@ -22,7 +22,7 @@ The app was developed as our final coding project within the Applied Computer Sc
    2. Start with red SoundMarkers and add blue and green ones for additional sounds.
    3. The best size for the markers depends on the size of your video frame.
       Make sure that the diameter of each marker doesn't exceed one eighth of the width of your Playfield (or one twelfth if you plan to use custom time signatures).
-      Testing was done with 3x3cm markers on <span style="color: red;">a 30x10cm Playfield</span>.
+      Testing was done with 3x3cm markers on a 40x25cm Playfield.
    4. Use of already coloured paper is encouraged as pencil-coloured markers might not be recognised as reliably. For all three colours darker shades  (i.e. shaedes with greater contrast to the background) tend to work more reliably.
 4. Get started:
    1. Connect your camera.
